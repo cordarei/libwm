@@ -5,5 +5,7 @@
 
 int main(int argc, char *argv[])
 {
+	wm::Display display;
+	wm::Window window(display, 0, 400, 300);
 }
 

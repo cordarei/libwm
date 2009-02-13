@@ -3,7 +3,7 @@
 
 namespace wm
 {
-	class PixelFormat // noncopyable
+	class PixelFormat
 	{
 		public:
 			enum /* class */ DataType {
@@ -24,9 +24,23 @@ namespace wm
 				int samples = 4,	// multisample samples
 				int buffers = 1,	// multisample buffers
 				bool srgb = false,
-				DataType type = UNSIGNED_BYTE );
-				
-		private:
+				DataType type = UNSIGNED_BYTE)
+				: red(red)
+				, green(green)
+				, blue(blue)
+				, alpha(alpha)
+				, samples(samples)
+				, buffers(buffers)
+				, srgb(srgb)
+				, type(type)
+			{
+			}	
+
+			int red, green, blue, alpha;
+			int depth, stencil;
+			int samples, buffers;
+			bool srgb;
+			DataType type;
 	};
 }
 
