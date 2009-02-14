@@ -23,6 +23,7 @@ namespace wm
 			boost::scoped_ptr<impl_t> impl;
 			
 			Display &display_;
+			friend void makeCurrent(Window&, Context&);
 	};
 }
 

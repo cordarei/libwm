@@ -6,6 +6,9 @@
 
 namespace wm
 {
+	class Window;
+	class Context;
+
 	class Display : boost::noncopyable
 	{
 		public:
@@ -18,6 +21,8 @@ namespace wm
 			
 			friend class Window;
 			friend class Context;
+			
+			friend void makeCurrent(Window&, Context&);
 	};
 }
 

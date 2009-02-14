@@ -100,5 +100,12 @@ namespace wm
 		XFlush(display().impl->display);
 		// TODO: Handle errors
 	}
+	
+	void Window::swap()
+	{
+		glXSwapBuffers(
+			display().impl->display,
+			impl->window);
+	}
 }
 

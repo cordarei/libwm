@@ -62,5 +62,15 @@ namespace wm
 			display().impl->display,
 			impl->context);
 	}
+	
+	void makeCurrent(Window& window, Context& context)
+	{
+		if(!glXMakeCurrent(
+			window.display().impl->display,
+			window.impl->window,
+			context.impl->context
+			))
+			throw wm::Exception("Can't set Current context");
+	}
 }
 
