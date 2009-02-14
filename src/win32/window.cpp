@@ -5,6 +5,8 @@
 #include <wm/exception.hpp>
 #include <wm/window.hpp>
 
+#include "impl/window_impl.hpp"
+
 namespace
 {
 	LRESULT CALLBACK wndproc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
@@ -15,18 +17,13 @@ namespace
 
 namespace wm
 {
-	struct Window::impl_t
-	{
-		HWND hwnd;
-	};
-
 	Window::Window(
 		Display& display,
 		int,
 		unsigned int width,
 		unsigned int height,
 		const PixelFormat& format)
-		: impl(new impl_t)
+		: impl(new impl_t(format))
 		, display_(display)
 	{
 		HINSTANCE hInstance = GetModuleHandle(NULL);
@@ -88,5 +85,8 @@ namespace wm
 	
 	void Window::swap()
 	{
+		HDC hdc = GetDC(impl->hwnd);
+		SwapBuffers(hdc);
+		ReleaseDC(impl->hwnd, hdc);
 	}
 }
