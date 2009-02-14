@@ -24,11 +24,22 @@ int main(int argc, char *argv[])
 	
 	window.show();
 	window.swap();
-	//sleep(1);
+
+#ifdef WIN32
+	Sleep(1000);
+#else
+	sleep(1);
+#endif
 	
 	test::draw();
 	window.swap();
 	
-	//sleep(1);
+#ifdef WIN32
+	Sleep(1000);
+#else
+	sleep(1);
+#endif
+
+	return 0;
 }
 
