@@ -81,13 +81,17 @@ namespace wm
 			);
 			
 		if(!impl->window)
+		{
+			XFree(impl->visualinfo);
 			throw wm::Exception("Can't create Window");
+		}
 		// TODO: better error handling, perhaps wait for X 
 	}
 	
 	Window::~Window()
 	{
 		XFree(impl->visualinfo);
+		XDestroyWindow(display().impl->display, impl->window);
 	}
 	
 	void Window::show()

@@ -17,6 +17,7 @@ namespace wm
 			boost::scoped_ptr<impl_t> impl;
 			
 			friend class Window;
+			friend class Context;
 	};
 }
 
