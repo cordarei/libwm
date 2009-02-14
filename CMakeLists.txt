@@ -1,9 +1,12 @@
 cmake_minimum_required(VERSION 2.6)
 
+project(wm)
+
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 find_package(Boost REQUIRED)
+include_directories(${Boost_INCLUDE_DIR})
 
 add_subdirectory(src)
-add_subdirectory(test EXCLUDE_FROM_ALL)
+add_subdirectory(test)
 
