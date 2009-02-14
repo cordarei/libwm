@@ -15,6 +15,8 @@ namespace wm
 		private:
 			struct impl_t;
 			boost::scoped_ptr<impl_t> impl;
+			
+			friend class Window;
 	};
 }
 

@@ -4,10 +4,11 @@
 #include <boost/noncopyable.hpp>
 #include <boost/scoped_ptr.hpp>
 
+#include <wm/pixelformat.hpp>
+
 namespace wm
 {
 	class Display;
-	class PixelFormat;
 
 	class Window : boost::noncopyable
 	{
@@ -24,9 +25,13 @@ namespace wm
 			void show();
 			void hide();
 			
+			Display& display() { return display_; }
+			
 		private:
 			struct impl_t;
 			boost::scoped_ptr<impl_t> impl;
+			
+			Display& display_;
 	};
 }
 
