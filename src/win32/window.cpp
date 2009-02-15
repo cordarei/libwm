@@ -5,6 +5,7 @@
 #include <wm/exception.hpp>
 #include <wm/window.hpp>
 
+#include "impl/error.hpp"
 #include "impl/window_impl.hpp"
 
 namespace
@@ -44,7 +45,7 @@ namespace wm
 		klass.lpszClassName = "wmwindow";
 
 		if(!RegisterClassEx(&klass))
-			throw Exception("Can't register Window class");
+			throw Exception("Can't register Window class: " + win32::getErrorMsg());
 
 		int style = WS_OVERLAPPEDWINDOW;
 		int exstyle = WS_EX_OVERLAPPEDWINDOW;
