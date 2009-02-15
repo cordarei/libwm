@@ -1,20 +1,15 @@
+#include <iostream>
 #include <cstdlib>
 
 #include <windows.h>
 
 #include <wm/exception.hpp>
+#include <wm/display.hpp>
 #include <wm/window.hpp>
 
 #include "impl/error.hpp"
+#include "impl/display_impl.hpp"
 #include "impl/window_impl.hpp"
-
-namespace
-{
-	LRESULT CALLBACK wndproc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
-	{
-		return DefWindowProc(hwnd, msg, wparam, lparam);
-	};
-}
 
 namespace wm
 {
@@ -27,51 +22,44 @@ namespace wm
 		: impl(new impl_t(format))
 		, display_(display)
 	{
-		HINSTANCE hInstance = GetModuleHandle(NULL);
-
-		WNDCLASSEX klass;
-		std::memset(&klass, 0, sizeof(WNDCLASSEX));
-
-		klass.cbSize = sizeof(WNDCLASSEX);
-		klass.lpfnWndProc = &wndproc;
-		klass.cbClsExtra = 0;
-		klass.cbWndExtra = 0;
-		klass.hInstance = hInstance;
-		klass.hIcon = 0;
-		klass.hIconSm = 0;
-		klass.hCursor = LoadCursor(0, IDC_ARROW);
-		klass.hbrBackground = 0;
-		klass.lpszMenuName = 0;
-		klass.lpszClassName = "wmwindow";
-
-		if(!RegisterClassEx(&klass))
-			throw Exception("Can't register Window class: " + win32::getErrorMsg());
-
 		int style = WS_OVERLAPPEDWINDOW;
 		int exstyle = WS_EX_OVERLAPPEDWINDOW;
 
 		RECT rect;
-		SetRect(&rect, 0, 0, width, height);
-		AdjustWindowRectEx(&rect, style, false, exstyle);
+		if(!SetRect(&rect, 0, 0, width, height)) // how likely is this? ;)
+			// NOTE: SetRect does not affect win32 GetLastError	
+			throw Exception("Can't initialize window bounds rectangle");
+
+		if(!AdjustWindowRectEx(&rect, style, false, exstyle))
+			throw Exception("Can't adjust window bounds rectangle" + win32::getErrorMsg());
 
 		impl->hwnd = CreateWindowEx(
 			exstyle,
-			"wmwindow",
+			display.impl->classname.c_str(),
 			"Window",
 			style,
 			CW_USEDEFAULT, CW_USEDEFAULT,
 			rect.right - rect.left, rect.bottom - rect.top,
 			0,
 			0,
-			hInstance,
+			display.impl->hInstance,
 			0);
 
 		if(!impl->hwnd)
-			throw Exception("Can't create Window");
+			throw Exception("Can't create Window: " + win32::getErrorMsg());
 	}
 	
 	Window::~Window()
 	{
+		try
+		{
+			if(!DestroyWindow(impl->hwnd))
+			{
+				std::cerr << "Can't destroy window:	" << win32::getErrorMsg() << std::endl;
+			}
+		} catch(...)
+		{
+		}
 	}
 		
 	void Window::show()
@@ -87,7 +75,16 @@ namespace wm
 	void Window::swap()
 	{
 		HDC hdc = GetDC(impl->hwnd);
-		SwapBuffers(hdc);
+		if(!hdc)
+			throw Exception("Can't get handle to win32 device context" + win32::getErrorMsg());
+
+		if(!SwapBuffers(hdc))
+		{
+			DWORD err = GetLastError();
+			ReleaseDC(impl->hwnd, hdc);
+			throw Exception("Can't swap buffers: " + win32::getErrorMsg(err));
+		}
+
 		ReleaseDC(impl->hwnd, hdc);
 	}
 }

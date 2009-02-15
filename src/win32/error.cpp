@@ -8,10 +8,10 @@ namespace wm
 {
 	namespace win32
 	{
-		std::string getErrorMsg()
-		{
-			DWORD err = GetLastError();
+		std::string getErrorMsg() { return getErrorMsg(GetLastError()); }
 
+		std::string getErrorMsg(DWORD err)
+		{
 			LPVOID msgBuf = 0;
 			try
 			{

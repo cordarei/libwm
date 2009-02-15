@@ -3,10 +3,13 @@
 
 #include <string>
 
+#include <windows.h>
+
 namespace wm
 {
 	namespace win32
 	{
+		std::string getErrorMsg(DWORD err);
 		std::string getErrorMsg();
 	}
 }
