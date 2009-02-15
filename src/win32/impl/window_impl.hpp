@@ -10,12 +10,6 @@ namespace wm
 {
 	struct Window::impl_t
 	{
-		explicit impl_t(const PixelFormat &format = PixelFormat())
-			: format(format)
-		{
-		}
-
-		PixelFormat format;
 		HWND hwnd;
 	};
 }
