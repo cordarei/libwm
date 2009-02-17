@@ -29,6 +29,8 @@ namespace wm
 				, green(green)
 				, blue(blue)
 				, alpha(alpha)
+				, depth(depth)
+				, stencil(stencil)
 				, samples(samples)
 				, buffers(buffers)
 				, srgb(srgb)
