@@ -7,6 +7,7 @@
 
 #include <wm/connection.hpp>
 #include <wm/eventhandler.hpp>
+#include <wm/event.hpp>
 
 namespace test { void draw(); }
 
@@ -25,10 +26,16 @@ int main(int argc, char *argv[])
 	{
 		explicit Handler(wm::Window &window) : window(window) {}
 	
-		virtual void expose(unsigned int x, unsigned int y, unsigned int w, unsigned int h)
+		virtual void handle(const wm::ExposeEvent &event)
 		{
 			std::cout 
-				<< "expose: " << x << ", " << y << ", " << w << ", " << h << std::endl;
+				<< "expose"
+				<< ": " << event.x()
+				<< ", " << event.y()
+				<< ", " << event.width()
+				<< ", " << event.height()
+				<< std::endl;
+
 			test::draw();
 			window.swap();
 		}

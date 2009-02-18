@@ -12,6 +12,7 @@
 
 #include "impl/display_impl.hpp"
 #include "impl/window_impl.hpp"
+#include "impl/dispatcher_impl.hpp"
 
 namespace
 {
@@ -139,106 +140,7 @@ namespace wm
 			return info.connected;
 		}
 	}
-}
 
-#include <iostream>
-#include <map>
-
-#include <boost/bind.hpp>
-#include <wm/eventhandler.hpp>
-
-namespace 
-{
-	typedef std::list<wm::EventHandler*> HandlerList;
-	typedef void (DispatchFunc)(const HandlerList&, const XEvent &);
-
-	void dispatchExpose(
-		const HandlerList &handlers,
-		const XEvent &event
-		)
-	{
-		using boost::bind;
-		std::for_each(
-			handlers.begin(),
-			handlers.end(),
-			bind(&wm::EventHandler::expose,
-				_1,
-				event.xexpose.x,
-				event.xexpose.y,
-				event.xexpose.width,
-				event.xexpose.height
-				));
-	}
-
-	void dispatchXEvent(
-		const HandlerList &handlers,
-		const XEvent &event
-		)
-	{
-		static const char *event_names[] = {
-		   "",
-		   "",
-		   "KeyPress",
-		   "KeyRelease",
-		   "ButtonPress",
-		   "ButtonRelease",
-		   "MotionNotify",
-		   "EnterNotify",
-		   "LeaveNotify",
-		   "FocusIn",
-		   "FocusOut",
-		   "KeymapNotify",
-		   "Expose",
-		   "GraphicsExpose",
-		   "NoExpose",
-		   "VisibilityNotify",
-		   "CreateNotify",
-		   "DestroyNotify",
-		   "UnmapNotify",
-		   "MapNotify",
-		   "MapRequest",
-		   "ReparentNotify",
-		   "ConfigureNotify",
-		   "ConfigureRequest",
-		   "GravityNotify",
-		   "ResizeRequest",
-		   "CirculateNotify",
-		   "CirculateRequest",
-		   "PropertyNotify",
-		   "SelectionClear",
-		   "SelectionRequest",
-		   "SelectionNotify",
-		   "ColormapNotify",
-		   "ClientMessage",
-		   "MappingNotify"
-			};
-			
-		static const struct Registry
-		{
-			Registry()
-			{
-				map[Expose] = dispatchExpose;
-			}
-			
-			typedef std::map<int, DispatchFunc*> map_t;
-			map_t map;
-		} registry;
-				
-		Registry::map_t::const_iterator iter =
-			registry.map.find(event.type);
-		if(iter != registry.map.end())
-		{
-			DispatchFunc *func = iter->second;
-			func(handlers, event);
-		} else
-		{
-			std::cout << "Unhandled event " << event_names[event.type] << std::endl;
-		}
-	}
-}
-
-namespace wm
-{
 	void Window::dispatch(bool block)
 	{
 		long event_mask = StructureNotifyMask | ExposureMask;
@@ -253,7 +155,7 @@ namespace wm
 				&event
 				);
 			{
-				dispatchXEvent(impl->handlers, event);
+				xlib::dispatchXEvent(*this, impl->handlers, event);
 			}
 		} else
 		{
@@ -264,7 +166,7 @@ namespace wm
 				&event
 				))
 			{
-				dispatchXEvent(impl->handlers, event);
+				xlib::dispatchXEvent(*this, impl->handlers, event);
 			}
 	
 		}

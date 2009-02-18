@@ -3,16 +3,14 @@
 
 namespace wm
 {
+	class ExposeEvent;
+
 	class EventHandler
 	{
 		public:
 			virtual ~EventHandler() {}
 			
-			virtual void expose(
-				unsigned int x,
-				unsigned int y,
-				unsigned int width,
-				unsigned int height) = 0;
+			virtual void handle(const ExposeEvent &event) = 0;
 			
 		protected:
 			EventHandler() {}

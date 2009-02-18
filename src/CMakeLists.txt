@@ -24,7 +24,7 @@ if(UNIX)
 		set(GLX_LIBRARY )
 	endif(APPLE)
 	
-	add_library(wm xlib/display.cpp xlib/window.cpp xlib/context.cpp xlib/connection.cpp)
+	add_library(wm xlib/display.cpp xlib/window.cpp xlib/context.cpp xlib/connection.cpp xlib/dispatcher.cpp)
 	target_link_libraries(wm ${X11_LIBRARIES})
 	target_link_libraries(wm ${OPENGL_gl_LIBRARY} ${GLX_LIBRARY})
 endif(UNIX)
