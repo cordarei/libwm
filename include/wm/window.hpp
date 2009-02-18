@@ -10,6 +10,7 @@ namespace wm
 {
 	class Display;
 	class Context;
+	class EventHandler;
 
 	class Window : boost::noncopyable
 	{
@@ -30,11 +31,19 @@ namespace wm
 			
 			Display& display() { return display_; }
 			
+			void invoke_expose(unsigned int x, unsigned int y, unsigned int w, unsigned int h);
+			
 		private:
 			struct impl_t;
 			boost::scoped_ptr<impl_t> impl;
-			
 			Display& display_;
+			
+			class ConnectionInfo;
+			void connect(EventHandler &, ConnectionInfo &);
+			void disconnect(ConnectionInfo &);
+			bool isConnected(ConnectionInfo &);
+			
+			friend class Connection;			
 			friend class Context;
 			friend void makeCurrent(Window&, Context&);
 	};

@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <list>
 #include <vector>
 
 #include <X11/Xlib.h>
@@ -106,6 +107,56 @@ namespace wm
 		glXSwapBuffers(
 			display().impl->display,
 			impl->window);
+	}
+	
+	void Window::connect(EventHandler &handler, ConnectionInfo &info)
+	{
+		{
+			// TODO: Synchronization goes here
+			if(info.connected) return;
+			
+			info.iterator = impl->handlers.insert(impl->handlers.begin(), &handler);
+			info.connected = true;
+		}
+	}
+
+	void Window::disconnect(ConnectionInfo &info)
+	{
+		{
+			// TODO: Synchronization goes here
+			if(!info.connected) return;		
+			
+			impl->handlers.erase(info.iterator);
+			info.connected = false;
+		}
+	}
+	
+	bool Window::isConnected(ConnectionInfo &info)
+	{
+		{
+			// TODO: Synchronization goes here
+			return info.connected;
+		}
+	}
+}
+
+#include <boost/bind.hpp>
+
+#include <wm/eventhandler.hpp>
+
+namespace wm
+{
+	void Window::invoke_expose(unsigned int x, unsigned int y, unsigned int w, unsigned int h)
+	{
+		{
+			// TODO: synchronization goes here
+			using boost::bind;
+			std::for_each(
+				impl->handlers.begin(),
+				impl->handlers.end(),
+				bind(&EventHandler::expose, _1, x, y, w, h)
+				);
+		}
 	}
 }
 
