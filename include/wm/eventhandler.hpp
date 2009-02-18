@@ -4,13 +4,25 @@
 namespace wm
 {
 	class ExposeEvent;
+	class ButtonEvent;
+	class KeyEvent;
+	class FocusEvent;
+	class MouseOverEvent;
+	class ResizeEvent;
+	class ShowEvent;
 
 	class EventHandler
 	{
 		public:
 			virtual ~EventHandler() {}
 			
-			virtual void handle(const ExposeEvent &event) = 0;
+			virtual void handle(const ExposeEvent &) = 0;
+			virtual void handle(const ButtonEvent &) = 0;
+			virtual void handle(const KeyEvent &) = 0;
+			virtual void handle(const FocusEvent &) = 0;
+			virtual void handle(const MouseOverEvent &) = 0;
+			virtual void handle(const ResizeEvent &) = 0;
+			virtual void handle(const ShowEvent &) = 0;
 			
 		protected:
 			EventHandler() {}

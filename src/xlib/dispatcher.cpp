@@ -12,8 +12,46 @@
 
 namespace 
 {
+	const char *event_names[] = {
+	   "",
+	   "",
+	   "KeyPress",
+	   "KeyRelease",
+	   "ButtonPress",
+	   "ButtonRelease",
+	   "MotionNotify",
+	   "EnterNotify",
+	   "LeaveNotify",
+	   "FocusIn",
+	   "FocusOut",
+	   "KeymapNotify",
+	   "Expose",
+	   "GraphicsExpose",
+	   "NoExpose",
+	   "VisibilityNotify",
+	   "CreateNotify",
+	   "DestroyNotify",
+	   "UnmapNotify",
+	   "MapNotify",
+	   "MapRequest",
+	   "ReparentNotify",
+	   "ConfigureNotify",
+	   "ConfigureRequest",
+	   "GravityNotify",
+	   "ResizeRequest",
+	   "CirculateNotify",
+	   "CirculateRequest",
+	   "PropertyNotify",
+	   "SelectionClear",
+	   "SelectionRequest",
+	   "SelectionNotify",
+	   "ColormapNotify",
+	   "ClientMessage",
+	   "MappingNotify"
+		};
+
+
 	typedef std::list<wm::EventHandler*> HandlerList;
-	typedef void (DispatchFunc)(wm::Window& window, const HandlerList&, const XEvent &);
 	
 	void dispatch(
 		const HandlerList &handlers,
@@ -48,6 +86,83 @@ namespace
 		dispatch(handlers, expose);
 	}
 
+
+	void dispatchButton(
+		wm::Window& window,
+		const HandlerList &handlers,
+		const XEvent &event
+		)
+	{
+		wm::ButtonEvent button(
+			window,
+			event.xbutton.x,
+			event.xbutton.y,
+			event.xbutton.button,
+			event.type == ButtonPress);
+		dispatch(handlers, button);
+	}
+	
+	void dispatchKey(
+		wm::Window& window,
+		const HandlerList &handlers,
+		const XEvent &event
+		)
+	{
+		wm::KeyEvent key(
+			window,
+			event.type == KeyPress);
+		dispatch(handlers, key);
+	}
+	
+	void dispatchFocus(
+		wm::Window& window,
+		const HandlerList &handlers,
+		const XEvent &event)
+	{
+		wm::FocusEvent focus(
+			window,
+			event.type == FocusIn);
+		dispatch(handlers, focus);
+	}
+	
+	void dispatchMouseOver(
+		wm::Window& window,
+		const HandlerList &handlers,
+		const XEvent &event)
+	{
+		wm::MouseOverEvent mouseOver(
+			window,
+			event.xcrossing.x,
+			event.xcrossing.y,
+			event.type == EnterNotify);
+		dispatch(handlers, mouseOver);
+	}
+	
+	void dispatchResize(
+		wm::Window& window,
+		const HandlerList &handlers,
+		const XEvent &event)
+	{
+		wm::ResizeEvent resize(
+			window,
+			event.xresizerequest.width,
+			event.xresizerequest.height
+			);
+		dispatch(handlers, resize);
+	}
+	
+	void dispatchShow(
+		wm::Window& window,
+		const HandlerList &handlers,
+		const XEvent &event)
+	{
+		wm::ShowEvent show(
+			window,
+			event.type == MapNotify
+			);
+		dispatch(handlers, show);
+	}
+	
 }
 
 namespace wm
@@ -60,49 +175,24 @@ namespace wm
 			const XEvent &event
 			)
 		{
-			static const char *event_names[] = {
-			   "",
-			   "",
-			   "KeyPress",
-			   "KeyRelease",
-			   "ButtonPress",
-			   "ButtonRelease",
-			   "MotionNotify",
-			   "EnterNotify",
-			   "LeaveNotify",
-			   "FocusIn",
-			   "FocusOut",
-			   "KeymapNotify",
-			   "Expose",
-			   "GraphicsExpose",
-			   "NoExpose",
-			   "VisibilityNotify",
-			   "CreateNotify",
-			   "DestroyNotify",
-			   "UnmapNotify",
-			   "MapNotify",
-			   "MapRequest",
-			   "ReparentNotify",
-			   "ConfigureNotify",
-			   "ConfigureRequest",
-			   "GravityNotify",
-			   "ResizeRequest",
-			   "CirculateNotify",
-			   "CirculateRequest",
-			   "PropertyNotify",
-			   "SelectionClear",
-			   "SelectionRequest",
-			   "SelectionNotify",
-			   "ColormapNotify",
-			   "ClientMessage",
-			   "MappingNotify"
-				};
-			
+			typedef void (DispatchFunc)(wm::Window& window, const HandlerList&, const XEvent &);
+
 			static const struct Registry
 			{
 				Registry()
 				{
 					map[Expose] = dispatchExpose;
+					map[ButtonPress] = dispatchButton;
+					map[ButtonRelease] = dispatchButton;
+					map[KeyPress] = dispatchKey;
+					map[KeyRelease] = dispatchKey;
+					map[FocusIn] = dispatchFocus;
+					map[FocusOut] = dispatchFocus;
+					map[EnterNotify] = dispatchMouseOver;
+					map[LeaveNotify] = dispatchMouseOver;
+					map[ResizeRequest] = dispatchResize;
+					map[MapNotify] = dispatchShow;
+					map[UnmapNotify] = dispatchShow;
 				}
 			
 				typedef std::map<int, DispatchFunc*> map_t;

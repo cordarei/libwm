@@ -21,14 +21,15 @@ int main(int argc, char *argv[])
 	wm::Display display;
 	wm::Window window(display, 0, 400, 300);
 	wm::Context context(window, 1, 2);
+	makeCurrent(window, context);
 
 	struct Handler : public wm::EventHandler
 	{
-		explicit Handler(wm::Window &window) : window(window) {}
+		explicit Handler(wm::Window &window) : window(window), quit_flag(false) {}
 	
 		virtual void handle(const wm::ExposeEvent &event)
 		{
-			std::cout 
+			std::cout
 				<< "expose"
 				<< ": " << event.x()
 				<< ", " << event.y()
@@ -40,17 +41,72 @@ int main(int argc, char *argv[])
 			window.swap();
 		}
 		
+		virtual void handle(const wm::ButtonEvent &event)
+		{
+			std::cout 
+				<< "button"
+				<< " " << event.button()
+				<< " " << (event.state()?"down":"up")
+				<< "  x: " << event.x()
+				<< "  y: " << event.y()
+				<< std::endl;
+		}
+		
+		virtual void handle(const wm::KeyEvent &event)
+		{
+			std::cout
+				<< "key"
+				<< " " << (event.state()?"down":"up")
+				<< std::endl;
+			if(event.state()) quit_flag = true;
+		}
+
+		virtual void handle(const wm::MouseOverEvent &event)
+		{
+			std::cout
+				<< "mouse "
+				<< " " << (event.inside()?"enter":"exit")
+				<< "  x: " << event.x()
+				<< "  y: " << event.y()
+				<< std::endl;
+		}
+		
+		virtual void handle(const wm::FocusEvent &event)
+		{
+			std::cout
+				<< (event.state()?"got":"lost")
+				<< " focus"
+				<< std::endl;
+		}
+
+		virtual void handle(const wm::ResizeEvent &event)
+		{
+			std::cout
+				<< "resize"
+				<< "  width: " << event.width()
+				<< "  height: " << event.height()
+				<< std::endl;
+		}
+		
+		virtual void handle(const wm::ShowEvent &event)
+		{
+			std::cout
+				<< (event.state()?"show":"hide")
+				<< " window"
+				<< std::endl;
+		}
+
+
 		wm::Window &window;
+		bool quit_flag;
 	} handler(window);
 
 	wm::Connection connection(window, handler);
 
-	makeCurrent(window, context);
-	
 	window.show();
 	window.swap();
 
-	for(int i = 0; i < 10; ++i) window.dispatch(true);
+	while(!handler.quit_flag) window.dispatch(true);
 	
 	return 0;
 }

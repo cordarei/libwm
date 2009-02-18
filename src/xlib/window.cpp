@@ -52,8 +52,19 @@ namespace wm
 		: impl(new impl_t)
 		, display_(display)
 	{
-		(void)width;
-		(void)height;
+		impl->event_mask = 
+			StructureNotifyMask |
+			ExposureMask |
+//			PointerMotionMask |
+			ButtonPressMask |
+			ButtonReleaseMask |
+			KeyPressMask |
+			KeyReleaseMask |
+			EnterWindowMask |
+			LeaveWindowMask |
+			FocusChangeMask |
+			ResizeRedirectMask
+			;
 		
 		impl->visualinfo = chooseVisual(
 			display.impl->display,
@@ -67,8 +78,7 @@ namespace wm
 			impl->visualinfo->visual,
 			AllocNone);
 			
-		attrib.event_mask = StructureNotifyMask |
-			ExposureMask;
+		attrib.event_mask = impl->event_mask;
 			
 		impl->window = XCreateWindow(
 			display.impl->display,
@@ -143,7 +153,7 @@ namespace wm
 
 	void Window::dispatch(bool block)
 	{
-		long event_mask = StructureNotifyMask | ExposureMask;
+		long event_mask = impl->event_mask;
 		XEvent event;
 		
 		if(block)

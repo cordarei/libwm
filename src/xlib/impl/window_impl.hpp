@@ -27,6 +27,7 @@ namespace wm
 	{
 		::Window window;
 		XVisualInfo *visualinfo;
+		long event_mask;
 		
 		std::list<EventHandler*> handlers;
 	};
