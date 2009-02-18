@@ -5,6 +5,7 @@
 #include <boost/scoped_ptr.hpp>
 
 #include <wm/pixelformat.hpp>
+#include <wm/connection.hpp>
 
 namespace wm
 {
@@ -43,7 +44,8 @@ namespace wm
 			void disconnect(ConnectionInfo &);
 			bool isConnected(ConnectionInfo &);
 			
-			friend class Connection;			
+			friend class Connection;
+			friend struct Connection::impl_t;
 			friend class Context;
 			friend void makeCurrent(Window&, Context&);
 	};
