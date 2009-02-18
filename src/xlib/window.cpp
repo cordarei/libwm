@@ -66,7 +66,8 @@ namespace wm
 			impl->visualinfo->visual,
 			AllocNone);
 			
-		attrib.event_mask = StructureNotifyMask;
+		attrib.event_mask = StructureNotifyMask |
+			ExposureMask;
 			
 		impl->window = XCreateWindow(
 			display.impl->display,
@@ -140,22 +141,132 @@ namespace wm
 	}
 }
 
-#include <boost/bind.hpp>
+#include <iostream>
+#include <map>
 
+#include <boost/bind.hpp>
 #include <wm/eventhandler.hpp>
+
+namespace 
+{
+	typedef std::list<wm::EventHandler*> HandlerList;
+	typedef void (DispatchFunc)(const HandlerList&, const XEvent &);
+
+	void dispatchExpose(
+		const HandlerList &handlers,
+		const XEvent &event
+		)
+	{
+		using boost::bind;
+		std::for_each(
+			handlers.begin(),
+			handlers.end(),
+			bind(&wm::EventHandler::expose,
+				_1,
+				event.xexpose.x,
+				event.xexpose.y,
+				event.xexpose.width,
+				event.xexpose.height
+				));
+	}
+
+	void dispatchXEvent(
+		const HandlerList &handlers,
+		const XEvent &event
+		)
+	{
+		static const char *event_names[] = {
+		   "",
+		   "",
+		   "KeyPress",
+		   "KeyRelease",
+		   "ButtonPress",
+		   "ButtonRelease",
+		   "MotionNotify",
+		   "EnterNotify",
+		   "LeaveNotify",
+		   "FocusIn",
+		   "FocusOut",
+		   "KeymapNotify",
+		   "Expose",
+		   "GraphicsExpose",
+		   "NoExpose",
+		   "VisibilityNotify",
+		   "CreateNotify",
+		   "DestroyNotify",
+		   "UnmapNotify",
+		   "MapNotify",
+		   "MapRequest",
+		   "ReparentNotify",
+		   "ConfigureNotify",
+		   "ConfigureRequest",
+		   "GravityNotify",
+		   "ResizeRequest",
+		   "CirculateNotify",
+		   "CirculateRequest",
+		   "PropertyNotify",
+		   "SelectionClear",
+		   "SelectionRequest",
+		   "SelectionNotify",
+		   "ColormapNotify",
+		   "ClientMessage",
+		   "MappingNotify"
+			};
+			
+		static const struct Registry
+		{
+			Registry()
+			{
+				map[Expose] = dispatchExpose;
+			}
+			
+			typedef std::map<int, DispatchFunc*> map_t;
+			map_t map;
+		} registry;
+				
+		Registry::map_t::const_iterator iter =
+			registry.map.find(event.type);
+		if(iter != registry.map.end())
+		{
+			DispatchFunc *func = iter->second;
+			func(handlers, event);
+		} else
+		{
+			std::cout << "Unhandled event " << event_names[event.type] << std::endl;
+		}
+	}
+}
 
 namespace wm
 {
-	void Window::invoke_expose(unsigned int x, unsigned int y, unsigned int w, unsigned int h)
+	void Window::dispatch(bool block)
 	{
+		long event_mask = StructureNotifyMask | ExposureMask;
+		XEvent event;
+		
+		if(block)
 		{
-			// TODO: synchronization goes here
-			using boost::bind;
-			std::for_each(
-				impl->handlers.begin(),
-				impl->handlers.end(),
-				bind(&EventHandler::expose, _1, x, y, w, h)
+			XWindowEvent(
+				display().impl->display,
+				impl->window,
+				event_mask,
+				&event
 				);
+			{
+				dispatchXEvent(impl->handlers, event);
+			}
+		} else
+		{
+			while(XCheckWindowEvent(
+				display().impl->display,
+				impl->window,
+				event_mask,
+				&event
+				))
+			{
+				dispatchXEvent(impl->handlers, event);
+			}
+	
 		}
 	}
 }

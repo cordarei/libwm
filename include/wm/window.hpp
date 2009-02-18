@@ -32,7 +32,7 @@ namespace wm
 			
 			Display& display() { return display_; }
 			
-			void invoke_expose(unsigned int x, unsigned int y, unsigned int w, unsigned int h);
+			void dispatch(bool block);
 			
 		private:
 			struct impl_t;
