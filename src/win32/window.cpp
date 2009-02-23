@@ -157,3 +157,87 @@ namespace wm
 		ReleaseDC(impl->hwnd, hdc);
 	}
 }
+
+#include <algorithm>
+
+#include <wm/event.hpp>
+
+#include <boost/bind.hpp>
+#include <boost/ref.hpp>
+
+namespace
+{
+	typedef std::list<wm::EventHandler*> HandlerList;
+	
+	void dispatch(
+		const HandlerList &handlers,
+		const wm::Event &event
+		)
+	{
+		using boost::bind;
+		using boost::ref;
+		
+		for(HandlerList::const_iterator i = handlers.begin();
+			i != handlers.end();
+			++i)
+		{
+			wm::EventHandler& handler = **i;
+			event.accept(handler);
+		}
+
+	}
+}
+
+namespace wm
+{
+	void Window::dispatch(bool block)
+	{
+		if(block)
+		{
+			MSG msg;
+			if(GetMessage(&msg, impl->hwnd, 0, 0) == -1) // Yep, the return type is BOOL and it returns -1 on error
+			{
+				throw Exception("Can't get win32 message: " + win32::getErrorMsg());
+			}
+
+			if(msg.message == WM_KEYDOWN)
+			{
+				using boost::bind;
+				using boost::ref;
+
+				wm::KeyEvent event(*this, true);
+				::dispatch(impl->handlers, event);
+			}
+		}
+	}
+
+	void Window::connect(EventHandler &handler, ConnectionInfo &info)
+	{
+		{
+			// TODO: Synchronization goes here
+			if(info.connected) return;
+			
+			info.iterator = impl->handlers.insert(impl->handlers.begin(), &handler);
+			info.connected = true;
+		}
+	}
+
+	void Window::disconnect(ConnectionInfo &info)
+	{
+		{
+			// TODO: Synchronization goes here
+			if(!info.connected) return;		
+			
+			impl->handlers.erase(info.iterator);
+			info.connected = false;
+		}
+	}
+	
+	bool Window::isConnected(ConnectionInfo &info)
+	{
+		{
+			// TODO: Synchronization goes here
+			return info.connected;
+		}
+	}
+}

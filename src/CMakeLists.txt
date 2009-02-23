@@ -1,5 +1,5 @@
 if(WIN32)
-	add_library(wm win32/display.cpp win32/window.cpp win32/context.cpp win32/error.cpp)
+	add_library(wm win32/display.cpp win32/window.cpp win32/context.cpp win32/error.cpp win32/connection.cpp)
 	target_link_libraries(wm ${X11_LIBRARIES})
 	target_link_libraries(wm ${OPENGL_gl_LIBRARY})
 endif(WIN32)
