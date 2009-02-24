@@ -63,11 +63,12 @@ namespace wm
 	{
 		try
 		{
-			wglDeleteContext(impl->hglrc);
-			std::cerr << "Can't delete Context: " << win32::getErrorMsg() << std::endl;
+			if(wglDeleteContext(impl->hglrc)) return;
 		} catch(...)
 		{
 		}
+
+		std::cerr << "Can't delete Context: " << win32::getErrorMsg() << std::endl;
 	}
 
 	void makeCurrent(Window &window, Context &context)
