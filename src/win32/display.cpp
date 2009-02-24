@@ -7,12 +7,14 @@
 
 #include "impl/error.hpp"
 #include "impl/display_impl.hpp"
+#include "impl/dispatch_impl.hpp"
 
 namespace
 {
-	LRESULT CALLBACK wndproc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
+	LRESULT CALLBACK wndproc(HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam)
 	{
-		return DefWindowProc(hwnd, msg, wparam, lparam);
+		if(wm::win32::getDispatcher(message)) return TRUE;
+		return DefWindowProc(hwnd, message, wparam, lparam);
 	};
 }
 
