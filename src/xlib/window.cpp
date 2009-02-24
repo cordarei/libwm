@@ -151,5 +151,10 @@ namespace wm
 	
 		}
 	}
+
+	common::Dispatcher& Window::dispatcher()
+	{
+		return impl->dispatcher;
+	}
 }
 

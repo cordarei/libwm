@@ -9,6 +9,11 @@ namespace wm
 	class Window;
 	class EventHandler;
 	
+	namespace common
+	{
+		struct ConnectionInfo;
+	}
+	
 	class Connection : boost::noncopyable
 	{
 		public:
@@ -21,10 +26,9 @@ namespace wm
 			bool connected();
 
 		private:
-			struct impl_t;
-			boost::scoped_ptr<impl_t> impl;
-			
-			friend class Window;
+			Window &window;
+			EventHandler &handler;
+			common::ConnectionInfo *info;			
 	};
 }
 

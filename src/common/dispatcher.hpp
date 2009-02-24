@@ -1,8 +1,6 @@
 #ifndef COMMON_DISPATCHER_HPP
 #define COMMON_DISPATCHER_HPP
 
-#include <list>
-
 #include <boost/noncopyable.hpp>
 
 namespace wm
@@ -12,28 +10,21 @@ namespace wm
 
 	namespace common
 	{
+		struct ConnectionInfo;
+	
 		class Dispatcher : boost::noncopyable
-		{
+		{		
 			public:
-				class ConnectionInfo : boost::noncopyable
-				{
-						public:
-							ConnectionInfo() : connected(false) {}
-						private:
-							bool connected;
-							std::list<EventHandler*>::iterator iterator;
-				
-							friend class Dispatcher;
-				};			
+				Dispatcher();
+				~Dispatcher();
 			
-				void connect(EventHandler&, ConnectionInfo&);
-				void disconnect(ConnectionInfo&);
-				bool isConnected(ConnectionInfo&);
+				ConnectionInfo* connect(EventHandler&);
+				void disconnect(ConnectionInfo*);
 				
 				void dispatch(const Event&);
 				
 			private:
-				std::list<EventHandler*> handlers;
+				ConnectionInfo *head;
 		};
 	}
 }

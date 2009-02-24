@@ -12,6 +12,11 @@ namespace wm
 	class Display;
 	class Context;
 	class EventHandler;
+	
+	namespace common
+	{
+		class Dispatcher;
+	}
 
 	class Window : boost::noncopyable
 	{
@@ -38,6 +43,8 @@ namespace wm
 			struct impl_t;
 			boost::scoped_ptr<impl_t> impl;
 			Display& display_;
+			
+			common::Dispatcher &dispatcher();
 			
 			friend class Context;
 			friend class Connection;

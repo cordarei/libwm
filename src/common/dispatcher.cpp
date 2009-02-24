@@ -1,6 +1,3 @@
-#include <boost/ref.hpp>
-#include <boost/bind.hpp>
-
 #include <wm/event.hpp>
 #include <wm/eventhandler.hpp>
 
@@ -10,55 +7,86 @@ namespace wm
 {
 	namespace common
 	{
-		void Dispatcher::connect(EventHandler &handler, ConnectionInfo &info)
+		struct ConnectionInfo
+		{
+			explicit ConnectionInfo(
+				EventHandler &handler,
+				ConnectionInfo *next = 0,
+				ConnectionInfo *prev = 0)
+				: handler(handler)
+				, next(next)
+				, prev(prev)
+			{
+			}
+		
+			EventHandler &handler;
+			ConnectionInfo *next, *prev;
+		};
+	
+		Dispatcher::Dispatcher()
+			: head(0)
+		{
+		}
+		
+		Dispatcher::~Dispatcher()
+		{
+			ConnectionInfo *node = 0;
+			
+			{
+				// TODO: Synchronization goes here
+				node = head;
+				head = 0;
+			}
+			
+			ConnectionInfo *next = 0;
+			for(; node; node = next)
+			{
+				next = node->next;
+				delete node;
+			}
+		}
+	
+		ConnectionInfo* Dispatcher::connect(EventHandler &handler)
 		{
 			{
 				// TODO: Synchronization goes here
-				if(info.connected) return;
-			
-				info.iterator = handlers.insert(handlers.begin(), &handler);
-				info.connected = true;
+				if(!head)  // empty list
+				{
+					head = new ConnectionInfo(handler);
+				} else
+				{
+					head = new ConnectionInfo(handler, head);
+					if(head->next) head->next->prev = head;
+				}
+				
+				return head;
 			}
 		}
 
-		void Dispatcher::disconnect(ConnectionInfo &info)
+		void Dispatcher::disconnect(ConnectionInfo *info)
 		{
+			if(info)
 			{
 				// TODO: Synchronization goes here
-				if(!info.connected) return;		
-			
-				handlers.erase(info.iterator);
-				info.connected = false;
+				if(info->prev) info->prev->next = info->next;
+				if(info->next) info->next->prev = info->prev;
+				if(head == info) head = info->next; // first node removed
+				delete info;
 			}
 		}
-	
-		bool Dispatcher::isConnected(ConnectionInfo &info)
-		{
-			{
-				// TODO: Synchronization goes here
-				return info.connected;
-			}
-		}
-		
-	
+
 		void Dispatcher::dispatch(
 			const Event &event
 			)
 		{
-			typedef std::list<wm::EventHandler*>::const_iterator iterator;
-			using boost::bind;
-			using boost::ref;
-		
-			for(iterator i = handlers.begin();
-				i != handlers.end();
-				++i)
+			// TODO: Synchronize this!
+			for(ConnectionInfo *node = head;
+				node;
+				node = node->next)
 			{
-				wm::EventHandler& handler = **i;
-				event.accept(handler);
+				event.accept(node->handler);
 			}
-
 		}
-
 	}
 }
 
