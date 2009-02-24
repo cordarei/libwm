@@ -3,25 +3,27 @@
 #include <wm/connection.hpp>
 #include <wm/window.hpp>
 
+#include <common/dispatcher.hpp>
+
 #include "impl/window_impl.hpp"
 
 namespace wm
 {
 	struct Connection::impl_t : boost::noncopyable
 	{
-		explicit impl_t(Window& window, EventHandler &handler)
-			: window(window)
+		explicit impl_t(common::Dispatcher& dispatcher, EventHandler &handler)
+			: dispatcher(dispatcher)
 			, handler(handler)
 		{
 		}
 	
-		Window &window;
+		common::Dispatcher &dispatcher;
 		EventHandler &handler;
-		Window::ConnectionInfo info;
+		common::Dispatcher::ConnectionInfo info;
 	};
 
 	Connection::Connection(Window& window, EventHandler &handler, bool do_connect)
-		: impl(new impl_t(window, handler))
+		: impl(new impl_t(window.impl->dispatcher, handler))
 	{
 		if(do_connect) connect();
 	}
@@ -42,17 +44,17 @@ namespace wm
 	
 	void Connection::connect()
 	{
-		impl->window.connect(impl->handler, impl->info);
+		impl->dispatcher.connect(impl->handler, impl->info);
 	}
 
 	void Connection::disconnect()
 	{
-		impl->window.disconnect(impl->info);
+		impl->dispatcher.disconnect(impl->info);
 	}
 	
 	bool Connection::connected()
 	{
-		return impl->window.isConnected(impl->info);
+		return impl->dispatcher.isConnected(impl->info);
 	}
 }
 

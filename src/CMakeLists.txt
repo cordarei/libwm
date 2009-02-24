@@ -1,5 +1,10 @@
+include_directories(${CMAKE_CURRENT_SOURCE_DIR})
+
+aux_source_directory(common COMMON_SOURCES)
+
 if(WIN32)
-	add_library(wm win32/display.cpp win32/window.cpp win32/context.cpp win32/error.cpp win32/connection.cpp)
+	aux_source_directory(win32 WIN32_SOURCES)
+	add_library(wm ${COMMON_SOURCES} ${WIN32_SOURCES})
 	target_link_libraries(wm ${X11_LIBRARIES})
 	target_link_libraries(wm ${OPENGL_gl_LIBRARY})
 endif(WIN32)
@@ -24,7 +29,8 @@ if(UNIX)
 		set(GLX_LIBRARY )
 	endif(APPLE)
 	
-	add_library(wm xlib/display.cpp xlib/window.cpp xlib/context.cpp xlib/connection.cpp xlib/dispatcher.cpp)
+	aux_source_directory(xlib XLIB_SOURCES)
+	add_library(wm ${COMMON_SOURCES} ${XLIB_SOURCES})
 	target_link_libraries(wm ${X11_LIBRARIES})
 	target_link_libraries(wm ${OPENGL_gl_LIBRARY} ${GLX_LIBRARY})
 endif(UNIX)

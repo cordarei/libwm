@@ -39,14 +39,8 @@ namespace wm
 			boost::scoped_ptr<impl_t> impl;
 			Display& display_;
 			
-			class ConnectionInfo;
-			void connect(EventHandler &, ConnectionInfo &);
-			void disconnect(ConnectionInfo &);
-			bool isConnected(ConnectionInfo &);
-			
-			friend class Connection;
-			friend struct Connection::impl_t;
 			friend class Context;
+			friend class Connection;
 			friend void makeCurrent(Window&, Context&);
 	};
 }

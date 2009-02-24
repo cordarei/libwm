@@ -10,6 +10,8 @@
 #include <wm/eventhandler.hpp>
 #include <wm/event.hpp>
 
+#include <common/dispatcher.hpp>
+
 namespace 
 {
 	const char *event_names[] = {
@@ -51,29 +53,9 @@ namespace
 		};
 
 
-	typedef std::list<wm::EventHandler*> HandlerList;
-	
-	void dispatch(
-		const HandlerList &handlers,
-		const wm::Event &event
-		)
-	{
-		using boost::bind;
-		using boost::ref;
-		
-		for(HandlerList::const_iterator i = handlers.begin();
-			i != handlers.end();
-			++i)
-		{
-			wm::EventHandler& handler = **i;
-			event.accept(handler);
-		}
-
-	}
-
 	void dispatchExpose(
 		wm::Window& window,
-		const HandlerList &handlers,
+		wm::common::Dispatcher& dispatcher,
 		const XEvent &event
 		)
 	{
@@ -83,13 +65,13 @@ namespace
 			event.xexpose.y,
 			event.xexpose.width,
 			event.xexpose.height);
-		dispatch(handlers, expose);
+		dispatcher.dispatch(expose);
 	}
 
 
 	void dispatchButton(
 		wm::Window& window,
-		const HandlerList &handlers,
+		wm::common::Dispatcher& dispatcher,
 		const XEvent &event
 		)
 	{
@@ -99,35 +81,35 @@ namespace
 			event.xbutton.y,
 			event.xbutton.button,
 			event.type == ButtonPress);
-		dispatch(handlers, button);
+		dispatcher.dispatch(button);
 	}
 	
 	void dispatchKey(
 		wm::Window& window,
-		const HandlerList &handlers,
+		wm::common::Dispatcher& dispatcher,
 		const XEvent &event
 		)
 	{
 		wm::KeyEvent key(
 			window,
 			event.type == KeyPress);
-		dispatch(handlers, key);
+		dispatcher.dispatch(key);
 	}
 	
 	void dispatchFocus(
 		wm::Window& window,
-		const HandlerList &handlers,
+		wm::common::Dispatcher& dispatcher,
 		const XEvent &event)
 	{
 		wm::FocusEvent focus(
 			window,
 			event.type == FocusIn);
-		dispatch(handlers, focus);
+		dispatcher.dispatch(focus);
 	}
 	
 	void dispatchMouseOver(
 		wm::Window& window,
-		const HandlerList &handlers,
+		wm::common::Dispatcher& dispatcher,
 		const XEvent &event)
 	{
 		wm::MouseOverEvent mouseOver(
@@ -135,12 +117,12 @@ namespace
 			event.xcrossing.x,
 			event.xcrossing.y,
 			event.type == EnterNotify);
-		dispatch(handlers, mouseOver);
+		dispatcher.dispatch(mouseOver);
 	}
 	
 	void dispatchResize(
 		wm::Window& window,
-		const HandlerList &handlers,
+		wm::common::Dispatcher& dispatcher,
 		const XEvent &event)
 	{
 		wm::ResizeEvent resize(
@@ -148,19 +130,19 @@ namespace
 			event.xresizerequest.width,
 			event.xresizerequest.height
 			);
-		dispatch(handlers, resize);
+		dispatcher.dispatch(resize);
 	}
 	
 	void dispatchShow(
 		wm::Window& window,
-		const HandlerList &handlers,
+		wm::common::Dispatcher& dispatcher,
 		const XEvent &event)
 	{
 		wm::ShowEvent show(
 			window,
 			event.type == MapNotify
 			);
-		dispatch(handlers, show);
+		dispatcher.dispatch(show);
 	}
 	
 }
@@ -171,11 +153,14 @@ namespace wm
 	{
 		void dispatchXEvent(
 			wm::Window& window,
-			const std::list<EventHandler*> &handlers,
+			wm::common::Dispatcher &dispatcher,
 			const XEvent &event
 			)
 		{
-			typedef void (DispatchFunc)(wm::Window& window, const HandlerList&, const XEvent &);
+			typedef void (DispatchFunc)(
+				wm::Window& window,
+				wm::common::Dispatcher &,
+				const XEvent &);
 
 			static const struct Registry
 			{
@@ -204,7 +189,7 @@ namespace wm
 			if(iter != registry.map.end())
 			{
 				DispatchFunc *func = iter->second;
-				func(window, handlers, event);
+				func(window, dispatcher, event);
 			} else
 			{
 				std::cout << "Unhandled event " << event_names[event.type] << std::endl;

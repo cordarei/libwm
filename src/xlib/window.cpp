@@ -121,36 +121,6 @@ namespace wm
 			impl->window);
 	}
 	
-	void Window::connect(EventHandler &handler, ConnectionInfo &info)
-	{
-		{
-			// TODO: Synchronization goes here
-			if(info.connected) return;
-			
-			info.iterator = impl->handlers.insert(impl->handlers.begin(), &handler);
-			info.connected = true;
-		}
-	}
-
-	void Window::disconnect(ConnectionInfo &info)
-	{
-		{
-			// TODO: Synchronization goes here
-			if(!info.connected) return;		
-			
-			impl->handlers.erase(info.iterator);
-			info.connected = false;
-		}
-	}
-	
-	bool Window::isConnected(ConnectionInfo &info)
-	{
-		{
-			// TODO: Synchronization goes here
-			return info.connected;
-		}
-	}
-
 	void Window::dispatch(bool block)
 	{
 		long event_mask = impl->event_mask;
@@ -165,7 +135,7 @@ namespace wm
 				&event
 				);
 			{
-				xlib::dispatchXEvent(*this, impl->handlers, event);
+				xlib::dispatchXEvent(*this, impl->dispatcher, event);
 			}
 		} else
 		{
@@ -176,7 +146,7 @@ namespace wm
 				&event
 				))
 			{
-				xlib::dispatchXEvent(*this, impl->handlers, event);
+				xlib::dispatchXEvent(*this, impl->dispatcher, event);
 			}
 	
 		}
