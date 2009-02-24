@@ -176,8 +176,21 @@ namespace wm
 				throw Exception("Can't dispatch message to window procedures: " + win32::getErrorMsg());
 			}
 
+			if(msg.message == WM_PAINT)
+			{
+				// hack du jour:
+				// Since we're not using GDI, stop win32 from sending more WM_PAINT messages
+				// (usually implicitly done by GDI)
+				RECT rect, *ptr = 0;
+				if(GetUpdateRect(impl->hwnd, &rect, FALSE)) ptr = &rect;
+				if(!ValidateRect(impl->hwnd, ptr)) // if ptr == NULL, validates entire window
+					throw Exception("Can't validate win32 window rectangle" + win32::getErrorMsg());
+			}
+
 			win32::dispatchEvent(*this, dispatcher(), msg);			
 		}
+		
+		// TODO: implement a non-blocking version
 	}
 
 	common::Dispatcher& Window::dispatcher()

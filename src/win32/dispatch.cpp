@@ -18,6 +18,13 @@ namespace
 		wm::KeyEvent key(window, msg.message == WM_KEYDOWN);
 		dispatcher.dispatch(key);
 	}
+
+	void dispatchPaint(wm::Window& window, wm::common::Dispatcher& dispatcher, const MSG& msg)
+	{
+		// TODO: query window width or remove coordinates from ExposeEvent altogether
+		wm::ExposeEvent expose(window, 0, 0, 0, 0);
+		dispatcher.dispatch(expose);
+	}
 }
 
 namespace wm
@@ -31,6 +38,7 @@ namespace wm
 				temp_t()
 				{
 					map[WM_KEYDOWN] = &dispatchKey;
+					map[WM_PAINT] = &dispatchPaint;
 				}
 
 				typedef std::map<UINT, DispatcherFunc*> map_t;
