@@ -15,12 +15,19 @@ namespace wm
 	namespace win32
 	{
 		typedef void (DispatcherFunc)(
-			Window&,
-			common::Dispatcher&,
-			const MSG&);
+			wm::Window& window,
+			wm::common::Dispatcher& dispatcher,
+			UINT message,
+			WPARAM wparam,
+			LPARAM lparam);
 
 		DispatcherFunc *getDispatcher(UINT message);
-		void dispatchEvent(Window&, common::Dispatcher&, const MSG&);
+		bool dispatchEvent(
+			Window&,
+			common::Dispatcher&,
+			UINT message,
+			WPARAM wparam,
+			LPARAM lparam);
 	}
 }
 

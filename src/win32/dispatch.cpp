@@ -13,13 +13,23 @@ namespace wm
 
 namespace
 {
-	void dispatchKey(wm::Window& window, wm::common::Dispatcher& dispatcher, const MSG& msg)
+	void dispatchKey(
+		wm::Window& window,
+		wm::common::Dispatcher& dispatcher,
+		UINT message,
+		WPARAM wparam,
+		LPARAM lparam)
 	{
-		wm::KeyEvent key(window, msg.message == WM_KEYDOWN);
+		wm::KeyEvent key(window, message == WM_KEYDOWN);
 		dispatcher.dispatch(key);
 	}
 
-	void dispatchPaint(wm::Window& window, wm::common::Dispatcher& dispatcher, const MSG& msg)
+	void dispatchPaint(
+		wm::Window& window,
+		wm::common::Dispatcher& dispatcher,
+		UINT message,
+		WPARAM wparam,
+		LPARAM lparam)
 	{
 		// TODO: query window width or remove coordinates from ExposeEvent altogether
 		wm::ExposeEvent expose(window, 0, 0, 0, 0);
@@ -51,10 +61,16 @@ namespace wm
 			else return i->second;
 		}
 
-		void dispatchEvent(Window& window, common::Dispatcher& dispatcher, const MSG& msg)
+		bool dispatchEvent(
+			Window& window,
+			common::Dispatcher& dispatcher,
+			UINT message,
+			WPARAM wparam,
+			LPARAM lparam)
 		{
-			DispatcherFunc *func = getDispatcher(msg.message);
-			if(func) func(window, dispatcher, msg);
+			DispatcherFunc *func = getDispatcher(message);
+			if(func) func(window, dispatcher, message, wparam, lparam);
+			return func ? true : false;
 		}
 	}
 }

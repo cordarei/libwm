@@ -4,6 +4,7 @@
 
 #include <wm/exception.hpp>
 #include <wm/display.hpp>
+#include <wm/window.hpp>
 
 #include "impl/error.hpp"
 #include "impl/display_impl.hpp"
@@ -13,13 +14,41 @@ namespace
 {
 	LRESULT CALLBACK wndproc(HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam)
 	{
-		if(wm::win32::getDispatcher(message)) return TRUE;
+		SetLastError(0);
+		wm::Window *ptr =
+			reinterpret_cast<wm::Window*>(
+				GetWindowLongPtr(hwnd, 0));
+		if(!ptr)
+		{
+			DWORD err = GetLastError();
+			if(err)
+				throw wm::Exception("Can't get win32 window user data" +
+					wm::win32::getErrorMsg(err));
+		} else
+		{
+			wm::Window& window = *ptr;
+
+			if(message == WM_PAINT)
+			{
+				// ValidateRect prevents Windows from resending WM_PAINT
+				RECT rect, *ptr = 0;
+				if(GetUpdateRect(hwnd, &rect, FALSE)) ptr = &rect;
+				if(!ValidateRect(hwnd, ptr)) // if ptr == NULL, validates entire window
+					throw wm::Exception("Can't validate win32 window rectangle" + wm::win32::getErrorMsg());
+			}
+
+			if(wm::win32::dispatchEvent(window, window.dispatcher(), message, wparam, lparam))
+				return TRUE;
+		}
+
 		return DefWindowProc(hwnd, message, wparam, lparam);
 	};
 }
 
 namespace wm
 {
+	class Window;
+
 	Display::Display(const char *name)
 		: impl(new impl_t("wmwinwdow"))
 	{
@@ -37,7 +66,7 @@ namespace wm
 		klass.style = 0;
 		klass.lpfnWndProc = &wndproc;
 		klass.cbClsExtra = 0;
-		klass.cbWndExtra = 0;
+		klass.cbWndExtra = sizeof(Window*);
 		klass.hInstance = impl->hInstance;
 		klass.hIcon = 0;
 		klass.hCursor = hcursor;

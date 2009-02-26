@@ -38,16 +38,15 @@ namespace wm
 			Display& display() { return display_; }
 			
 			void dispatch(bool block);
+
+			common::Dispatcher &dispatcher();
 			
 		private:
 			struct impl_t;
 			boost::scoped_ptr<impl_t> impl;
 			Display& display_;
 			
-			common::Dispatcher &dispatcher();
-			
 			friend class Context;
-			friend class Connection;
 			friend void makeCurrent(Window&, Context&);
 	};
 }
