@@ -131,6 +131,21 @@ namespace wm
 {
 	namespace xlib
 	{
+		long event_mask = 
+			StructureNotifyMask |
+			ExposureMask |
+//			PointerMotionMask |
+			ButtonPressMask |
+			ButtonReleaseMask |
+			KeyPressMask |
+			KeyReleaseMask |
+			EnterWindowMask |
+			LeaveWindowMask |
+			FocusChangeMask |
+			ResizeRedirectMask
+			;
+
+	
 		const Event* fromXEvent(
 			wm::Window& window,
 			const XEvent &event

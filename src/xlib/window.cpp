@@ -52,21 +52,7 @@ namespace wm
 		const PixelFormat& format)
 		: impl(new impl_t)
 		, display_(display)
-	{
-		impl->event_mask = 
-			StructureNotifyMask |
-			ExposureMask |
-//			PointerMotionMask |
-			ButtonPressMask |
-			ButtonReleaseMask |
-			KeyPressMask |
-			KeyReleaseMask |
-			EnterWindowMask |
-			LeaveWindowMask |
-			FocusChangeMask |
-			ResizeRedirectMask
-			;
-		
+	{	
 		impl->visualinfo = chooseVisual(
 			display.impl->display,
 			screen,
@@ -79,7 +65,7 @@ namespace wm
 			impl->visualinfo->visual,
 			AllocNone);
 			
-		attrib.event_mask = impl->event_mask;
+		attrib.event_mask = xlib::event_mask;
 			
 		impl->window = XCreateWindow(
 			display.impl->display,
@@ -100,10 +86,14 @@ namespace wm
 			throw wm::Exception("Can't create Window");
 		}
 		// TODO: better error handling, perhaps wait for X 
+		
+		display.impl->registry.add(impl->window, this);
 	}
 	
 	Window::~Window()
 	{
+		display().impl->registry.remove(impl->window);
+	
 		XFree(impl->visualinfo);
 		XDestroyWindow(display().impl->display, impl->window);
 	}
@@ -124,39 +114,26 @@ namespace wm
 	
 	void Window::dispatch(bool block)
 	{
-		long event_mask = impl->event_mask;
-		XEvent event;
-		
 		if(block)
 		{
-			XWindowEvent(
-				display().impl->display,
-				impl->window,
-				event_mask,
-				&event
-				);
+			boost::scoped_ptr<const Event> event;
+
+			while(!impl->eventq.poll(event))
 			{
-				boost::scoped_ptr<const Event> ptr(
-					xlib::fromXEvent(*this, event));
-				if(ptr) impl->dispatcher.dispatch(*ptr);
+				display().dispatch(true);
 			}
+			
+			impl->dispatcher.dispatch(*event);
 		} else
 		{
-			while(XCheckWindowEvent(
-				display().impl->display,
-				impl->window,
-				event_mask,
-				&event
-				))
+			boost::scoped_ptr<const Event> event;
+			while(impl->eventq.poll(event))
 			{
-				boost::scoped_ptr<const Event> ptr(
-					xlib::fromXEvent(*this, event));
-				if(ptr) impl->dispatcher.dispatch(*ptr);
+				impl->dispatcher.dispatch(*event);
 			}
-	
-		}
+		}		
 	}
-
+	
 	common::Dispatcher& Window::dispatcher()
 	{
 		return impl->dispatcher;

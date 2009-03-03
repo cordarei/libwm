@@ -7,6 +7,7 @@
 #include <wm/window.hpp>
 
 #include <common/dispatcher.hpp>
+#include <common/eventqueue.hpp>
 
 namespace wm
 {
@@ -14,9 +15,9 @@ namespace wm
 	{
 		::Window window;
 		XVisualInfo *visualinfo;
-		long event_mask;
 		
 		common::Dispatcher dispatcher;
+		common::EventQueue eventq;
 	};
 }
 
