@@ -9,10 +9,11 @@
 #include <wm/pixelformat.hpp>
 #include <wm/display.hpp>
 #include <wm/window.hpp>
+#include <wm/event.hpp>
 
 #include "impl/display_impl.hpp"
 #include "impl/window_impl.hpp"
-#include "impl/dispatcher_impl.hpp"
+#include "impl/eventfactory.hpp"
 
 namespace
 {
@@ -135,7 +136,9 @@ namespace wm
 				&event
 				);
 			{
-				xlib::dispatchXEvent(*this, impl->dispatcher, event);
+				boost::scoped_ptr<const Event> ptr(
+					xlib::fromXEvent(*this, event));
+				if(ptr) impl->dispatcher.dispatch(*ptr);
 			}
 		} else
 		{
@@ -146,7 +149,9 @@ namespace wm
 				&event
 				))
 			{
-				xlib::dispatchXEvent(*this, impl->dispatcher, event);
+				boost::scoped_ptr<const Event> ptr(
+					xlib::fromXEvent(*this, event));
+				if(ptr) impl->dispatcher.dispatch(*ptr);
 			}
 	
 		}

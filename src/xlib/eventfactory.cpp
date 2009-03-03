@@ -1,16 +1,9 @@
 #include <iostream>
-#include <list>
 #include <map>
-
-#include <boost/ref.hpp>
-#include <boost/bind.hpp>
 
 #include <X11/Xlib.h>
 
-#include <wm/eventhandler.hpp>
 #include <wm/event.hpp>
-
-#include <common/dispatcher.hpp>
 
 namespace 
 {
@@ -52,147 +45,133 @@ namespace
 	   "MappingNotify"
 		};
 
-
-	void dispatchExpose(
+	const wm::Event* makeExpose(
 		wm::Window& window,
-		wm::common::Dispatcher& dispatcher,
 		const XEvent &event
 		)
 	{
-		wm::ExposeEvent expose(
+		return new wm::ExposeEvent(
 			window,
 			event.xexpose.x,
 			event.xexpose.y,
 			event.xexpose.width,
 			event.xexpose.height);
-		dispatcher.dispatch(expose);
 	}
 
 
-	void dispatchButton(
+	const wm::Event* makeButton(
 		wm::Window& window,
-		wm::common::Dispatcher& dispatcher,
 		const XEvent &event
 		)
 	{
-		wm::ButtonEvent button(
+		return new wm::ButtonEvent(
 			window,
 			event.xbutton.x,
 			event.xbutton.y,
 			event.xbutton.button,
 			event.type == ButtonPress);
-		dispatcher.dispatch(button);
 	}
 	
-	void dispatchKey(
+	const wm::Event* makeKey(
 		wm::Window& window,
-		wm::common::Dispatcher& dispatcher,
 		const XEvent &event
 		)
 	{
-		wm::KeyEvent key(
+		return new wm::KeyEvent(
 			window,
 			event.type == KeyPress);
-		dispatcher.dispatch(key);
 	}
 	
-	void dispatchFocus(
+	const wm::Event* makeFocus(
 		wm::Window& window,
-		wm::common::Dispatcher& dispatcher,
 		const XEvent &event)
 	{
-		wm::FocusEvent focus(
+		return new wm::FocusEvent(
 			window,
 			event.type == FocusIn);
-		dispatcher.dispatch(focus);
 	}
 	
-	void dispatchMouseOver(
+	const wm::Event* makeMouseOver(
 		wm::Window& window,
-		wm::common::Dispatcher& dispatcher,
 		const XEvent &event)
 	{
-		wm::MouseOverEvent mouseOver(
+		return new wm::MouseOverEvent(
 			window,
 			event.xcrossing.x,
 			event.xcrossing.y,
 			event.type == EnterNotify);
-		dispatcher.dispatch(mouseOver);
 	}
 	
-	void dispatchResize(
+	const wm::Event* makeResize(
 		wm::Window& window,
-		wm::common::Dispatcher& dispatcher,
 		const XEvent &event)
 	{
-		wm::ResizeEvent resize(
+		return new wm::ResizeEvent(
 			window,
 			event.xresizerequest.width,
 			event.xresizerequest.height
 			);
-		dispatcher.dispatch(resize);
 	}
 	
-	void dispatchShow(
+	const wm::Event* makeShow(
 		wm::Window& window,
-		wm::common::Dispatcher& dispatcher,
 		const XEvent &event)
 	{
-		wm::ShowEvent show(
+		return new wm::ShowEvent(
 			window,
 			event.type == MapNotify
 			);
-		dispatcher.dispatch(show);
 	}
 	
 }
+
+#include "impl/eventfactory.hpp"
 
 namespace wm
 {
 	namespace xlib
 	{
-		void dispatchXEvent(
+		const Event* fromXEvent(
 			wm::Window& window,
-			wm::common::Dispatcher &dispatcher,
 			const XEvent &event
 			)
 		{
-			typedef void (DispatchFunc)(
+			typedef const Event* (DispatchFunc)(
 				wm::Window& window,
-				wm::common::Dispatcher &,
 				const XEvent &);
 
 			static const struct Registry
 			{
 				Registry()
 				{
-					map[Expose] = dispatchExpose;
-					map[ButtonPress] = dispatchButton;
-					map[ButtonRelease] = dispatchButton;
-					map[KeyPress] = dispatchKey;
-					map[KeyRelease] = dispatchKey;
-					map[FocusIn] = dispatchFocus;
-					map[FocusOut] = dispatchFocus;
-					map[EnterNotify] = dispatchMouseOver;
-					map[LeaveNotify] = dispatchMouseOver;
-					map[ResizeRequest] = dispatchResize;
-					map[MapNotify] = dispatchShow;
-					map[UnmapNotify] = dispatchShow;
+					map[Expose] = makeExpose;
+					map[ButtonPress] = makeButton;
+					map[ButtonRelease] = makeButton;
+					map[KeyPress] = makeKey;
+					map[KeyRelease] = makeKey;
+					map[FocusIn] = makeFocus;
+					map[FocusOut] = makeFocus;
+					map[EnterNotify] = makeMouseOver;
+					map[LeaveNotify] = makeMouseOver;
+					map[ResizeRequest] = makeResize;
+					map[MapNotify] = makeShow;
+					map[UnmapNotify] = makeShow;
 				}
 			
 				typedef std::map<int, DispatchFunc*> map_t;
 				map_t map;
 			} registry;
-				
+
 			Registry::map_t::const_iterator iter =
 				registry.map.find(event.type);
 			if(iter != registry.map.end())
 			{
 				DispatchFunc *func = iter->second;
-				func(window, dispatcher, event);
+				return func(window, event);
 			} else
 			{
 				std::cout << "Unhandled event " << event_names[event.type] << std::endl;
+				return 0;
 			}
 		}
 	}

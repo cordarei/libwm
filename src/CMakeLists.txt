@@ -35,4 +35,5 @@ if(UNIX)
 	target_link_libraries(wm ${OPENGL_gl_LIBRARY} ${GLX_LIBRARY})
 endif(UNIX)
 
+add_subdirectory(test)
 
