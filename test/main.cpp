@@ -15,7 +15,7 @@ namespace test { void draw(); }
 #include <windows.h>
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR /* cmdLine */, int)
 #else
-int main(int argc, char *argv[])
+int main(int, char *[])
 #endif
 {
 	wm::Display display;

@@ -25,6 +25,7 @@ namespace
 			throw wm::Exception("Can't create Context");
 			
 		// TODO: better error handling
+		return context;
 	}
 }
 

@@ -32,6 +32,7 @@ namespace wm
 				{
 					map_t::const_iterator i = map.find(handle);
 					if(i != map.end()) return i->second;
+					return 0;
 				}				
 
 			private:
