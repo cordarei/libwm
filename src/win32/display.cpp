@@ -106,6 +106,8 @@ namespace wm
 			if(GetMessage(&msg, 0, 0, 0) == -1) // Yep, the return type is BOOL and it returns -1 on error
 				throw Exception("Can't get win32 message: " + win32::getErrorMsg());
 
+			TranslateMessage(&msg);
+
 			if(DispatchMessage(&msg) < 0)
 			{
 				throw Exception("Can't dispatch message to window procedures: " + win32::getErrorMsg());
