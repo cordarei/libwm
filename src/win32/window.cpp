@@ -167,7 +167,6 @@ namespace wm
 }
 
 #include <wm/event.hpp>
-#include "impl/dispatch_impl.hpp"
 
 namespace wm
 {
@@ -175,22 +174,31 @@ namespace wm
 	{
 		if(block)
 		{
-			MSG msg;
+			boost::scoped_ptr<const Event> event;
 
-			if(GetMessage(&msg, impl->hwnd, 0, 0) == -1) // Yep, the return type is BOOL and it returns -1 on error
-				throw Exception("Can't get win32 message: " + win32::getErrorMsg());
-
-			if(DispatchMessage(&msg) < 0)
+			while(!impl->eventq.poll(event))
 			{
-				throw Exception("Can't dispatch message to window procedures: " + win32::getErrorMsg());
+				display().dispatch(true);
 			}
-		}
-		
-		// TODO: implement a non-blocking version
+			
+			impl->dispatcher.dispatch(*event);
+		} else
+		{
+			boost::scoped_ptr<const Event> event;
+			while(impl->eventq.poll(event))
+			{
+				impl->dispatcher.dispatch(*event);
+			}
+		}		
 	}
 
 	common::Dispatcher& Window::dispatcher()
 	{
 		return impl->dispatcher;
+	}
+
+	common::EventQueue &Window::eventq()
+	{
+		return impl->eventq;
 	}
 }

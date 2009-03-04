@@ -6,9 +6,10 @@
 #include <wm/display.hpp>
 #include <wm/window.hpp>
 
+#include <common/eventqueue.hpp>
 #include "impl/error.hpp"
 #include "impl/display_impl.hpp"
-#include "impl/dispatch_impl.hpp"
+#include "impl/eventfactory.hpp"
 
 namespace
 {
@@ -37,8 +38,12 @@ namespace
 					throw wm::Exception("Can't validate win32 window rectangle" + wm::win32::getErrorMsg());
 			}
 
-			if(wm::win32::dispatchEvent(window, window.dispatcher(), message, wparam, lparam))
+			const wm::Event *event = wm::win32::fromWin32Event(window, message, wparam, lparam);
+			if(event)
+			{
+				window.eventq().push(event);
 				return TRUE;
+			}
 		}
 
 		return DefWindowProc(hwnd, message, wparam, lparam);
@@ -90,5 +95,23 @@ namespace wm
 		} catch(...)
 		{
 		}
+	}
+
+	void Display::dispatch(bool block)
+	{
+		if(block)
+		{
+			MSG msg;
+
+			if(GetMessage(&msg, 0, 0, 0) == -1) // Yep, the return type is BOOL and it returns -1 on error
+				throw Exception("Can't get win32 message: " + win32::getErrorMsg());
+
+			if(DispatchMessage(&msg) < 0)
+			{
+				throw Exception("Can't dispatch message to window procedures: " + win32::getErrorMsg());
+			}
+		}
+		
+		// TODO: implement a non-blocking version
 	}
 }

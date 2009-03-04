@@ -6,6 +6,7 @@
 #include <wm/window.hpp>
 
 #include <common/dispatcher.hpp>
+#include <common/eventqueue.hpp>
 
 namespace wm
 {
@@ -14,6 +15,7 @@ namespace wm
 		HWND hwnd;
 
 		common::Dispatcher dispatcher;
+		common::EventQueue eventq;
 	};
 }
 

@@ -16,6 +16,7 @@ namespace wm
 	namespace common
 	{
 		class Dispatcher;
+		class EventQueue;
 	}
 
 	class Window : boost::noncopyable
@@ -40,6 +41,7 @@ namespace wm
 			void dispatch(bool block);
 
 			common::Dispatcher &dispatcher();
+			common::EventQueue &eventq();
 			
 		private:
 			struct impl_t;
