@@ -25,7 +25,7 @@ int main(int, char *[])
 
 	struct Handler : public wm::EventHandler
 	{
-		explicit Handler(wm::Window &window) : window(window), quit_flag(false) {}
+		explicit Handler(wm::Window &window) : window(&window), quit_flag(false) {}
 	
 		virtual void handle(const wm::ExposeEvent &event)
 		{
@@ -38,7 +38,7 @@ int main(int, char *[])
 				<< std::endl;
 
 			test::draw();
-			window.swap();
+			window->swap();
 		}
 		
 		virtual void handle(const wm::ButtonEvent &event)
@@ -97,7 +97,7 @@ int main(int, char *[])
 		}
 
 
-		wm::Window &window;
+		wm::Window *window;
 		bool quit_flag;
 	} handler(window);
 
