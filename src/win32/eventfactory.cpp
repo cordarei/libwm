@@ -1124,6 +1124,15 @@ namespace
 	{
 		return new wm::FocusEvent(window, message == WM_SETFOCUS ? true : false);
 	}
+
+	const wm::Event *makeClose(
+		wm::Window& window,
+		UINT message,
+		WPARAM wparam,
+		LPARAM lparam)
+	{
+		return new wm::CloseEvent(window);
+	}
 }
 
 namespace wm
@@ -1164,6 +1173,8 @@ namespace wm
 
 					map[WM_SETFOCUS] = &makeFocus;
 					map[WM_KILLFOCUS] = &makeFocus;
+
+					map[WM_CLOSE] = &makeClose;
 				}
 
 				typedef std::map<UINT, FactoryFunc*> map_t;
