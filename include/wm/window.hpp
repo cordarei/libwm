@@ -16,7 +16,6 @@ namespace wm
 	namespace common
 	{
 		class Dispatcher;
-		class EventQueue;
 	}
 
 	class Window : boost::noncopyable
@@ -39,8 +38,6 @@ namespace wm
 			Display& display() { return display_; }
 			
 			void dispatch(bool block);
-
-			common::EventQueue &eventq();
 			
 		private:
 			struct impl_t;
@@ -48,7 +45,8 @@ namespace wm
 			Display& display_;
 
 			common::Dispatcher &dispatcher();
-			
+
+			friend class EventReader;
 			friend class Connection;
 			friend class Display;
 			friend class Context;

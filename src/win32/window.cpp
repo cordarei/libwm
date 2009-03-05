@@ -196,9 +196,4 @@ namespace wm
 	{
 		return impl->dispatcher;
 	}
-
-	common::EventQueue &Window::eventq()
-	{
-		return impl->eventq;
-	}
 }

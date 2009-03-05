@@ -9,50 +9,50 @@
 #include <common/eventqueue.hpp>
 #include "impl/error.hpp"
 #include "impl/display_impl.hpp"
+#include "impl/window_impl.hpp"
 #include "impl/eventfactory.hpp"
-
-namespace
-{
-	LRESULT CALLBACK wndproc(HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam)
-	{
-		SetLastError(0);
-		wm::Window *ptr =
-			reinterpret_cast<wm::Window*>(
-				GetWindowLongPtr(hwnd, 0));
-		if(!ptr)
-		{
-			DWORD err = GetLastError();
-			if(err)
-				throw wm::Exception("Can't get win32 window user data" +
-					wm::win32::getErrorMsg(err));
-		} else
-		{
-			wm::Window& window = *ptr;
-
-			if(message == WM_PAINT)
-			{
-				// ValidateRect prevents Windows from resending WM_PAINT
-				RECT rect, *ptr = 0;
-				if(GetUpdateRect(hwnd, &rect, FALSE)) ptr = &rect;
-				if(!ValidateRect(hwnd, ptr)) // if ptr == NULL, validates entire window
-					throw wm::Exception("Can't validate win32 window rectangle" + wm::win32::getErrorMsg());
-			}
-
-			const wm::Event *event = wm::win32::fromWin32Event(window, message, wparam, lparam);
-			if(event)
-			{
-				window.eventq().push(event);
-				return TRUE;
-			}
-		}
-
-		return DefWindowProc(hwnd, message, wparam, lparam);
-	};
-}
 
 namespace wm
 {
-	class Window;
+	class EventReader
+	{
+		public:
+			static LRESULT CALLBACK wndproc(HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam)
+			{
+				SetLastError(0);
+				wm::Window *ptr =
+					reinterpret_cast<wm::Window*>(
+						GetWindowLongPtr(hwnd, 0));
+				if(!ptr)
+				{
+					DWORD err = GetLastError();
+					if(err)
+						throw wm::Exception("Can't get win32 window user data" +
+							wm::win32::getErrorMsg(err));
+				} else
+				{
+					wm::Window& window = *ptr;
+
+					if(message == WM_PAINT)
+					{
+						// ValidateRect prevents Windows from resending WM_PAINT
+						RECT rect, *ptr = 0;
+						if(GetUpdateRect(hwnd, &rect, FALSE)) ptr = &rect;
+						if(!ValidateRect(hwnd, ptr)) // if ptr == NULL, validates entire window
+							throw wm::Exception("Can't validate win32 window rectangle" + wm::win32::getErrorMsg());
+					}
+
+					const wm::Event *event = wm::win32::fromWin32Event(window, message, wparam, lparam);
+					if(event)
+					{
+						window.impl->eventq.push(event);
+						return TRUE;
+					}
+				}
+
+				return DefWindowProc(hwnd, message, wparam, lparam);
+			}
+	};
 
 	Display::Display(const char *name)
 		: impl(new impl_t("wmwinwdow"))
@@ -69,7 +69,7 @@ namespace wm
 		WNDCLASSEX klass;
 		klass.cbSize = sizeof(WNDCLASSEX);
 		klass.style = 0;
-		klass.lpfnWndProc = &wndproc;
+		klass.lpfnWndProc = &EventReader::wndproc;
 		klass.cbClsExtra = 0;
 		klass.cbWndExtra = sizeof(Window*);
 		klass.hInstance = impl->hInstance;
