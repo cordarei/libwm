@@ -15,6 +15,8 @@ namespace wm
 	{
 		impl->display = XOpenDisplay(name);
 		if(!impl->display) throw Exception("Can't open Display");
+		
+		impl->wm_delete_window = XInternAtom(impl->display, "WM_DELETE_WINDOW", False);
 	}
 	
 	Display::~Display()
@@ -30,9 +32,8 @@ namespace wm
 		
 		if(block)
 		{
-			XMaskEvent(
+			XNextEvent(
 				impl->display,
-				xlib::event_mask,
 				&event
 				);
 				
@@ -43,23 +44,9 @@ namespace wm
 				const Event *ptr = xlib::fromXEvent(*window, event);
 				if(ptr) window->impl->eventq.push(ptr); // eventq takes ownership of event object in ptr
 			}
-		} else
-		{
-			while(XCheckMaskEvent(
-				impl->display,
-				xlib::event_mask,
-				&event
-				))
-			{
-				wm::Window* window =  impl->registry.get(event.xany.window);
-					
-				if(window)
-				{
-					const Event *ptr = xlib::fromXEvent(*window, event);
-					if(ptr) window->impl->eventq.push(ptr); // eventq takes ownership of event object in ptr
-				}
-			}			
 		}
+		
+		// TODO: implement a non-blocking version
 	}
 }
 

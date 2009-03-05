@@ -12,6 +12,7 @@ namespace wm
 	struct Display::impl_t
 	{
 		::Display *display;
+		Atom wm_delete_window;
 		
 		class Registry
 		{

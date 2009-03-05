@@ -40,14 +40,16 @@ namespace wm
 			
 			void dispatch(bool block);
 
-			common::Dispatcher &dispatcher();
 			common::EventQueue &eventq();
 			
 		private:
 			struct impl_t;
 			boost::scoped_ptr<impl_t> impl;
 			Display& display_;
+
+			common::Dispatcher &dispatcher();
 			
+			friend class Connection;
 			friend class Display;
 			friend class Context;
 			friend void makeCurrent(Window&, Context&);

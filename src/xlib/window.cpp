@@ -85,8 +85,19 @@ namespace wm
 			XFree(impl->visualinfo);
 			throw wm::Exception("Can't create Window");
 		}
-		// TODO: better error handling, perhaps wait for X 
 		
+		if(!XSetWMProtocols(
+			display.impl->display,
+			impl->window,
+			&display.impl->wm_delete_window,
+			1))
+		{
+			XFree(impl->visualinfo);
+			XDestroyWindow(display.impl->display, impl->window);
+			throw wm::Exception("Can't set X Window manager protocols (WM_DELETE_WINDOW)");
+		}
+		
+		// TODO: better error handling, perhaps wait for X 
 		display.impl->registry.add(impl->window, this);
 	}
 	

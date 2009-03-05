@@ -58,7 +58,6 @@ int main(int, char *[])
 				<< "key"
 				<< " " << (event.state()?"down":"up")
 				<< std::endl;
-			if(event.state()) quit_flag = true;
 		}
 
 		virtual void handle(const wm::MouseOverEvent &event)
@@ -94,6 +93,12 @@ int main(int, char *[])
 				<< (event.state()?"show":"hide")
 				<< " window"
 				<< std::endl;
+		}
+		
+		virtual void handle(const wm::CloseEvent&)
+		{
+			std::cout << "close window" << std::endl;
+			quit_flag = true;
 		}
 
 

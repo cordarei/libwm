@@ -10,6 +10,7 @@ namespace wm
 	class MouseOverEvent;
 	class ResizeEvent;
 	class ShowEvent;
+	class CloseEvent;
 
 	class EventHandler
 	{
@@ -23,6 +24,7 @@ namespace wm
 			virtual void handle(const MouseOverEvent &) = 0;
 			virtual void handle(const ResizeEvent &) = 0;
 			virtual void handle(const ShowEvent &) = 0;
+			virtual void handle(const CloseEvent &) = 0;
 			
 		protected:
 			EventHandler() {}

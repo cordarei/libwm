@@ -189,6 +189,18 @@ namespace wm
 		private:
 			bool state_;
 	};
+
+	class CloseEvent : public Event
+	{
+		public:
+			CloseEvent(
+				Window &window)
+				: Event(window)
+			{
+			}
+
+			virtual void accept(EventHandler &handler) const { handler.handle(*this); }
+	};
 }
 
 #endif

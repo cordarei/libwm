@@ -21,6 +21,7 @@ namespace wm
 			struct impl_t;
 			boost::scoped_ptr<impl_t> impl;
 			
+			friend class EventReader;
 			friend class Window;
 			friend class Context;
 			
