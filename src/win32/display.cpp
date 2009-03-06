@@ -12,6 +12,37 @@
 #include "impl/window_impl.hpp"
 #include "impl/eventfactory.hpp"
 
+namespace
+{
+	char getHexChar(unsigned int idx)
+	{
+		if(idx >= 16) return '!';
+		return (idx < 10)
+			? '0' + idx
+			: 'a' + (idx - 10);
+	}
+
+	// Simple hex string representation of Display pointer
+	std::string genClassNameStr(const wm::Display *display)
+	{
+		size_t size = sizeof(const wm::Display*);
+		const unsigned char *begin =
+			reinterpret_cast<const unsigned char *>(&display);
+
+		std::string str;
+		str.reserve(2 * size + 1);
+		for(const unsigned char *ptr = begin;
+			ptr != begin + size;
+			++ptr)
+		{
+			str.push_back(getHexChar(*ptr & 0x0f)); // put least significant digit first for added obscurity
+			str.push_back(getHexChar(*ptr & 0xf0 >> 4));
+		}
+
+		return str;
+	}
+}
+
 namespace wm
 {
 	class EventReader
@@ -55,8 +86,12 @@ namespace wm
 	};
 
 	Display::Display(const char *name)
-		: impl(new impl_t("wmwinwdow"))
+		: impl(new impl_t)
 	{
+		// Generate per-instance unique classname string
+		impl->classname = genClassNameStr(this);
+
+		// Get win32 module handle
 		impl->hInstance = GetModuleHandle(0);
 		if(!impl->hInstance)
 			throw Exception("Could not get win32 module handle: " + win32::getErrorMsg());
