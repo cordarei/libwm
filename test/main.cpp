@@ -1,4 +1,5 @@
 #include <iostream>
+#include <algorithm>
 
 #include <wm/display.hpp>
 #include <wm/window.hpp>
@@ -12,6 +13,7 @@
 #include "draw.hpp"
 
 #ifdef WIN32
+#define NOMINMAX // otherwise windows.h macro max will conflict with std::max
 #include <windows.h>
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR /* cmdLine */, int)
 #else
