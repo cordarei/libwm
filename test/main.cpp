@@ -9,7 +9,7 @@
 #include <wm/eventhandler.hpp>
 #include <wm/event.hpp>
 
-namespace test { void draw(); }
+#include "draw.hpp"
 
 #ifdef WIN32
 #include <windows.h>
@@ -25,7 +25,12 @@ int main(int, char *[])
 
 	struct Handler : public wm::EventHandler
 	{
-		explicit Handler(wm::Window &window) : window(&window), quit_flag(false) {}
+		explicit Handler(wm::Window &window) : window(&window), quit_flag(false)
+		{
+			// TODO: query these from window
+			width = 400;
+			height = 300;
+		}
 	
 		virtual void handle(const wm::ExposeEvent &event)
 		{
@@ -37,7 +42,10 @@ int main(int, char *[])
 				<< ", " << event.height()
 				<< std::endl;
 
-			test::draw();
+			width = std::max(width, event.width());
+			height = std::max(height, event.height());
+			
+			test::draw(width, height);
 			window->swap();
 		}
 		
@@ -80,6 +88,9 @@ int main(int, char *[])
 
 		virtual void handle(const wm::ResizeEvent &event)
 		{
+			width = event.width();
+			height = event.height();
+		
 			std::cout
 				<< "resize"
 				<< "  width: " << event.width()
@@ -101,8 +112,8 @@ int main(int, char *[])
 			quit_flag = true;
 		}
 
-
 		wm::Window *window;
+		unsigned int width, height;
 		bool quit_flag;
 	} handler(window);
 
