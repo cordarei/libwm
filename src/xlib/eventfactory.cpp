@@ -108,8 +108,8 @@ namespace
 	{
 		return new wm::ResizeEvent(
 			window,
-			event.xresizerequest.width,
-			event.xresizerequest.height
+			event.xconfigure.width,
+			event.xconfigure.height
 			);
 	}
 	
@@ -161,8 +161,7 @@ namespace wm
 			KeyReleaseMask |
 			EnterWindowMask |
 			LeaveWindowMask |
-			FocusChangeMask |
-			ResizeRedirectMask
+			FocusChangeMask
 			;
 
 	
@@ -188,7 +187,7 @@ namespace wm
 					map[FocusOut] = makeFocus;
 					map[EnterNotify] = makeMouseOver;
 					map[LeaveNotify] = makeMouseOver;
-					map[ResizeRequest] = makeResize;
+					map[ConfigureNotify] = makeResize;
 					map[MapNotify] = makeShow;
 					map[UnmapNotify] = makeShow;
 					
