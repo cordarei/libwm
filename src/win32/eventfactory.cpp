@@ -1038,15 +1038,6 @@ namespace
 	
 	const size_t num_names = sizeof(message_names) / sizeof(message_names[0]);
 
-	const wm::Event *makePaint(
-		wm::Window& window,
-		UINT message,
-		WPARAM wparam,
-		LPARAM lparam)
-	{
-		return new wm::ExposeEvent(window, 0, 0, 0, 0);
-	}
-
 	const wm::Event *makeKey(
 		wm::Window& window,
 		UINT message,
@@ -1158,7 +1149,6 @@ namespace wm
 				{
 					map[WM_KEYUP] = &makeKey;
 					map[WM_KEYDOWN] = &makeKey;
-					map[WM_PAINT] = &makePaint;
 
 					map[WM_LBUTTONDOWN]= &makeButton;
 					map[WM_LBUTTONUP]= &makeButton;

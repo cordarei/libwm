@@ -5,6 +5,7 @@
 #include <wm/exception.hpp>
 #include <wm/display.hpp>
 #include <wm/window.hpp>
+#include <wm/event.hpp>
 
 #include <common/eventqueue.hpp>
 #include "impl/error.hpp"
@@ -64,13 +65,80 @@ namespace wm
 				{
 					wm::Window& window = *ptr;
 
-					if(message == WM_PAINT)
+					if(message == WM_ENTERSIZEMOVE)
+					{
+						window.impl->sizemove = true;
+						window.impl->resizing = false;
+						window.impl->dirty = false;
+						return TRUE;
+					} else if(message == WM_EXITSIZEMOVE)
+					{
+						if(window.impl->resizing)
+						{
+							// propagate ResizeEvent
+							window.impl->eventq.push(
+								new wm::ResizeEvent(
+									window, 
+									window.impl->width,
+									window.impl->height
+									));
+						}
+
+						if(window.impl->dirty)
+						{
+							// propagate ExposeEvent
+							window.impl->eventq.push(
+								new wm::ExposeEvent(
+									window,
+									0,
+									0,
+									window.impl->width,
+									window.impl->height
+									));
+						}
+
+						window.impl->sizemove = false;
+
+						return TRUE;
+					} else if(message == WM_SIZE)
+					{
+						if(window.impl->sizemove) window.impl->resizing = true;
+
+						window.impl->width = LOWORD(lparam);
+						window.impl->height = HIWORD(lparam);
+						return 0; // should return 0 if WM_SIZE processed
+					} else if(message == WM_PAINT)
 					{
 						// ValidateRect prevents Windows from resending WM_PAINT
 						RECT rect, *ptr = 0;
 						if(GetUpdateRect(hwnd, &rect, FALSE)) ptr = &rect;
 						if(!ValidateRect(hwnd, ptr)) // if ptr == NULL, validates entire window
 							throw wm::Exception("Can't validate win32 window rectangle" + wm::win32::getErrorMsg());
+
+						if(window.impl->sizemove)
+						{
+							window.impl->dirty = true;
+							return 0; // should return 0 if WM_PAINT processed
+						} else
+						{
+							// propagate ExposeEvent
+							window.impl->eventq.push(
+								new ExposeEvent(
+									window,
+									ptr ? rect.left : 0,
+									ptr ? rect.top : 0,
+									ptr ? (rect.right - rect.left) : window.impl->width,
+									ptr ? (rect.bottom - rect.top) : window.impl->height
+									));
+							return 0;
+						}
+					} else if(message == WM_ERASEBKGND)
+					{
+						if(window.impl->sizemove)
+						{
+							window.impl->dirty = true;
+							return 0;
+						}
 					}
 
 					const wm::Event *event = wm::win32::fromWin32Event(window, message, wparam, lparam);

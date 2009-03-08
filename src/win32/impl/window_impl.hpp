@@ -12,8 +12,21 @@ namespace wm
 {
 	struct Window::impl_t
 	{
+		impl_t()
+			: sizemove(false)
+			, resizing(false)
+			, dirty(false)
+		{
+		}
+
+		// Window procedure state
+		bool sizemove, resizing, dirty;
+		unsigned int width, height;
+
+		// Window handle
 		HWND hwnd;
 
+		// Event dispatching
 		common::Dispatcher dispatcher;
 		common::EventQueue eventq;
 	};
