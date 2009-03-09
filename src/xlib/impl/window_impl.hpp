@@ -13,11 +13,18 @@ namespace wm
 {
 	struct Window::impl_t
 	{
+		impl_t() : width(0), height(0) {}
+	
+		// Used by EventReader when dispatching resize events
+		unsigned int width, height;
+
+		// Window handle
 		::Window window;
 		XVisualInfo *visualinfo;
 		
+		// Event dispatching
 		common::Dispatcher dispatcher;
-		common::EventQueue eventq;
+		common::EventQueue eventq;		
 	};
 }
 

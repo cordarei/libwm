@@ -101,18 +101,7 @@ namespace
 			event.xcrossing.y,
 			event.type == EnterNotify);
 	}
-	
-	const wm::Event* makeResize(
-		wm::Window& window,
-		const XEvent &event)
-	{
-		return new wm::ResizeEvent(
-			window,
-			event.xconfigure.width,
-			event.xconfigure.height
-			);
-	}
-	
+		
 	const wm::Event* makeShow(
 		wm::Window& window,
 		const XEvent &event)
@@ -127,6 +116,7 @@ namespace
 
 #include <wm/display.hpp>
 #include <wm/window.hpp>
+#include "impl/window_impl.hpp"
 #include "impl/display_impl.hpp"
 #include "impl/eventfactory.hpp"
 
@@ -147,6 +137,25 @@ namespace wm
 				
 				return 0;
 			}
+			
+			static const wm::Event* makeResize(
+				wm::Window& window,
+				const XEvent &event)
+			{
+				if(event.xconfigure.width == window.impl->width &&
+					event.xconfigure.height == window.impl->height)
+					return 0;
+
+				window.impl->width = event.xconfigure.width;	
+				window.impl->height = event.xconfigure.height;	
+
+				return new wm::ResizeEvent(
+					window,
+					event.xconfigure.width,
+					event.xconfigure.height
+					);
+			}
+
 	};
 
 	namespace xlib
@@ -187,10 +196,10 @@ namespace wm
 					map[FocusOut] = makeFocus;
 					map[EnterNotify] = makeMouseOver;
 					map[LeaveNotify] = makeMouseOver;
-					map[ConfigureNotify] = makeResize;
 					map[MapNotify] = makeShow;
 					map[UnmapNotify] = makeShow;
 					
+					map[ConfigureNotify] = &EventReader::makeResize;
 					map[ClientMessage] = &EventReader::makeClient;
 				}
 			
