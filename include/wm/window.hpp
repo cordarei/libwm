@@ -33,6 +33,9 @@ namespace wm
 			void show();
 			void hide();
 			
+			void getSize(unsigned int &width, unsigned int &height);
+			void resize(unsigned int width, unsigned int height);
+			
 			void swap();
 			
 			Display& display() { return display_; }

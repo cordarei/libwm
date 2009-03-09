@@ -30,8 +30,8 @@ int main(int, char *[])
 		explicit Handler(wm::Window &window) : window(&window), quit_flag(false)
 		{
 			// TODO: query these from window
-			width = 400;
-			height = 300;
+			window.getSize(width, height);
+			std::cout << "window size: " << width << "x" << height << std::endl; 
 		}
 	
 		virtual void handle(const wm::ExposeEvent &event)
@@ -44,9 +44,6 @@ int main(int, char *[])
 				<< ", " << event.height()
 				<< std::endl;
 
-			width = std::max(width, event.width());
-			height = std::max(height, event.height());
-			
 			test::draw(width, height);
 			window->swap();
 		}
@@ -60,6 +57,14 @@ int main(int, char *[])
 				<< "  x: " << event.x()
 				<< "  y: " << event.y()
 				<< std::endl;
+			
+			if(event.state())
+			{
+				unsigned int w, h;
+				window->getSize(w, h);
+				std::cout << "window old size: " << w << "x" << h << std::endl; 
+				window->resize(w+100, h+100);
+			}
 		}
 		
 		virtual void handle(const wm::KeyEvent &event)
@@ -77,7 +82,7 @@ int main(int, char *[])
 				<< " " << (event.inside()?"enter":"exit")
 				<< "  x: " << event.x()
 				<< "  y: " << event.y()
-				<< std::endl;
+				<< std::endl;				
 		}
 		
 		virtual void handle(const wm::FocusEvent &event)

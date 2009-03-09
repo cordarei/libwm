@@ -121,6 +121,37 @@ namespace wm
 		XUnmapWindow(display().impl->display, impl->window);
 	}
 	
+	void Window::getSize(unsigned int &width, unsigned int &height)
+	{
+		::Window root;
+		int x, y;
+		unsigned int w, h;
+		unsigned int border, depth;
+	
+		if(!XGetGeometry(
+			display().impl->display,
+			impl->window,
+			&root,
+			&x, &y,
+			&w, &h,
+			&border,
+			&depth
+			))
+			throw Exception("Can't get X11 Window geometry");
+			
+		width = w;
+		height = h;
+	}
+	
+	void Window::resize(unsigned int width, unsigned int height)
+	{
+		XResizeWindow(
+			display().impl->display,
+			impl->window,
+			width,
+			height);
+	}
+
 	void Window::swap()
 	{
 		glXSwapBuffers(
