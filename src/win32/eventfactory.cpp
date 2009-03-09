@@ -1186,7 +1186,7 @@ namespace wm
 					case WM_NCHITTEST:
 						break;
 					default:
-						std::cout << "Unhandled win32 message: " << message_names[message] << std::endl;
+						//std::cout << "Unhandled win32 message: " << message_names[message] << std::endl;
 						break;
 					}
 				}

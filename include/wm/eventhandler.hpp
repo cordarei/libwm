@@ -17,14 +17,14 @@ namespace wm
 		public:
 			virtual ~EventHandler() {}
 			
-			virtual void handle(const ExposeEvent &) = 0;
-			virtual void handle(const ButtonEvent &) = 0;
-			virtual void handle(const KeyEvent &) = 0;
-			virtual void handle(const FocusEvent &) = 0;
-			virtual void handle(const MouseOverEvent &) = 0;
-			virtual void handle(const ResizeEvent &) = 0;
-			virtual void handle(const ShowEvent &) = 0;
-			virtual void handle(const CloseEvent &) = 0;
+			virtual void handle(const ExposeEvent &) {}
+			virtual void handle(const ButtonEvent &) {}
+			virtual void handle(const KeyEvent &) {}
+			virtual void handle(const FocusEvent &) {}
+			virtual void handle(const MouseOverEvent &) {}
+			virtual void handle(const ResizeEvent &) {}
+			virtual void handle(const ShowEvent &) {}
+			virtual void handle(const CloseEvent &) {}
 			
 		protected:
 			EventHandler() {}

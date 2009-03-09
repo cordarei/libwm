@@ -9,10 +9,11 @@
 #include <wm/connection.hpp>
 #include <wm/eventhandler.hpp>
 #include <wm/event.hpp>
+#include <wm/ostream_output.hpp>
 
 #include "draw.hpp"
 
-#ifdef WIN32
+#if defined(WIN32) && 0
 #define NOMINMAX // otherwise windows.h macro max will conflict with std::max
 #include <windows.h>
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR /* cmdLine */, int)
@@ -36,28 +37,12 @@ int main(int, char *[])
 	
 		virtual void handle(const wm::ExposeEvent &event)
 		{
-			std::cout
-				<< "expose"
-				<< ": " << event.x()
-				<< ", " << event.y()
-				<< ", " << event.width()
-				<< ", " << event.height()
-				<< std::endl;
-
 			test::draw(width, height);
 			window->swap();
 		}
 		
 		virtual void handle(const wm::ButtonEvent &event)
-		{
-			std::cout 
-				<< "button"
-				<< " " << event.button()
-				<< " " << (event.state()?"down":"up")
-				<< "  x: " << event.x()
-				<< "  y: " << event.y()
-				<< std::endl;
-			
+		{			
 			if(event.state())
 			{
 				unsigned int w, h;
@@ -66,56 +51,15 @@ int main(int, char *[])
 				window->resize(w+100, h+100);
 			}
 		}
-		
-		virtual void handle(const wm::KeyEvent &event)
-		{
-			std::cout
-				<< "key"
-				<< " " << (event.state()?"down":"up")
-				<< std::endl;
-		}
-
-		virtual void handle(const wm::MouseOverEvent &event)
-		{
-			std::cout
-				<< "mouse "
-				<< " " << (event.inside()?"enter":"exit")
-				<< "  x: " << event.x()
-				<< "  y: " << event.y()
-				<< std::endl;				
-		}
-		
-		virtual void handle(const wm::FocusEvent &event)
-		{
-			std::cout
-				<< (event.state()?"got":"lost")
-				<< " focus"
-				<< std::endl;
-		}
 
 		virtual void handle(const wm::ResizeEvent &event)
 		{
 			width = event.width();
 			height = event.height();
-		
-			std::cout
-				<< "resize"
-				<< "  width: " << event.width()
-				<< "  height: " << event.height()
-				<< std::endl;
 		}
-		
-		virtual void handle(const wm::ShowEvent &event)
-		{
-			std::cout
-				<< (event.state()?"show":"hide")
-				<< " window"
-				<< std::endl;
-		}
-		
+				
 		virtual void handle(const wm::CloseEvent&)
 		{
-			std::cout << "close window" << std::endl;
 			quit_flag = true;
 		}
 
@@ -124,13 +68,16 @@ int main(int, char *[])
 		bool quit_flag;
 	} handler(window);
 
+	wm::EventPrinter printer(std::cout);
+	wm::Connection printerconn(window, printer);
+
 	wm::Connection connection(window, handler);
 
 	window.show();
 	window.swap();
 
 	while(!handler.quit_flag) window.dispatch(true);
-	
+
 	return 0;
 }
 
