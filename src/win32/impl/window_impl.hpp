@@ -26,6 +26,9 @@ namespace wm
 		// Window handle
 		HWND hwnd;
 
+		// Window style and extended style
+		int style, exstyle;
+
 		// Event dispatching
 		common::Dispatcher dispatcher;
 		common::EventQueue eventq;

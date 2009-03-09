@@ -102,10 +102,22 @@ namespace wm
 						return TRUE;
 					} else if(message == WM_SIZE)
 					{
-						if(window.impl->sizemove) window.impl->resizing = true;
+						unsigned int w = LOWORD(lparam),
+									h = HIWORD(lparam);
 
-						window.impl->width = LOWORD(lparam);
-						window.impl->height = HIWORD(lparam);
+						window.impl->width = w;
+						window.impl->height = h;
+
+						if(window.impl->sizemove) window.impl->resizing = true;
+						else
+						{
+							window.impl->eventq.push(
+								new ResizeEvent(
+									window,
+									w,
+									h));
+						}
+
 						return 0; // should return 0 if WM_SIZE processed
 					} else if(message == WM_PAINT)
 					{

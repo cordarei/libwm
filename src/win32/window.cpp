@@ -13,11 +13,8 @@
 
 namespace
 {
-	HWND createWindow(HINSTANCE hInstance, const char *wndclass, int width, int height)
+	HWND createWindow(HINSTANCE hInstance, const char *wndclass, int width, int height, int style, int exstyle)
 	{
-		int style = WS_OVERLAPPEDWINDOW;
-		int exstyle = WS_EX_OVERLAPPEDWINDOW;
-
 		RECT rect;
 		if(!SetRect(&rect, 0, 0, width, height)) // how likely is this? ;)
 			// NOTE: SetRect does not affect win32 GetLastError	
@@ -98,11 +95,16 @@ namespace wm
 		: impl(new impl_t)
 		, display_(display)
 	{
+		impl->style = WS_OVERLAPPEDWINDOW;
+		impl->exstyle = WS_EX_OVERLAPPEDWINDOW;
+
 		impl->hwnd = createWindow(
 			display.impl->hInstance,
 			display.impl->classname.c_str(),
 			width,
-			height);
+			height,
+			impl->style,
+			impl->exstyle);
 
 		try
 		{
@@ -147,6 +149,41 @@ namespace wm
 	void Window::hide()
 	{
 		ShowWindow(impl->hwnd, SW_HIDE);
+	}
+
+	void Window::getSize(unsigned int &width, unsigned int &height)
+	{
+		RECT rect;
+		if(!GetClientRect(impl->hwnd, &rect))
+			throw wm::Exception("Can't get win32 window client area size: " + win32::getErrorMsg());
+
+		unsigned int w = rect.right - rect.left;
+		unsigned int h = rect.bottom - rect.top;
+
+		width = w;
+		height = h;
+	}
+
+	void Window::resize(unsigned int width, unsigned int height)
+	{
+		RECT rect;
+		if(!SetRect(&rect, 0, 0, width, height))
+			throw wm::Exception("Can't set window rectangle for resizing");
+
+		int style = impl->style,
+			exstyle = impl->exstyle;
+
+		if(!AdjustWindowRectEx(&rect, style, false, exstyle))
+			throw wm::Exception("Can't adjust window bounds rectangle: " + wm::win32::getErrorMsg());
+
+		if(!SetWindowPos(
+			impl->hwnd,
+			0, // HWND hWndInsertAfter
+			0, 0, // x, y (ignored because of SWP_NOMOVE)
+			rect.right - rect.left,
+			rect.bottom - rect.top,
+			SWP_NOMOVE | SWP_NOZORDER | SWP_NOACTIVATE))
+			throw wm::Exception("Can't resize win32 window: " + win32::getErrorMsg());
 	}
 	
 	void Window::swap()
