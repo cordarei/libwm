@@ -78,7 +78,7 @@ namespace wm
 			virtual void handle(const ShowEvent& event)
 			{
 				*os
-					<< "ResizeEvent("
+					<< "ShowEvent("
 					<< "state = " << (event.state() ? "Show" : "Hide")
 					<< ")" << delim;
 			}
