@@ -116,6 +116,11 @@ namespace wm
 		// TODO: Handle errors
 	}
 	
+	void Window::hide()
+	{
+		XUnmapWindow(display().impl->display, impl->window);
+	}
+	
 	void Window::swap()
 	{
 		glXSwapBuffers(
