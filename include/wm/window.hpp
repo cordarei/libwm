@@ -36,6 +36,8 @@ namespace wm
 			void getSize(unsigned int &width, unsigned int &height);
 			void resize(unsigned int width, unsigned int height);
 			
+			void setTitle(const char* title); // utf-8
+			
 			void swap();
 			
 			Display& display() { return display_; }

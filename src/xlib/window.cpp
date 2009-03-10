@@ -151,6 +151,19 @@ namespace wm
 			width,
 			height);
 	}
+	
+	void Window::setTitle(const char *title)
+	{
+		if(!title) return;
+	
+		Xutf8SetWMProperties(
+			display().impl->display,
+			impl->window,
+			title,	// window_name
+			title,	// icon_name
+			0, 0,	// argc, argv
+			0, 0, 0); // XSizeHints, XWMHints, XClassHint
+	}
 
 	void Window::swap()
 	{
