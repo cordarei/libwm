@@ -24,14 +24,14 @@ int main(int, char *[])
 	wm::Display display;
 	wm::Window window(display, 0, 400, 300);
 	
-	const char test_string[] = {
+	const unsigned char test_string[] = {
 		'w', 'm', ' ', 't', 'e', 's', 't', ' ', ' ',
 		'u', 't', 'f', '8', ':', ' ',
 		0xc3, 0xa4, 0xc3, 0xa4, 0x6b, 0x6b, 0xc3, 0xb6, 0x73, 0x69, 0xc3, 0xa4, 0x20,
 		0xe2, 0x82, 0xac, 0x75, 0x72, 0x6f, 0x6a, 0x61, 0
 		};
 	
-	window.setTitle(test_string);
+	window.setTitle(reinterpret_cast<const char*>(test_string));
 	
 	wm::Context context(window, 1, 2);
 	makeCurrent(window, context);

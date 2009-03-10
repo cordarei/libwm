@@ -1,6 +1,8 @@
 #include <iostream>
 #include <cstdlib>
 
+#include <boost/scoped_array.hpp>
+
 #include <windows.h>
 
 #include <wm/exception.hpp>
@@ -184,6 +186,32 @@ namespace wm
 			rect.bottom - rect.top,
 			SWP_NOMOVE | SWP_NOZORDER | SWP_NOACTIVATE))
 			throw wm::Exception("Can't resize win32 window: " + win32::getErrorMsg());
+	}
+
+	void Window::setTitle(const char *title)
+	{
+		if(!title) return;
+		
+		int len = 0;
+		boost::scoped_array<WCHAR> array(0);
+		for(int i = 0; i < 2; ++i)
+		{
+			len = MultiByteToWideChar(
+				CP_UTF8,
+				MB_ERR_INVALID_CHARS, // fail if invalid characters
+				title,
+				-1, // length of input = -1  <=>  string is NULL-terminated
+				array.get(), // output buffer, NULL on the first pass <=> MultiByteToWideChar calculates size of output
+				len // output buffer size, in WCHAR's
+				);
+
+			if(!len)
+				throw Exception("MultiByteToWideChar failed: " + win32::getErrorMsg());
+
+			if(!array) array.reset(new WCHAR[len]);
+		}
+
+		SetWindowTextW(impl->hwnd, array.get());
 	}
 	
 	void Window::swap()
