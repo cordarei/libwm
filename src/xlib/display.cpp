@@ -45,12 +45,14 @@ namespace wm
 				impl->display,
 				&event
 				);
-				
+			
+			bool filter = XFilterEvent(&event, None);
+			
 			wm::Window* window =  impl->registry.get(event.xany.window);
-					
+				
 			if(window)
 			{
-				const Event *ptr = xlib::fromXEvent(*window, event);
+				const Event *ptr = xlib::fromXEvent(*window, event, filter);
 				if(ptr) window->impl->eventq.push(ptr); // eventq takes ownership of event object in ptr
 			}
 		}

@@ -14,7 +14,8 @@ namespace wm
 	
 		const Event* fromXEvent(
 			wm::Window& window,
-			const XEvent &event
+			const XEvent &event,
+			bool filter
 			);
 	}
 }

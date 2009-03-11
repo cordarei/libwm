@@ -47,8 +47,8 @@ namespace
 
 	const wm::Event* makeExpose(
 		wm::Window& window,
-		const XEvent &event
-		)
+		const XEvent &event,
+		bool)
 	{
 		return new wm::ExposeEvent(
 			window,
@@ -61,8 +61,8 @@ namespace
 
 	const wm::Event* makeButton(
 		wm::Window& window,
-		const XEvent &event
-		)
+		const XEvent &event,
+		bool)
 	{
 		return new wm::ButtonEvent(
 			window,
@@ -72,19 +72,10 @@ namespace
 			event.type == ButtonPress);
 	}
 	
-	const wm::Event* makeKey(
-		wm::Window& window,
-		const XEvent &event
-		)
-	{
-		return new wm::KeyEvent(
-			window,
-			event.type == KeyPress);
-	}
-	
 	const wm::Event* makeFocus(
 		wm::Window& window,
-		const XEvent &event)
+		const XEvent &event,
+		bool)
 	{
 		return new wm::FocusEvent(
 			window,
@@ -93,7 +84,8 @@ namespace
 	
 	const wm::Event* makeMouseOver(
 		wm::Window& window,
-		const XEvent &event)
+		const XEvent &event,
+		bool)
 	{
 		return new wm::MouseOverEvent(
 			window,
@@ -104,7 +96,8 @@ namespace
 		
 	const wm::Event* makeShow(
 		wm::Window& window,
-		const XEvent &event)
+		const XEvent &event,
+		bool)
 	{
 		return new wm::ShowEvent(
 			window,
@@ -127,7 +120,8 @@ namespace wm
 		public:
 			static const Event* makeClient(
 				wm::Window &window,
-				const XEvent &event)
+				const XEvent &event,
+				bool)
 			{
 				if(event.xclient.data.l[0] ==
 					window.display().impl->wm_delete_window)
@@ -140,7 +134,8 @@ namespace wm
 			
 			static const wm::Event* makeResize(
 				wm::Window& window,
-				const XEvent &event)
+				const XEvent &event,
+				bool)
 			{
 				if(event.xconfigure.width == window.impl->width &&
 					event.xconfigure.height == window.impl->height)
@@ -155,6 +150,62 @@ namespace wm
 					event.xconfigure.height
 					);
 			}
+			
+			static const wm::Event* makeKey(
+				wm::Window& window,
+				const XEvent &event,
+				bool filter)
+			{
+				if(event.type == KeyPress && !filter)
+				{
+					char utf[6] = { 0, 0, 0, 0, 0, 0 };
+					KeySym keysym;
+					Status status;
+					
+					// XmbLookupString output encoding depends on current locale
+					// XwcLookupString also uses locale and nonportable wchar_t
+					// Xutf8LookupString always returns UTF-8 and we always want unicode, so use it
+					int len = Xutf8LookupString(
+						window.impl->xic,
+						const_cast<XKeyEvent*>(&event.xkey), // Xlib is not const correct
+						utf,
+						sizeof(utf)-1,
+						&keysym,
+						&status
+						);
+					utf[len] = 0;	// add null terminator
+					
+					std::cout << "XEventFilter: " << (filter ? "true" : "false") << std::endl;
+					std::cout << "Xutf8LookupString returned: " << len << std::endl;
+						
+					switch(status)
+					{
+					case XBufferOverflow:
+						std::cout << "buffer overflow" << std::endl;
+						break;
+					case XLookupNone:
+						std::cout << "buffer lookup none" << std::endl;
+						break;
+					case XLookupKeySym:
+					case XLookupBoth:	
+						std::cout << "Lookup keysym" << std::endl;
+						if(status == XLookupKeySym) break;
+					case XLookupChars:
+						std::cout << "Lookup chars: " << utf << std::endl;
+						break;
+					}
+				}
+				
+				if(filter)
+				{
+					std::cout << "XEventFilter: true" << std::endl;	
+				}
+			
+				return new wm::KeyEvent(
+					window,
+					event.type == KeyPress);
+			}
+
 
 	};
 
@@ -176,12 +227,14 @@ namespace wm
 	
 		const Event* fromXEvent(
 			wm::Window& window,
-			const XEvent &event
+			const XEvent &event,
+			bool filter
 			)
 		{
 			typedef const Event* (DispatchFunc)(
 				wm::Window& window,
-				const XEvent &);
+				const XEvent &,
+				bool);
 
 			static const struct Registry
 			{
@@ -190,8 +243,6 @@ namespace wm
 					map[Expose] = makeExpose;
 					map[ButtonPress] = makeButton;
 					map[ButtonRelease] = makeButton;
-					map[KeyPress] = makeKey;
-					map[KeyRelease] = makeKey;
 					map[FocusIn] = makeFocus;
 					map[FocusOut] = makeFocus;
 					map[EnterNotify] = makeMouseOver;
@@ -199,6 +250,8 @@ namespace wm
 					map[MapNotify] = makeShow;
 					map[UnmapNotify] = makeShow;
 					
+					map[KeyPress] = &EventReader::makeKey;
+					map[KeyRelease] = &EventReader::makeKey;
 					map[ConfigureNotify] = &EventReader::makeResize;
 					map[ClientMessage] = &EventReader::makeClient;
 				}
@@ -212,7 +265,7 @@ namespace wm
 			if(iter != registry.map.end())
 			{
 				DispatchFunc *func = iter->second;
-				return func(window, event);
+				return func(window, event, filter);
 			} else
 			{
 				std::cout << "Unhandled event " << event_names[event.type] << std::endl;

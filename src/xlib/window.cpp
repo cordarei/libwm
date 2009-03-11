@@ -100,8 +100,9 @@ namespace wm
 		// Create X input context
 		impl->xic = XCreateIC(
 			display.impl->xim,
-			XNInputStyle, XIMPreeditNone | XIMStatusNone,	// we don't have a status or a pre-edit window
+			XNInputStyle, XIMPreeditNothing | XIMStatusNothing,	// we don't have a status or a pre-edit window
 			XNClientWindow, impl->window,
+			XNFocusWindow, impl->window,
 			NULL	// XCreateIC va_list NULL terminator (must be NULL, not 0 to avoid gcc compiler warnings)
 			);
 		if(!impl->xic)
@@ -126,7 +127,7 @@ namespace wm
 			impl->window,
 			xlib::event_mask | xic_event_mask
 			);
-		
+			
 		// TODO: better error handling, perhaps wait for X 
 		display.impl->registry.add(impl->window, this);
 	}
