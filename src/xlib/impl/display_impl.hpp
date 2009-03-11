@@ -11,9 +11,16 @@ namespace wm
 {
 	struct Display::impl_t
 	{
+		// Display handle
 		::Display *display;
+		
+		// WM_DELETE_WINDOW atom for handling window closing
 		Atom wm_delete_window;
 		
+		// X input method
+		XIM xim;
+		
+		// Xlib window handle to wm::Window* mapping
 		class Registry
 		{
 			public:

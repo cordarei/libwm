@@ -22,6 +22,9 @@ namespace wm
 		::Window window;
 		XVisualInfo *visualinfo;
 		
+		// X input context
+		XIC xic;
+		
 		// Event dispatching
 		common::Dispatcher dispatcher;
 		common::EventQueue eventq;		

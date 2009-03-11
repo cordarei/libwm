@@ -17,10 +17,19 @@ namespace wm
 		if(!impl->display) throw Exception("Can't open Display");
 		
 		impl->wm_delete_window = XInternAtom(impl->display, "WM_DELETE_WINDOW", False);
+		
+		impl->xim = XOpenIM(impl->display, 0, 0, 0);
+		if(!impl->xim)
+		{
+			XCloseDisplay(impl->display);
+			throw Exception("Can't open X input method");
+		}
 	}
 	
 	Display::~Display()
 	{
+		XCloseIM(impl->xim);
+		
 		XCloseDisplay(impl->display);
 	}
 	

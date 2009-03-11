@@ -97,6 +97,36 @@ namespace wm
 			throw wm::Exception("Can't set X Window manager protocols (WM_DELETE_WINDOW)");
 		}
 		
+		// Create X input context
+		impl->xic = XCreateIC(
+			display.impl->xim,
+			XNInputStyle, XIMPreeditNone | XIMStatusNone,	// we don't have a status or a pre-edit window
+			XNClientWindow, impl->window,
+			NULL	// XCreateIC va_list NULL terminator (must be NULL, not 0 to avoid gcc compiler warnings)
+			);
+		if(!impl->xic)
+		{
+			XFree(impl->visualinfo);
+			XDestroyWindow(display.impl->display, impl->window);
+			throw wm::Exception("Can't set X Window manager protocols (WM_DELETE_WINDOW)");			
+		}
+		
+		// Get event mask from input context and listen to specified events
+		long xic_event_mask;
+		if(XGetICValues(impl->xic, XNFilterEvents, &xic_event_mask, NULL))
+		{
+			XDestroyIC(impl->xic);
+			XFree(impl->visualinfo);
+			XDestroyWindow(display.impl->display, impl->window);
+			throw Exception("Can't query event mask from X input context");
+		}
+		
+		XSelectInput(
+			display.impl->display,
+			impl->window,
+			xlib::event_mask | xic_event_mask
+			);
+		
 		// TODO: better error handling, perhaps wait for X 
 		display.impl->registry.add(impl->window, this);
 	}
@@ -104,7 +134,8 @@ namespace wm
 	Window::~Window()
 	{
 		display().impl->registry.remove(impl->window);
-	
+		
+		XDestroyIC(impl->xic);
 		XFree(impl->visualinfo);
 		XDestroyWindow(display().impl->display, impl->window);
 	}
