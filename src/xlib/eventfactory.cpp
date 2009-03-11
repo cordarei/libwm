@@ -4,6 +4,7 @@
 #include <X11/Xlib.h>
 
 #include <wm/event.hpp>
+#include <wm/exception.hpp>
 
 namespace 
 {
@@ -107,6 +108,35 @@ namespace
 	
 }
 
+#include <boost/cstdint.hpp>
+
+namespace
+{
+	boost::uint32_t decode_utf8(const unsigned char* data, int len)
+	{
+		if(len == 0) return 0;
+		else if(len == 1
+			&& (data[0] & 0x80) == 0
+				) return data[0];
+		else if(len == 2
+			&& (data[0] & 0xe0) == 0xc0
+			&& (data[1] & 0xc0) == 0x80
+				) return ((data[0] & 0x1f) << 6) | (data[1] & 0x3f);
+		else if(len == 3
+			&& (data[0] & 0xf0) == 0xe0
+			&& (data[1] & 0xc0) == 0x80
+			&& (data[2] & 0xc0) == 0x80
+				) return ((data[0] & 0x0f) << 12) | ((data[1] & 0x3f) << 6) | (data[2] & 0x3f); 
+		else if(len == 4
+			&& (data[0] & 0xf7) == 0xf0
+			&& (data[1] & 0x3f) == 0x80
+			&& (data[2] & 0x3f) == 0x80
+			&& (data[3] & 0x3f) == 0x80
+				) return ((data[0] & 0x7) << 18) | ((data[1] & 0x3f) << 12) | ((data[2] & 0x3f) << 6) | (data[3] & 0x3f);
+		throw wm::Exception("Invalid UTF-8");
+	}
+}
+
 #include <wm/display.hpp>
 #include <wm/window.hpp>
 #include "impl/window_impl.hpp"
@@ -158,9 +188,11 @@ namespace wm
 			{
 				if(event.type == KeyPress && !filter)
 				{
-					char utf[6] = { 0, 0, 0, 0, 0, 0 };
+					const size_t buffer_size = 6;
+					char buffer[buffer_size] = { 0, 0, 0, 0, 0, 0 };
 					KeySym keysym;
 					Status status;
+					
 					
 					// XmbLookupString output encoding depends on current locale
 					// XwcLookupString also uses locale and nonportable wchar_t
@@ -168,39 +200,41 @@ namespace wm
 					int len = Xutf8LookupString(
 						window.impl->xic,
 						const_cast<XKeyEvent*>(&event.xkey), // Xlib is not const correct
-						utf,
-						sizeof(utf)-1,
+						buffer,
+						buffer_size-1,
 						&keysym,
 						&status
 						);
-					utf[len] = 0;	// add null terminator
+					buffer[len] = 0;	// add null terminator
 					
-					std::cout << "XEventFilter: " << (filter ? "true" : "false") << std::endl;
-					std::cout << "Xutf8LookupString returned: " << len << std::endl;
-						
 					switch(status)
 					{
 					case XBufferOverflow:
-						std::cout << "buffer overflow" << std::endl;
-						break;
+						throw wm::Exception("Xutf8LookupString status XBufferOverflow"); // 6 bytes should be enough, this should never happen
 					case XLookupNone:
-						std::cout << "buffer lookup none" << std::endl;
-						break;
+						return 0;
 					case XLookupKeySym:
 					case XLookupBoth:	
-						std::cout << "Lookup keysym" << std::endl;
-						if(status == XLookupKeySym) break;
+						
+						{
+							KeyEvent *key = new KeyEvent(window, true);		// TODO: handle keysym
+							if(status == XLookupKeySym) return key;
+							// Propagate KeyEvent before CharacterEvent
+							window.impl->eventq.push(key); 	// eventq handles the destruction of the pushed event
+						}
 					case XLookupChars:
-						std::cout << "Lookup chars: " << utf << std::endl;
-						break;
+					
+						return new wm::CharacterEvent(
+							window,
+							decode_utf8(
+								reinterpret_cast<const unsigned char*>(buffer),
+								len
+							));
 					}
 				}
-				
-				if(filter)
-				{
-					std::cout << "XEventFilter: true" << std::endl;	
-				}
 			
+				// TODO: lookup and handle keysym
+				
 				return new wm::KeyEvent(
 					window,
 					event.type == KeyPress);
