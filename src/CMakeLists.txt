@@ -3,6 +3,8 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 aux_source_directory(common COMMON_SOURCES)
 
 if(WIN32)
+	add_definitions(-DUNICODE)
+
 	aux_source_directory(win32 WIN32_SOURCES)
 	add_library(wm ${COMMON_SOURCES} ${WIN32_SOURCES})
 	target_link_libraries(wm ${X11_LIBRARIES})

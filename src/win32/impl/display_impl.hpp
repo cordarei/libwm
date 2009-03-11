@@ -1,13 +1,15 @@
 #ifndef DISPLAY_IMPL_HPP
 #define DISPLAY_IMPL_HPP
 
-#include <string>
+#include <vector>
+
+#include <windows.h>
 
 namespace wm
 {
 	struct Display::impl_t
 	{
-		std::string classname;
+		std::vector<WCHAR> classname;
 		HINSTANCE hInstance;
 	};
 }

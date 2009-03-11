@@ -11,6 +11,7 @@ namespace wm
 	class ResizeEvent;
 	class ShowEvent;
 	class CloseEvent;
+	class CharacterEvent;
 
 	class EventHandler
 	{
@@ -25,6 +26,7 @@ namespace wm
 			virtual void handle(const ResizeEvent &) {}
 			virtual void handle(const ShowEvent &) {}
 			virtual void handle(const CloseEvent &) {}
+			virtual void handle(const CharacterEvent&) { }
 			
 		protected:
 			EventHandler() {}

@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <string>
+#include <cctype>
 
 #include <wm/event.hpp>
 #include <wm/eventhandler.hpp>
@@ -88,6 +89,20 @@ namespace wm
 				*os
 					<< "CloseEvent("
 					<< ")" << delim;
+			}
+
+			virtual void handle(const CharacterEvent& event)
+			{
+				*os
+					<< "CharacterEvent("
+					<< "unicode = " << event.unicode();
+
+				int (*func)(int) = &std::isprint; // use the C isprint, not the C++ one with locales
+				char ch = event.unicode() < 128 ? static_cast<char>(event.unicode()) : 0;
+				if(func(ch))
+					std::cout << " '" << ch << "'";
+
+				*os << ")" << delim;
 			}
 
 		private:

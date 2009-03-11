@@ -1,4 +1,5 @@
 #include <iostream>
+#include <vector>
 
 #include <windows.h>
 
@@ -24,13 +25,13 @@ namespace
 	}
 
 	// Simple hex string representation of Display pointer
-	std::string genClassNameStr(const wm::Display *display)
+	std::vector<WCHAR> genClassNameStr(const wm::Display *display)
 	{
 		size_t size = sizeof(const wm::Display*);
 		const unsigned char *begin =
 			reinterpret_cast<const unsigned char *>(&display);
 
-		std::string str;
+		std::vector<WCHAR> str;
 		str.reserve(2 * size + 1);
 		for(const unsigned char *ptr = begin;
 			ptr != begin + size;
@@ -39,6 +40,7 @@ namespace
 			str.push_back(getHexChar(*ptr & 0x0f)); // put least significant digit first for added obscurity
 			str.push_back(getHexChar(*ptr & 0xf0 >> 4));
 		}
+		str.push_back(0);
 
 		return str;
 	}
@@ -181,8 +183,8 @@ namespace wm
 		if(!hcursor)
 			throw Exception("Could not load win32 default cursor" + win32::getErrorMsg());
 
-		WNDCLASSEX klass;
-		klass.cbSize = sizeof(WNDCLASSEX);
+		WNDCLASSEXW klass;
+		klass.cbSize = sizeof(WNDCLASSEXW);
 		klass.style = 0;
 		klass.lpfnWndProc = &EventReader::wndproc;
 		klass.cbClsExtra = 0;
@@ -192,10 +194,10 @@ namespace wm
 		klass.hCursor = hcursor;
 		klass.hbrBackground = 0;
 		klass.lpszMenuName = 0;
-		klass.lpszClassName = impl->classname.c_str();
+		klass.lpszClassName = &(impl->classname)[0];
 		klass.hIconSm = 0;
 
-		if(!RegisterClassEx(&klass))
+		if(!RegisterClassExW(&klass))
 			throw Exception("Can't register win32 window class: " + win32::getErrorMsg());
 	}
 
@@ -203,7 +205,7 @@ namespace wm
 	{
 		try
 		{
-			if(!UnregisterClass(impl->classname.c_str(), impl->hInstance))
+			if(!UnregisterClassW(&(impl->classname)[0], impl->hInstance))
 			{
 				std::cerr << "Can't unregister win32 window class: " << win32::getErrorMsg();
 			}
@@ -218,12 +220,12 @@ namespace wm
 		{
 			MSG msg;
 
-			if(GetMessage(&msg, 0, 0, 0) == -1) // Yep, the return type is BOOL and it returns -1 on error
+			if(GetMessageW(&msg, 0, 0, 0) == -1) // Yep, the return type is BOOL and it returns -1 on error
 				throw Exception("Can't get win32 message: " + win32::getErrorMsg());
 
 			TranslateMessage(&msg);
 
-			if(DispatchMessage(&msg) < 0)
+			if(DispatchMessageW(&msg) < 0)
 			{
 				throw Exception("Can't dispatch message to window procedures: " + win32::getErrorMsg());
 			}

@@ -15,7 +15,7 @@
 
 namespace
 {
-	HWND createWindow(HINSTANCE hInstance, const char *wndclass, int width, int height, int style, int exstyle)
+	HWND createWindow(HINSTANCE hInstance, const WCHAR *wndclass, int width, int height, int style, int exstyle)
 	{
 		RECT rect;
 		if(!SetRect(&rect, 0, 0, width, height)) // how likely is this? ;)
@@ -25,10 +25,11 @@ namespace
 		if(!AdjustWindowRectEx(&rect, style, false, exstyle))
 			throw wm::Exception("Can't adjust window bounds rectangle" + wm::win32::getErrorMsg());
 
-		HWND hwnd = CreateWindowEx(
+		WCHAR nullterm = 0;
+		HWND hwnd = CreateWindowExW(
 			exstyle,
 			wndclass,
-			"Window",
+			&nullterm,	// window title
 			style,
 			CW_USEDEFAULT, CW_USEDEFAULT,
 			rect.right - rect.left, rect.bottom - rect.top,
@@ -102,7 +103,7 @@ namespace wm
 
 		impl->hwnd = createWindow(
 			display.impl->hInstance,
-			display.impl->classname.c_str(),
+			&(display.impl->classname)[0],
 			width,
 			height,
 			impl->style,
@@ -206,10 +207,10 @@ namespace wm
 				);
 
 			if(!len)
-				throw Exception("MultiByteToWideChar failed: " + win32::getErrorMsg());
+				throw Exception("MultiByteToWideChar failed: " + win32::getErrorMsg()); 
 
 			if(!array) array.reset(new WCHAR[len]);
-		}
+		} 
 
 		SetWindowTextW(impl->hwnd, array.get());
 	}

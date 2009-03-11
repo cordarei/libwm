@@ -1,8 +1,11 @@
 #include <iostream>
 #include <map>
 
+#include <boost/cstdint.hpp>
+
 #include <windows.h>
 
+#include <wm/exception.hpp>
 #include <wm/event.hpp>
 #include "impl/eventfactory.hpp"
 
@@ -1124,6 +1127,25 @@ namespace
 	{
 		return new wm::CloseEvent(window);
 	}
+
+	const wm::Event *makeChar(
+		wm::Window& window,
+		UINT message,
+		WPARAM wparam,
+		LPARAM lparam)
+	{
+		boost::uint16_t lo = wparam & 0xFFFF;
+		boost::uint16_t hi = (wparam & 0xFFFF0000) >> 16;
+		boost::uint32_t codepoint = 0;
+
+		// Convert from UTF-16 to Unicode codepoint
+		if(lo < 0xD8000 || lo > 0xDFFF) codepoint = lo;
+		else if(lo < 0xD800 || lo > 0xDBFF) throw wm::Exception("Win32 WM_CHAR message contains invalid UTF-16");
+		else if(hi < 0xDC00 || hi > 0xDFFF) throw wm::Exception("Win32 WM_CHAR message contains invalid UTF-16");
+		else codepoint = ((lo & 0x3FF) << 10) | (hi & 0x3FF) + 0x10000;
+
+		return new wm::CharacterEvent(window, codepoint);
+	}
 }
 
 namespace wm
@@ -1149,6 +1171,8 @@ namespace wm
 				{
 					map[WM_KEYUP] = &makeKey;
 					map[WM_KEYDOWN] = &makeKey;
+
+					map[WM_CHAR] = &makeChar;
 
 					map[WM_LBUTTONDOWN]= &makeButton;
 					map[WM_LBUTTONUP]= &makeButton;
@@ -1186,7 +1210,7 @@ namespace wm
 					case WM_NCHITTEST:
 						break;
 					default:
-						//std::cout << "Unhandled win32 message: " << message_names[message] << std::endl;
+						std::cout << "Unhandled win32 message: " << message_names[message] << std::endl;
 						break;
 					}
 				}
