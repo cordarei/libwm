@@ -1,6 +1,7 @@
 #include <iostream>
 
 #include <wm/event.hpp>
+#include <wm/events.hpp>
 #include <common/eventqueue.hpp>
 
 namespace wm

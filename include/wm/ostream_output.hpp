@@ -6,6 +6,7 @@
 #include <cctype>
 
 #include <wm/event.hpp>
+#include <wm/events.hpp>
 #include <wm/eventhandler.hpp>
 
 namespace wm

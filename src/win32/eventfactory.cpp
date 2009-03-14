@@ -7,6 +7,7 @@
 
 #include <wm/exception.hpp>
 #include <wm/event.hpp>
+#include <wm/events.hpp>
 #include "impl/eventfactory.hpp"
 
 namespace
@@ -1210,7 +1211,7 @@ namespace wm
 					case WM_NCHITTEST:
 						break;
 					default:
-						std::cout << "Unhandled win32 message: " << message_names[message] << std::endl;
+						//std::cout << "Unhandled win32 message: " << message_names[message] << std::endl;
 						break;
 					}
 				}

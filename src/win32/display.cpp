@@ -7,6 +7,7 @@
 #include <wm/display.hpp>
 #include <wm/window.hpp>
 #include <wm/event.hpp>
+#include <wm/events.hpp>
 
 #include <common/eventqueue.hpp>
 #include "impl/error.hpp"
