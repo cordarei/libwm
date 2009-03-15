@@ -39,3 +39,5 @@ endif(UNIX)
 
 add_subdirectory(test)
 
+install(TARGETS wm DESTINATION lib)
+
