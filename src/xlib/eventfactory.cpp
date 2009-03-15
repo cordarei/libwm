@@ -4,6 +4,7 @@
 #include <X11/Xlib.h>
 
 #include <wm/event.hpp>
+#include <wm/events.hpp>
 #include <wm/exception.hpp>
 
 namespace 

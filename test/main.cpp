@@ -11,6 +11,7 @@
 #include <wm/connection.hpp>
 #include <wm/eventhandler.hpp>
 #include <wm/event.hpp>
+#include <wm/events.hpp>
 #include <wm/ostream_output.hpp>
 
 #include "draw.hpp"
@@ -19,27 +20,29 @@ namespace
 {
 	int encode_utf8(boost::uint32_t codepoint, unsigned char *out)
 	{
+		typedef unsigned char uchar;
+	
 		if(!(codepoint & ~0x7F))
 		{
-			out[0] = unsigned char(codepoint & 0x7F);
+			out[0] = uchar(codepoint & 0x7F);
 			return 1;
 		} else if(!(codepoint & ~0x7FF))
 		{
-			out[0] = unsigned char(0xc0 | (codepoint & 0x7C0) >> 6);
-			out[1] = unsigned char(0x80 | (codepoint & 0x3F));
+			out[0] = uchar(0xc0 | (codepoint & 0x7C0) >> 6);
+			out[1] = uchar(0x80 | (codepoint & 0x3F));
 			return 2;
 		} else if(!(codepoint & ~0xFFFF))
 		{
-			out[0] = unsigned char(0xe0 | (codepoint & 0xF000) >> 12);
-			out[1] = unsigned char(0x80 | (codepoint & 0xFC) >> 6);
-			out[2] = unsigned char(0x80 | (codepoint & 0x3F));
+			out[0] = uchar(0xe0 | (codepoint & 0xF000) >> 12);
+			out[1] = uchar(0x80 | (codepoint & 0xFC) >> 6);
+			out[2] = uchar(0x80 | (codepoint & 0x3F));
 			return 3;
 		} else if(!(codepoint & ~0x3FFFF))
 		{
-			out[0] = unsigned char(0xf0 | (codepoint & 0x1c0000) >> 18);
-			out[1] = unsigned char(0x80 | (codepoint & 0x3f00) >> 12);
-			out[2] = unsigned char(0x80 | (codepoint & 0xFC) >> 6);
-			out[3] = unsigned char(0x80 | (codepoint & 0x3F));
+			out[0] = uchar(0xf0 | (codepoint & 0x1c0000) >> 18);
+			out[1] = uchar(0x80 | (codepoint & 0x3f00) >> 12);
+			out[2] = uchar(0x80 | (codepoint & 0xFC) >> 6);
+			out[3] = uchar(0x80 | (codepoint & 0x3F));
 			return 4;
 		}
 		
