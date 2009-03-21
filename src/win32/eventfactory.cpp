@@ -7,6 +7,7 @@
 #include <wm/event.hpp>
 #include <wm/events.hpp>
 #include "impl/eventfactory.hpp"
+#include "impl/keymap.hpp"
 
 #include <windows.h>
 
@@ -1048,7 +1049,10 @@ namespace
 		WPARAM wparam,
 		LPARAM lparam)
 	{
-		return new wm::KeyEvent(window, wm::KeyEvent::UNKNOWN, message==WM_KEYDOWN);
+		return new wm::KeyEvent(
+			window, 
+			wm::win32::mapVirtualKeyCode(wparam),
+			message==WM_KEYDOWN);
 	}
 
 	const wm::Event *makeButton(

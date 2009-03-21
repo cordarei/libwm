@@ -87,6 +87,15 @@ int main(int, char *[])
 			test::draw(width, height);
 			window->swap();
 		}
+
+		virtual void handle(const wm::KeyEvent &event)
+		{
+			if(event.symbol() == wm::KeyEvent::ESCAPE &&
+				event.state())
+			{
+				quit_flag = true;
+			}
+		};
 		
 		virtual void handle(const wm::ButtonEvent &event)
 		{			
