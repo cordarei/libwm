@@ -1,8 +1,6 @@
 #include <iostream>
 #include <vector>
 
-#include <windows.h>
-
 #include <wm/exception.hpp>
 #include <wm/display.hpp>
 #include <wm/window.hpp>
@@ -14,6 +12,8 @@
 #include "impl/display_impl.hpp"
 #include "impl/window_impl.hpp"
 #include "impl/eventfactory.hpp"
+
+#include <windows.h>
 
 namespace
 {

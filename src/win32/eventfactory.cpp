@@ -3,12 +3,12 @@
 
 #include <boost/cstdint.hpp>
 
-#include <windows.h>
-
 #include <wm/exception.hpp>
 #include <wm/event.hpp>
 #include <wm/events.hpp>
 #include "impl/eventfactory.hpp"
+
+#include <windows.h>
 
 namespace
 {
@@ -1048,7 +1048,7 @@ namespace
 		WPARAM wparam,
 		LPARAM lparam)
 	{
-		return new wm::KeyEvent(window, message==WM_KEYDOWN);
+		return new wm::KeyEvent(window, wm::KeyEvent::UNKNOWN, message==WM_KEYDOWN);
 	}
 
 	const wm::Event *makeButton(
