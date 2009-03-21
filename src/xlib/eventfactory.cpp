@@ -213,23 +213,17 @@ namespace wm
 						);
 					buffer[len] = 0;	// add null terminator
 					
-					switch(status)
+					if(status == XBufferOverflow) // 6 bytes should be enough, this should never happen
+						throw wm::Exception("Xutf8LookupString status XBufferOverflow");
+
+					if(status == XLookupBoth || status == XLookupChars)
 					{
-					case XBufferOverflow:
-						throw wm::Exception("Xutf8LookupString status XBufferOverflow"); // 6 bytes should be enough, this should never happen
-					case XLookupNone:
-						return 0;
-					case XLookupKeySym:
-					case XLookupBoth:	
+						// X input method (XIM) tells us that characters have been written
+						// First, propagate KeyEvent to event queue
+						KeyEvent *key = new KeyEvent(window, xlib::mapXKeySym(keysym), true);
+						window.impl->eventq.push(key); 	// eventq handles the destruction of the pushed 
 						
-						{
-							KeyEvent *key = new KeyEvent(window, xlib::mapXKeySym(keysym), true);
-							if(status == XLookupKeySym) return key;
-							// Propagate KeyEvent before CharacterEvent
-							window.impl->eventq.push(key); 	// eventq handles the destruction of the pushed event
-						}
-					case XLookupChars:
-					
+						// Then return CharacterEvent
 						return new wm::CharacterEvent(
 							window,
 							decode_utf8(
@@ -244,8 +238,6 @@ namespace wm
 					xlib::mapXKeySym(keysym),
 					event.type == KeyPress);
 			}
-
-
 	};
 
 	namespace xlib
