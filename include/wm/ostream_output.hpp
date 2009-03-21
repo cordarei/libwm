@@ -44,9 +44,11 @@ namespace wm
 
 			virtual void handle(const KeyEvent& event)
 			{
+				typedef unsigned int uint;
 				*os
 					<< "KeyEvent("
-					<< "state = " << (event.state() ? "Down" : "Up")
+					<< "symbol = " << uint(event.symbol())
+					<< ", state = " << (event.state() ? "Down" : "Up")
 					<< ")" << delim;
 			}
 

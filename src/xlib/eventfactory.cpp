@@ -6,6 +6,7 @@
 #include <wm/event.hpp>
 #include <wm/events.hpp>
 #include <wm/exception.hpp>
+#include "impl/keymap.hpp"
 
 namespace 
 {
@@ -187,13 +188,17 @@ namespace wm
 				const XEvent &event,
 				bool filter)
 			{
+				const int keycode_index = 0; // Ignore modmask for keysym
+				KeySym keysym = XKeycodeToKeysym(
+					window.display().impl->display,
+					event.xkey.keycode,
+					keycode_index);
+			
 				if(event.type == KeyPress && !filter)
 				{
 					const size_t buffer_size = 6;
 					char buffer[buffer_size] = { 0, 0, 0, 0, 0, 0 };
-					KeySym keysym;
 					Status status;
-					
 					
 					// XmbLookupString output encoding depends on current locale
 					// XwcLookupString also uses locale and nonportable wchar_t
@@ -203,7 +208,7 @@ namespace wm
 						const_cast<XKeyEvent*>(&event.xkey), // Xlib is not const correct
 						buffer,
 						buffer_size-1,
-						&keysym,
+						0,  // pointer to keysym, NULL for no keysym lookup
 						&status
 						);
 					buffer[len] = 0;	// add null terminator
@@ -218,7 +223,7 @@ namespace wm
 					case XLookupBoth:	
 						
 						{
-							KeyEvent *key = new KeyEvent(window, true);		// TODO: handle keysym
+							KeyEvent *key = new KeyEvent(window, xlib::mapXKeySym(keysym), true);
 							if(status == XLookupKeySym) return key;
 							// Propagate KeyEvent before CharacterEvent
 							window.impl->eventq.push(key); 	// eventq handles the destruction of the pushed event
@@ -234,10 +239,9 @@ namespace wm
 					}
 				}
 			
-				// TODO: lookup and handle keysym
-				
 				return new wm::KeyEvent(
 					window,
+					xlib::mapXKeySym(keysym),
 					event.type == KeyPress);
 			}
 
