@@ -130,6 +130,8 @@ namespace wm
 			Symbol symbol_;
 			bool state_;
 	};
+	
+	const char *keyName(wm::KeyEvent::Symbol);
 }
 
 #endif

@@ -47,7 +47,7 @@ namespace wm
 				typedef unsigned int uint;
 				*os
 					<< "KeyEvent("
-					<< "symbol = " << uint(event.symbol())
+					<< "symbol = " << uint(event.symbol()) << " \"" << keyName(event.symbol()) << '"'
 					<< ", state = " << (event.state() ? "Down" : "Up")
 					<< ")" << delim;
 			}
