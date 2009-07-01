@@ -31,6 +31,8 @@ namespace wm
 		XCloseIM(impl->xim);
 		
 		XCloseDisplay(impl->display);
+		
+		delete impl;
 	}
 	
 	class Event;

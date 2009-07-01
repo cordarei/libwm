@@ -139,6 +139,8 @@ namespace wm
 		XDestroyIC(impl->xic);
 		XFree(impl->visualinfo);
 		XDestroyWindow(display().impl->display, impl->window);
+		
+		delete impl;
 	}
 	
 	void Window::show()

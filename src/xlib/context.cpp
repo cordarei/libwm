@@ -62,6 +62,8 @@ namespace wm
 		glXDestroyContext(
 			display().impl->display,
 			impl->context);
+			
+		delete impl;
 	}
 	
 	void makeCurrent(Window& window, Context& context)
