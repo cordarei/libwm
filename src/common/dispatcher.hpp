@@ -1,8 +1,6 @@
 #ifndef COMMON_DISPATCHER_HPP
 #define COMMON_DISPATCHER_HPP
 
-#include <boost/noncopyable.hpp>
-
 namespace wm
 {
 	class Event;
@@ -12,7 +10,7 @@ namespace wm
 	{
 		struct ConnectionInfo;
 	
-		class Dispatcher : boost::noncopyable
+		class Dispatcher
 		{		
 			public:
 				Dispatcher();
@@ -24,6 +22,9 @@ namespace wm
 				void dispatch(const Event&);
 				
 			private:
+				Dispatcher(const Dispatcher&);
+				Dispatcher& operator=(const Dispatcher&);
+
 				ConnectionInfo *head;
 		};
 	}

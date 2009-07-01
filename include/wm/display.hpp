@@ -1,15 +1,14 @@
 #ifndef DISPLAY_HPP
 #define DISPLAY_HPP
 
-#include <boost/noncopyable.hpp>
-#include <boost/scoped_ptr.hpp>
+#include <wm/export.hpp>
 
 namespace wm
 {
 	class Window;
 	class Context;
 
-	class Display : boost::noncopyable
+	class WM_EXPORT Display
 	{
 		public:
 			explicit Display(const char *name = 0);
@@ -18,16 +17,21 @@ namespace wm
 			void dispatch(bool block);
 			
 		private:
+			Display(const Display&);
+			Display& operator=(const Display&);
+
 			struct impl_t;
-			boost::scoped_ptr<impl_t> impl;
+			impl_t* impl;
 			
 			friend class EventReader;
 			friend class Window;
 			friend class Context;
 			
-			friend void makeCurrent(Window&, Context&);
+			friend void WM_EXPORT makeCurrent(Window&, Context&);
 	};
 }
+
+#undef WM_EXPORT
 
 #endif
 

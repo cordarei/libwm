@@ -4,6 +4,8 @@
 #include <wm/event.hpp>
 #include <wm/eventhandler.hpp>
 
+#include <wm/export.hpp>
+
 namespace wm
 {
 	class KeyEvent : public Event
@@ -131,7 +133,9 @@ namespace wm
 			bool state_;
 	};
 	
-	const char *keyName(wm::KeyEvent::Symbol);
+	const char WM_EXPORT *keyName(wm::KeyEvent::Symbol);
 }
+
+#undef WM_EXPORT
 
 #endif

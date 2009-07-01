@@ -213,6 +213,8 @@ namespace wm
 		} catch(...)
 		{
 		}
+
+		delete impl;
 	}
 
 	void Display::dispatch(bool block)

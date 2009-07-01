@@ -142,6 +142,8 @@ namespace wm
 		} catch(...)
 		{
 		}
+
+		delete impl;
 	}
 		
 	void Window::show()

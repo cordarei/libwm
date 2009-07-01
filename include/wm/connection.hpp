@@ -1,8 +1,7 @@
 #ifndef CONNECTION_HPP
 #define CONNECTION_HPP
 
-#include <boost/noncopyable.hpp>
-#include <boost/scoped_ptr.hpp>
+#include <wm/export.hpp>
 
 namespace wm
 {
@@ -14,7 +13,7 @@ namespace wm
 		struct ConnectionInfo;
 	}
 	
-	class Connection : boost::noncopyable
+	class WM_EXPORT Connection
 	{
 		public:
 			Connection(Window&, EventHandler&, bool do_connect = true);
@@ -26,10 +25,15 @@ namespace wm
 			bool connected();
 
 		private:
+			Connection(const Connection&);
+			Connection& operator=(const Connection&);
+
 			Window &window;
 			EventHandler &handler;
 			common::ConnectionInfo *info;			
 	};
 }
+
+#undef WM_EXPORT
 
 #endif

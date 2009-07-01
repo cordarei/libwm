@@ -1,11 +1,10 @@
 #ifndef WINDOW_HPP
 #define WINDOW_HPP
 
-#include <boost/noncopyable.hpp>
-#include <boost/scoped_ptr.hpp>
-
 #include <wm/pixelformat.hpp>
 #include <wm/connection.hpp>
+
+#include <wm/export.hpp>
 
 namespace wm
 {
@@ -18,7 +17,7 @@ namespace wm
 		class Dispatcher;
 	}
 
-	class Window : boost::noncopyable
+	class WM_EXPORT Window
 	{
 		public:
 			Window(
@@ -45,8 +44,11 @@ namespace wm
 			void dispatch(bool block);
 			
 		private:
+			Window(const Window&);
+			Window& operator=(const Window&);
+
 			struct impl_t;
-			boost::scoped_ptr<impl_t> impl;
+			impl_t* impl;
 			Display& display_;
 
 			common::Dispatcher &dispatcher();
@@ -55,9 +57,11 @@ namespace wm
 			friend class Connection;
 			friend class Display;
 			friend class Context;
-			friend void makeCurrent(Window&, Context&);
+			friend void WM_EXPORT makeCurrent(Window&, Context&);
 	};
 }
+
+#undef WM_EXPORT
 
 #endif
 

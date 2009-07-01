@@ -1,15 +1,14 @@
 #ifndef CONTEXT_HPP
 #define CONTEXT_HPP
 
-#include <boost/noncopyable.hpp>
-#include <boost/scoped_ptr.hpp>
+#include <wm/export.hpp>
 
 namespace wm
 {
 	class Window;
 	class Display;
 
-	class Context
+	class WM_EXPORT Context
 	{
 		public:
 			Context(Window &window, int majorVersion, int minorVersion);
@@ -19,13 +18,18 @@ namespace wm
 			Display& display() { return display_; }
 			
 		private:
+			Context(const Context&);
+			Context& operator=(const Context&);
+
 			struct impl_t;
-			boost::scoped_ptr<impl_t> impl;
+			impl_t* impl;
 			
 			Display &display_;
-			friend void makeCurrent(Window&, Context&);
+			friend void WM_EXPORT makeCurrent(Window&, Context&);
 	};
 }
+
+#undef WM_EXPORT
 
 #endif
 
