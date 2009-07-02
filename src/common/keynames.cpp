@@ -231,6 +231,61 @@ namespace
 		"Keypad minus", 	// KEYPAD_MINUS
 		"Keypad enter",		// KEYPAD_ENTER
 
+		"Up", 				// UP
+		"Down", 			// DOWN
+		"Left", 			// LEFT
+		"Right", 			// RIGHT
+		"Insert", 			// INSERT
+		"Home", 			// HOME
+		"End", 				// END
+		"Page Up", 			// PAGEUP
+		"Page Down",		// PAGEDOWN
+
+		"F1",				// F1
+		"F2",				// F2
+		"F3",				// F3
+		"F4",				// F4
+		"F5",				// F5
+		"F6",				// F6
+		"F7",				// F7
+		"F8",				// F8
+		"F9",				// F9
+		"F10",				// F10
+		"F11",				// F11
+		"F12",				// F12
+		"F13",				// F13
+		"F14",				// F14
+		"F15",				// F15
+		"F16",				// F16
+		"F17",				// F17
+		"F18",				// F18
+		"F19",				// F19
+		"F20",				// F20
+		"F21",				// F21
+		"F22",				// F22
+		"F23",				// F23
+		"F24",				// F24
+
+		"Num Lock", 		// NUMLOCK
+		"Caps Lock", 		// CAPSLOCK
+		"Scroll Lock", 		// SCROLLLOCK
+		"Left shift", 		// LSHIFT
+		"Right shift", 		// RSHIFT
+		"Left CTRL", 		// LCTRL
+		"Right CTRL", 		// RCRTL
+		"Left ALT", 		// LALT
+		"Right ALT", 		// RALT
+		"Left Super", 		// LSUPER
+		"Right Super", 		// RSUPER
+		
+		"Alt Gr",			// ALTGR
+		"Compose",			// COMPOSE
+		"Menu",				// MENU
+		
+		"System request", 	// SYS_REQ
+		"Pause",			// PAUSE
+		"Print screen",		// PRINT
+
 		0 // terminator
 		};
 }

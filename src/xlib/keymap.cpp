@@ -229,12 +229,67 @@ namespace
 		XK_KP_Home,			// KEYPAD_7
 		XK_KP_Up,			// KEYPAD_8
 		XK_KP_Page_Up,		// KEYPAD_9
-		XK_KP_Delete, 	// KEYPAD_SEPARATOR
+		XK_KP_Delete, 		// KEYPAD_SEPARATOR
 		XK_KP_Divide,	 	// KEYPAD_DIVIDE
 		XK_KP_Multiply, 	// KEYPAD_MULTIPLY
 		XK_KP_Add, 			// KEYPAD_PLUS
 		XK_KP_Subtract, 	// KEYPAD_MINUS
 		XK_KP_Enter,		// KEYPAD_ENTER
+		
+		XK_Up, 				// UP
+		XK_Down, 			// DOWN
+		XK_Left, 			// LEFT
+		XK_Right, 			// RIGHT
+		XK_Insert, 			// INSERT
+		XK_Home, 			// HOME
+		XK_End, 			// END
+		XK_Page_Up,			// PAGEUP
+		XK_Page_Down,		// PAGEDOWN
+		
+		XK_F1,				// F1
+		XK_F2,				// F2
+		XK_F3,				// F3
+		XK_F4,				// F4
+		XK_F5,				// F5
+		XK_F6,				// F6
+		XK_F7,				// F7
+		XK_F8,				// F8
+		XK_F9,				// F9
+		XK_F10,				// F10
+		XK_F11,				// F10
+		XK_F12,				// F12
+		XK_F13,				// F13
+		XK_F14,				// F14
+		XK_F15,				// F15
+		XK_F16,				// F16
+		XK_F17,				// F17
+		XK_F18,				// F18
+		XK_F19,				// F19
+		XK_F20,				// F20
+		XK_F21,				// F21
+		XK_F22,				// F22
+		XK_F23,				// F23
+		XK_F24,				// F24
+		
+		XK_Num_Lock, 		// NUMLOCK
+		XK_Caps_Lock, 		// CAPSLOCK
+		XK_Scroll_Lock, 	// SCROLLLOCK
+		XK_Shift_L, 		// LSHIFT
+		XK_Shift_R, 		// RSHIFT
+		XK_Control_L, 		// LCTRL
+		XK_Control_R, 		// RCRTL
+		XK_Alt_L, 			// LALT
+		XK_Alt_R, 			// RALT
+		XK_Super_L, 		// LSUPER
+		XK_Super_R, 		// RSUPER
+		
+		XK_ISO_Level3_Shift,// ALTGR
+		XK_Multi_key,		// COMPOSE
+		XK_Menu,			// MENU
+		
+		XK_Sys_Req,			// SYS_REQ
+		XK_Pause,			// PAUSE
+		XK_Print,			// PRINT
 		
 		0 // terminator
 		};
