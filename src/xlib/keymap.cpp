@@ -102,13 +102,123 @@ namespace
 		XK_underscore,		// UNDERSCORE 
 		XK_grave,			// BACKQUOTE
 		
-		/* 0x61 - 0x7e unused (total: 30) */
-		
+		0, 0, 0, 0, 0,		// 0x61 - 0x7e unused (total: 30)
+		0, 0, 0, 0, 0,
+		0, 0, 0, 0, 0,
+		0, 0, 0, 0, 0,
+		0, 0, 0, 0, 0,
+		0, 0, 0, 0, 0,
+
 		XK_Delete,			// DELETE 
 		
 		// END OF ASCII
 		
-		0					// TERMINATOR
+		0, 0, 0, 0, 0,		// 0x80 - 0x9f unused (total: 32)
+		0, 0, 0, 0, 0,
+		0, 0, 0, 0, 0,
+		0, 0, 0, 0, 0,
+		0, 0, 0, 0, 0,
+		0, 0, 0, 0, 0,
+		0, 0,
+
+		// International unicode characters 0xa0 - 0xff
+		XK_nobreakspace,	// NOBREAKSPACE (0xa0)
+		XK_exclamdown,		// EXCLAMDOWN (0xa1)
+		XK_cent,			// CENT (0xa2)
+		XK_sterling,		// STERLING (0xa3)
+		XK_currency,		// CURRENCY (0xa4)
+		XK_yen,				// YEN (0xa5)
+		XK_brokenbar,		// BROKENBAR (0xa6)
+		XK_section,			// SECTION (0xa7)
+		XK_diaeresis,		// DIAERESIS (0xa8)
+		XK_copyright,		// COPYRIGHT (0xa9)
+		XK_ordfeminine,		// ORDFEMININE (0xaa)
+		XK_guillemotleft,	// GUILLEMOTLEFT (0xab)
+		XK_notsign,			// NOTSIGN (0xac)
+		XK_hyphen,			// HYPHEN (0xad)
+		XK_registered,		// REGISTERED (0xae)
+		XK_macron,			// MACRON (0xaf)
+		XK_degree,			// DEGREE (0xb0)
+		XK_plusminus,		// PLUSMINUS (0xb1)
+		XK_twosuperior,		// TWOSUPERIOR (0xb2)
+		XK_threesuperior,	// THREESUPERIOR (0xb3)
+		XK_acute,			// ACUTE (0xb4)
+		XK_mu,				// MU (0xb5)
+		XK_paragraph,		// PARAGRAPH (0xb6)
+		XK_periodcentered,	// PERIODCENTERED (0xb7)
+		XK_cedilla,			// CEDILLA (0xb8)
+		XK_onesuperior,		// ONESUPERIOR (0xb9)
+		XK_masculine,		// MASCULINE (0xba)
+		XK_guillemotright,	// GUILLEMOTRIGHT (0xbb)
+		XK_onequarter,		// ONEQUARTER (0xbc)
+		XK_onehalf,			// ONEHALF (0xbd)
+		XK_threequarters,	// THREEQUARTERS (0xbe)
+		XK_questiondown,	// QUESTIONDOWN (0xbf)
+		XK_Agrave,			// AGRAVE (0xc0)
+		XK_Aacute,			// AACUTE (0xc1)
+		XK_Acircumflex,		// ACIRCUMFLEX (0xc2)
+		XK_Atilde,			// ATILDE (0xc3)
+		XK_Adiaeresis,		// ADIAERESIS (0xc4)
+		XK_Aring,			// ARING (0xc5)
+		XK_AE,				// AE (0xc6)
+		XK_Ccedilla,		// CCEDILLA (0xc7)
+		XK_Egrave,			// EGRAVE (0xc8)
+		XK_Eacute,			// EACUTE (0xc9)
+		XK_Ecircumflex,		// ECIRCUMFLEX (0xca)
+		XK_Ediaeresis,		// EDIAERESIS (0xcb)
+		XK_Igrave,			// IGRAVE (0xcc)
+		XK_Iacute,			// IACUTE (0xcd)
+		XK_Icircumflex,		// ICIRCUMFLEX (0xce)
+		XK_Idiaeresis,		// IDIAERESIS (0xcf)
+		XK_ETH,				// ETH (0xd0)
+		XK_Ntilde,			// NTILDE (0xd1)
+		XK_Ograve,			// OGRAVE (0xd2)
+		XK_Oacute,			// OACUTE (0xd3)
+		XK_Ocircumflex,		// OCIRCUMFLEX (0xd4)
+		XK_Otilde,			// OTILDE (0xd5)
+		XK_Odiaeresis,		// ODIAERESIS (0xd6)
+		XK_multiply,		// MULTIPLY (0xd7)
+		XK_Oslash,			// OSLASH (0xd8)
+		XK_Ugrave,			// UGRAVE (0xd9)
+		XK_Uacute,			// UACUTE (0xda)
+		XK_Ucircumflex,		// UCIRCUMFLEX (0xdb)
+		XK_Udiaeresis,		// UDIAERESIS (0xdc)
+		XK_Yacute,			// YACUTE (0xdd)
+		XK_THORN,			// THORN (0xde)
+		XK_ssharp,			// SSHARP (0xdf)
+		XK_agrave,			// aGRAVE (0xe0)
+		XK_aacute,			// aACUTE (0xe1)
+		XK_acircumflex,		// aCIRCUMFLEX (0xe2)
+		XK_atilde,			// aTILDE (0xe3)
+		XK_adiaeresis,		// aDIAERESIS (0xe4)
+		XK_aring,			// aRING (0xe5)
+		XK_ae,				// ae (0xe6)
+		XK_ccedilla,		// cCEDILLA (0xe7)
+		XK_egrave,			// eGRAVE (0xe8)
+		XK_eacute,			// eACUTE (0xe9)
+		XK_ecircumflex,		// eCIRCUMFLEX (0xea)
+		XK_ediaeresis,		// eDIAERESIS (0xeb)
+		XK_igrave,			// iGRAVE (0xec)
+		XK_iacute,			// iACUTE (0xed)
+		XK_icircumflex,		// iCIRCUMFLEX (0xee)
+		XK_idiaeresis,		// iDIAERESIS (0xef)
+		XK_eth,				// eth (0xf0)
+		XK_ntilde,			// nTILDE (0xf1)
+		XK_ograve,			// oGRAVE (0xf2)
+		XK_oacute,			// oACUTE (0xf3)
+		XK_ocircumflex,		// oCIRCUMFLEX (0xf4)
+		XK_otilde,			// oTILDE (0xf5)
+		XK_odiaeresis,		// oDIAERESIS (0xf6)
+		XK_division,		// DIVISION (0xf7)
+		XK_oslash,			// oSLASH (0xf8)
+		XK_ugrave,			// uGRAVE (0xf9)
+		XK_uacute,			// uACUTE (0xfa)
+		XK_ucircumflex,		// uCIRCUMFLEX (0xfb)
+		XK_udiaeresis,		// uDIAERESIS (0xfc)
+		XK_yacute,			// yACUTE (0xfd)
+		XK_thorn,			// thorn (0xfe)
+		XK_ydiaeresis		// yDIAERESIS (0xff)		
+		
 		};
 
 	typedef std::map<KeySym, wm::KeyEvent::Symbol> Keymap;

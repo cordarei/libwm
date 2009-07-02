@@ -3,7 +3,7 @@
 namespace
 {
 	const char* keynames[wm::KeyEvent::NUM_KEYSYMS] = {
-		"Unknown", 					// UNKNOWN
+		"Unknown", 			// UNKNOWN
 		0, 0, 0, 0, 0,		// 0x01 - 0x07 unused (total: 7)
 		0, 0, 
 		
@@ -96,13 +96,124 @@ namespace
 		"Underscore",		// UNDERSCORE 
 		"Backquote",		// BACKQUOTE
 		
-		/* 0x61 - 0x7e unused (total: 30) */
-		
+		0, 0, 0, 0, 0,		// 0x61 - 0x7e unused (total: 30)
+		0, 0, 0, 0, 0,
+		0, 0, 0, 0, 0,
+		0, 0, 0, 0, 0,
+		0, 0, 0, 0, 0,
+		0, 0, 0, 0, 0,
+				
 		"Delete",			// DELETE 
 		
 		// END OF ASCII
 		
-		0					// TERMINATOR
+		0, 0, 0, 0, 0,		// 0x80 - 0x9f unused (total: 32)
+		0, 0, 0, 0, 0,
+		0, 0, 0, 0, 0,
+		0, 0, 0, 0, 0,
+		0, 0, 0, 0, 0,
+		0, 0, 0, 0, 0,
+		0, 0,
+		
+		// International unicode characters 0xa0 - 0xff
+		// Characters in utf-8		
+		"\xc2\xa0",			// NOBREAKSPACE
+		"\xc2\xa1",			// EXCLAMDOWN
+		"\xc2\xa2",			// CENT
+		"\xc2\xa3",			// STERLING
+		"\xc2\xa4",			// CURRENCY
+		"\xc2\xa5",			// YEN
+		"\xc2\xa6",			// BROKENBAR
+		"\xc2\xa7",			// SECTION
+		"\xc2\xa8",			// DIAERESIS
+		"\xc2\xa9",			// COPYRIGHT
+		"\xc2\xaa",			// ORDFEMININE
+		"\xc2\xab",			// GUILLEMOTLEFT
+		"\xc2\xac",			// NOTSIGN
+		"\xc2\xad",			// HYPHEN
+		"\xc2\xae",			// REGISTERED
+		"\xc2\xaf",			// MACRON
+		"\xc2\xb0",			// DEGREE
+		"\xc2\xb1",			// PLUSMINUS
+		"\xc2\xb2",			// TWOSUPERIOR
+		"\xc2\xb3",			// THREESUPERIOR
+		"\xc2\xb4",			// ACUTE
+		"\xc2\xb5",			// MU
+		"\xc2\xb6",			// PARAGRAPH
+		"\xc2\xb7",			// PERIODCENTERED
+		"\xc2\xb8",			// CEDILLA
+		"\xc2\xb9",			// ONESUPERIOR
+		"\xc2\xba",			// MASCULINE
+		"\xc2\xbb",			// GUILLEMOTRIGHT
+		"\xc2\xbc",			// ONEQUARTER
+		"\xc2\xbd",			// ONEHALF
+		"\xc2\xbe",			// THREEQUARTERS
+		"\xc2\xbf",			// QUESTIONDOWN
+		"\xc3\x80",			// AGRAVE
+		"\xc3\x81",			// AACUTE
+		"\xc3\x82",			// ACIRCUMFLEX
+		"\xc3\x83",			// ATILDE
+		"\xc3\x84",			// ADIAERESIS
+		"\xc3\x85",			// ARING
+		"\xc3\x86",			// AE
+		"\xc3\x87",			// CCEDILLA
+		"\xc3\x88",			// EGRAVE
+		"\xc3\x89",			// EACUTE
+		"\xc3\x8a",			// ECIRCUMFLEX
+		"\xc3\x8b",			// EDIAERESIS
+		"\xc3\x8c",			// IGRAVE
+		"\xc3\x8d",			// IACUTE
+		"\xc3\x8e",			// ICIRCUMFLEX
+		"\xc3\x8f",			// IDIAERESIS
+		"\xc3\x90",			// ETH
+		"\xc3\x91",			// NTILDE
+		"\xc3\x92",			// OGRAVE
+		"\xc3\x93",			// OACUTE
+		"\xc3\x94",			// OCIRCUMFLEX
+		"\xc3\x95",			// OTILDE
+		"\xc3\x96",			// ODIAERESIS
+		"\xc3\x97",			// MULTIPLY
+		"\xc3\x98",			// OSLASH
+		"\xc3\x99",			// UGRAVE
+		"\xc3\x9a",			// UACUTE
+		"\xc3\x9b",			// UCIRCUMFLEX
+		"\xc3\x9c",			// UDIAERESIS
+		"\xc3\x9d",			// YACUTE
+		"\xc3\x9e",			// THORN
+		"\xc3\x9f",			// SSHARP
+		"\xc3\xa0",			// aGRAVE
+		"\xc3\xa1",			// aACUTE
+		"\xc3\xa2",			// aCIRCUMFLEX
+		"\xc3\xa3",			// aTILDE
+		"\xc3\xa4",			// aDIAERESIS
+		"\xc3\xa5",			// aRING
+		"\xc3\xa6",			// ae
+		"\xc3\xa7",			// cCEDILLA
+		"\xc3\xa8",			// eGRAVE
+		"\xc3\xa9",			// eACUTE
+		"\xc3\xaa",			// eCIRCUMFLEX
+		"\xc3\xab",			// eDIAERESIS
+		"\xc3\xac",			// iGRAVE
+		"\xc3\xad",			// iACUTE
+		"\xc3\xae",			// iCIRCUMFLEX
+		"\xc3\xaf",			// iDIAERESIS
+		"\xc3\xb0",			// eth
+		"\xc3\xb1",			// nTILDE
+		"\xc3\xb2",			// oGRAVE
+		"\xc3\xb3",			// oACUTE
+		"\xc3\xb4",			// oCIRCUMFLEX
+		"\xc3\xb5",			// oTILDE
+		"\xc3\xb6",			// oDIAERESIS
+		"\xc3\xb7",			// DIVISION
+		"\xc3\xb8",			// oSLASH
+		"\xc3\xb9",			// uGRAVE
+		"\xc3\xba",			// uACUTE
+		"\xc3\xbb",			// uCIRCUMFLEX
+		"\xc3\xbc",			// uDIAERESIS
+		"\xc3\xbd",			// yACUTE
+		"\xc3\xbe",			// thorn
+		"\xc3\xbf"			// yDIAERESIS
+
 		};
 }
 

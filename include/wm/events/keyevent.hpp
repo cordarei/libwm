@@ -109,6 +109,202 @@ namespace wm
 				
 				// END OF ASCII
 				
+				// 0x80 - 0x9f unused (total: 32)
+				
+				// International unicode characters 0xa0 - 0xff
+				/// no-break space
+				NOBREAKSPACE = 0xa0,
+				/// inverted exclamation mark
+				EXCLAMDOWN = 0xa1,
+				/// cent sign
+				CENT = 0xa2,
+				/// pound sign
+				STERLING = 0xa3,
+				/// currency sign
+				CURRENCY = 0xa4,
+				/// yen sign
+				YEN = 0xa5,
+				/// broken bar
+				BROKENBAR = 0xa6,
+				/// section sign
+				SECTION = 0xa7,
+				/// diaeresis
+				DIAERESIS = 0xa8,
+				/// copyright sign
+				COPYRIGHT = 0xa9,
+				/// feminine ordinal indicator
+				ORDFEMININE = 0xaa,
+				/// left-pointing double angle quotation mark
+				GUILLEMOTLEFT = 0xab,
+				/// not sign
+				NOTSIGN = 0xac,
+				/// soft hyphen
+				HYPHEN = 0xad,
+				/// registered sign
+				REGISTERED = 0xae,
+				/// macron
+				MACRON = 0xaf,
+				/// degree sign
+				DEGREE = 0xb0,
+				/// plus-minus sign
+				PLUSMINUS = 0xb1,
+				/// superscript two
+				TWOSUPERIOR = 0xb2,
+				/// superscript three
+				THREESUPERIOR = 0xb3,
+				/// acute accent
+				ACUTE = 0xb4,
+				/// micro sign
+				MU = 0xb5,
+				/// pilcrow sign
+				PARAGRAPH = 0xb6,
+				/// middle dot
+				PERIODCENTERED = 0xb7,
+				/// cedilla
+				CEDILLA = 0xb8,
+				/// superscript one
+				ONESUPERIOR = 0xb9,
+				/// masculine ordinal indicator
+				MASCULINE = 0xba,
+				/// right-pointing double angle quotation mark
+				GUILLEMOTRIGHT = 0xbb,
+				/// vulgar fraction one quarter
+				ONEQUARTER = 0xbc,
+				/// vulgar fraction one half
+				ONEHALF = 0xbd,
+				/// vulgar fraction three quarters
+				THREEQUARTERS = 0xbe,
+				/// inverted question mark
+				QUESTIONDOWN = 0xbf,
+				/// latin capital letter a with grave
+				AGRAVE = 0xc0,
+				/// latin capital letter a with acute
+				AACUTE = 0xc1,
+				/// latin capital letter a with circumflex
+				ACIRCUMFLEX = 0xc2,
+				/// latin capital letter a with tilde
+				ATILDE = 0xc3,
+				/// latin capital letter a with diaeresis
+				ADIAERESIS = 0xc4,
+				/// latin capital letter a with ring above
+				ARING = 0xc5,
+				/// latin capital letter ae
+				AE = 0xc6,
+				/// latin capital letter c with cedilla
+				CCEDILLA = 0xc7,
+				/// latin capital letter e with grave
+				EGRAVE = 0xc8,
+				/// latin capital letter e with acute
+				EACUTE = 0xc9,
+				/// latin capital letter e with circumflex
+				ECIRCUMFLEX = 0xca,
+				/// latin capital letter e with diaeresis
+				EDIAERESIS = 0xcb,
+				/// latin capital letter i with grave
+				IGRAVE = 0xcc,
+				/// latin capital letter i with acute
+				IACUTE = 0xcd,
+				/// latin capital letter i with circumflex
+				ICIRCUMFLEX = 0xce,
+				/// latin capital letter i with diaeresis
+				IDIAERESIS = 0xcf,
+				/// latin capital letter eth
+				ETH = 0xd0,
+				/// latin capital letter n with tilde
+				NTILDE = 0xd1,
+				/// latin capital letter o with grave
+				OGRAVE = 0xd2,
+				/// latin capital letter o with acute
+				OACUTE = 0xd3,
+				/// latin capital letter o with circumflex
+				OCIRCUMFLEX = 0xd4,
+				/// latin capital letter o with tilde
+				OTILDE = 0xd5,
+				/// latin capital letter o with diaeresis
+				ODIAERESIS = 0xd6,
+				/// multiplication sign
+				MULTIPLY = 0xd7,
+				/// latin capital letter o with stroke
+				OSLASH = 0xd8,
+				/// latin capital letter u with grave
+				UGRAVE = 0xd9,
+				/// latin capital letter u with acute
+				UACUTE = 0xda,
+				/// latin capital letter u with circumflex
+				UCIRCUMFLEX = 0xdb,
+				/// latin capital letter u with diaeresis
+				UDIAERESIS = 0xdc,
+				/// latin capital letter y with acute
+				YACUTE = 0xdd,
+				/// latin capital letter thorn
+				THORN = 0xde,
+				/// latin small letter sharp s
+				SSHARP = 0xdf,
+				/// latin small letter a with grave
+				aGRAVE = 0xe0,
+				/// latin small letter a with acute
+				aACUTE = 0xe1,
+				/// latin small letter a with circumflex
+				aCIRCUMFLEX = 0xe2,
+				/// latin small letter a with tilde
+				aTILDE = 0xe3,
+				/// latin small letter a with diaeresis
+				aDIAERESIS = 0xe4,
+				/// latin small letter a with ring above
+				aRING = 0xe5,
+				/// latin small letter ae
+				ae = 0xe6,
+				/// latin small letter c with cedilla
+				cCEDILLA = 0xe7,
+				/// latin small letter e with grave
+				eGRAVE = 0xe8,
+				/// latin small letter e with acute
+				eACUTE = 0xe9,
+				/// latin small letter e with circumflex
+				eCIRCUMFLEX = 0xea,
+				/// latin small letter e with diaeresis
+				eDIAERESIS = 0xeb,
+				/// latin small letter i with grave
+				iGRAVE = 0xec,
+				/// latin small letter i with acute
+				iACUTE = 0xed,
+				/// latin small letter i with circumflex
+				iCIRCUMFLEX = 0xee,
+				/// latin small letter i with diaeresis
+				iDIAERESIS = 0xef,
+				/// latin small letter eth
+				eth = 0xf0,
+				/// latin small letter n with tilde
+				nTILDE = 0xf1,
+				/// latin small letter o with grave
+				oGRAVE = 0xf2,
+				/// latin small letter o with acute
+				oACUTE = 0xf3,
+				/// latin small letter o with circumflex
+				oCIRCUMFLEX = 0xf4,
+				/// latin small letter o with tilde
+				oTILDE = 0xf5,
+				/// latin small letter o with diaeresis
+				oDIAERESIS = 0xf6,
+				/// division sign
+				DIVISION = 0xf7,
+				/// latin small letter o with stroke
+				oSLASH = 0xf8,
+				/// latin small letter u with grave
+				uGRAVE = 0xf9,
+				/// latin small letter u with acute
+				uACUTE = 0xfa,
+				/// latin small letter u with circumflex
+				uCIRCUMFLEX = 0xfb,
+				/// latin small letter u with diaeresis
+				uDIAERESIS = 0xfc,
+				/// latin small letter y with acute
+				yACUTE = 0xfd,
+				/// latin small letter thorn
+				thorn = 0xfe,
+				/// latin small letter y with diaeresis
+				yDIAERESIS = 0xff,				
+
 				NUM_KEYSYMS // TERMINATOR
 				};
 		
