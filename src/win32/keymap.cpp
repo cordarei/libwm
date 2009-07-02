@@ -101,12 +101,131 @@ namespace
 		0,					// UNDERSCORE 
 		0,					// BACKQUOTE
 		
-		/* 0x61 - 0x7e unused (total: 30) */
+		0, 0, 0, 0, 0,		// 0x61 - 0x7e unused (total: 30)
+		0, 0, 0, 0, 0,
+		0, 0, 0, 0, 0,
+		0, 0, 0, 0, 0,
+		0, 0, 0, 0, 0,
+		0, 0, 0, 0, 0,
 		
 		VK_DELETE,			// DELETE 
 		
 		// END OF ASCII
+
+		0, 0, 0, 0, 0,		// 0x80 - 0x9f unused (total: 32)
+		0, 0, 0, 0, 0,
+		0, 0, 0, 0, 0,
+		0, 0, 0, 0, 0,
+		0, 0, 0, 0, 0,
+		0, 0, 0, 0, 0,
+		0, 0,
+
+		// International unicode characters 0xa0 - 0xff
+		// Unused for now (total: 96)
+		0, 0, 0, 0, 0,
+		0, 0, 0, 0, 0,
+		0, 0, 0, 0, 0,
+		0, 0, 0, 0, 0,
+		0, 0, 0, 0, 0,
+		0, 0, 0, 0, 0,
+		0, 0, 0, 0, 0,
+		0, 0, 0, 0, 0,
+		0, 0, 0, 0, 0,
+		0, 0, 0, 0, 0,
+		0, 0, 0, 0, 0,
+		0, 0, 0, 0, 0,
+		0, 0, 0, 0, 0,
+		0, 0, 0, 0, 0,
+		0, 0, 0, 0, 0,
+		0, 0, 0, 0, 0,
+		0, 0, 0, 0, 0,
+		0, 0, 0, 0, 0,
+		0, 0, 0, 0, 0,
+		0,
+
+		VK_NUMPAD0,			// KEYPAD_0
+		VK_NUMPAD1,			// KEYPAD_1
+		VK_NUMPAD2,			// KEYPAD_2
+		VK_NUMPAD3,			// KEYPAD_3
+		VK_NUMPAD4,			// KEYPAD_4
+		VK_NUMPAD5,			// KEYPAD_5
+		VK_NUMPAD6,			// KEYPAD_6
+		VK_NUMPAD7,			// KEYPAD_7
+		VK_NUMPAD8,			// KEYPAD_8
+		VK_NUMPAD9,			// KEYPAD_9
 		
+		VK_DECIMAL, 		// KEYPAD_SEPARATOR
+		VK_DIVIDE,		 	// KEYPAD_DIVIDE
+		VK_MULTIPLY, 		// KEYPAD_MULTIPLY
+		VK_ADD,				// KEYPAD_PLUS
+		VK_SUBTRACT, 		// KEYPAD_MINUS
+		0,					// KEYPAD_ENTER
+		
+		VK_UP,				// UP
+		VK_DOWN, 			// DOWN
+		VK_LEFT, 			// LEFT
+		VK_RIGHT, 			// RIGHT
+		VK_INSERT, 			// INSERT
+		VK_HOME, 			// HOME
+		VK_END, 			// END
+		VK_PRIOR,			// PAGEUP
+		VK_NEXT,			// PAGEDOWN
+		
+		VK_F1,				// F1
+		VK_F2,				// F2
+		VK_F3,				// F3
+		VK_F4,				// F4
+		VK_F5,				// F5
+		VK_F6,				// F6
+		VK_F7,				// F7
+		VK_F8,				// F8
+		VK_F9,				// F9
+		VK_F10,				// F10
+		VK_F11,				// F10
+		VK_F12,				// F12
+		VK_F13,				// F13
+		VK_F14,				// F14
+		VK_F15,				// F15
+		VK_F16,				// F16
+		VK_F17,				// F17
+		VK_F18,				// F18
+		VK_F19,				// F19
+		VK_F20,				// F20
+		VK_F21,				// F21
+		VK_F22,				// F22
+		VK_F23,				// F23
+		VK_F24,				// F24
+		
+		VK_NUMLOCK, 		// NUMLOCK
+		VK_CAPITAL, 		// CAPSLOCK
+		VK_SCROLL,		 	// SCROLLLOCK
+		VK_SHIFT, 			// LSHIFT
+		0, 					// RSHIFT
+		VK_CONTROL, 		// LCTRL
+		0, 					// RCRTL
+		VK_MENU, 			// LALT
+		0,		 			// RALT
+		VK_LWIN,	 		// LSUPER
+		VK_RWIN, 			// RSUPER
+		
+		0,					// ALTGR
+		0,					// COMPOSE
+		VK_RMENU,			// MENU
+		
+		0,					// SYS_REQ
+		VK_PAUSE,			// PAUSE
+		VK_SNAPSHOT,		// PRINT
+
+		0, 					// DEAD_GRAVE
+		0,			 		// DEAD_ACUTE
+		0,					// DEAD_CIRCUMFLEX
+		0,			 		// DEAD_TILDE
+		0, 					// DEAD_MACRON
+		0,					// DEAD_BREVE
+		0,					// DEAD_ABOVEDOT
+		0,					// DEAD_DIAERESIS
+		0,					// DEAD_ABOVERING
+
 		0					// TERMINATOR
 		};
 
