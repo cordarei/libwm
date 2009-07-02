@@ -2,7 +2,7 @@
 
 namespace
 {
-	const char* keynames[wm::KeyEvent::NUM_KEYSYMS] = {
+	const char* keynames[wm::KeyEvent::NUM_KEYSYMS+1] = {
 		"Unknown", 			// UNKNOWN
 		0, 0, 0, 0, 0,		// 0x01 - 0x07 unused (total: 7)
 		0, 0, 
@@ -212,8 +212,26 @@ namespace
 		"\xc3\xbc",			// uDIAERESIS
 		"\xc3\xbd",			// yACUTE
 		"\xc3\xbe",			// thorn
-		"\xc3\xbf"			// yDIAERESIS
+		"\xc3\xbf",			// yDIAERESIS
 
+		"Keypad 0", 		// KEYPAD_0
+		"Keypad 1", 		// KEYPAD_1
+		"Keypad 2", 		// KEYPAD_2
+		"Keypad 3", 		// KEYPAD_3
+		"Keypad 4", 		// KEYPAD_4
+		"Keypad 5", 		// KEYPAD_5
+		"Keypad 6", 		// KEYPAD_6
+		"Keypad 7", 		// KEYPAD_7
+		"Keypad 8", 		// KEYPAD_8
+		"Keypad 9", 		// KEYPAD_9
+		"Keypad separator", // KEYPAD_SEPARATOR
+		"Keypad divide", 	// KEYPAD_DIVIDE
+		"Keypad multiply", 	// KEYPAD_MULTIPLY
+		"Keypad plus", 		// KEYPAD_PLUS
+		"Keypad minus", 	// KEYPAD_MINUS
+		"Keypad enter",		// KEYPAD_ENTER
+
+		0 // terminator
 		};
 }
 

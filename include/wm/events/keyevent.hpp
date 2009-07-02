@@ -305,6 +305,23 @@ namespace wm
 				/// latin small letter y with diaeresis
 				yDIAERESIS = 0xff,				
 
+				KEYPAD_0 = 0x100,
+				KEYPAD_1 = 0x101,
+				KEYPAD_2 = 0x102,
+				KEYPAD_3 = 0x103,
+				KEYPAD_4 = 0x104,
+				KEYPAD_5 = 0x105,
+				KEYPAD_6 = 0x106,
+				KEYPAD_7 = 0x107,
+				KEYPAD_8 = 0x108,
+				KEYPAD_9 = 0x109,
+				KEYPAD_SEPARATOR = 0x10a,
+				KEYPAD_DIVIDE = 0x10b,
+				KEYPAD_MULTIPLY = 0x10c,
+				KEYPAD_PLUS = 0x10d,
+				KEYPAD_MINUS = 0x10e,
+				KEYPAD_ENTER = 0x10f,
+
 				NUM_KEYSYMS // TERMINATOR
 				};
 		

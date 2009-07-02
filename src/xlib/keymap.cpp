@@ -8,7 +8,7 @@
 
 namespace
 {
-	KeySym reverse_keymap[wm::KeyEvent::NUM_KEYSYMS] = {
+	KeySym reverse_keymap[wm::KeyEvent::NUM_KEYSYMS+1] = {
 		0, 					// UNKNOWN
 		0, 0, 0, 0, 0,		// 0x01 - 0x07 unused (total: 7)
 		0, 0, 
@@ -217,8 +217,26 @@ namespace
 		XK_udiaeresis,		// uDIAERESIS (0xfc)
 		XK_yacute,			// yACUTE (0xfd)
 		XK_thorn,			// thorn (0xfe)
-		XK_ydiaeresis		// yDIAERESIS (0xff)		
+		XK_ydiaeresis,		// yDIAERESIS (0xff)
 		
+		XK_KP_Insert,		// KEYPAD_0
+		XK_KP_End,			// KEYPAD_1
+		XK_KP_Down,			// KEYPAD_2
+		XK_KP_Page_Down,	// KEYPAD_3
+		XK_KP_Left,			// KEYPAD_4
+		XK_KP_Begin,		// KEYPAD_5
+		XK_KP_Right,		// KEYPAD_6
+		XK_KP_Home,			// KEYPAD_7
+		XK_KP_Up,			// KEYPAD_8
+		XK_KP_Page_Up,		// KEYPAD_9
+		XK_KP_Delete, 	// KEYPAD_SEPARATOR
+		XK_KP_Divide,	 	// KEYPAD_DIVIDE
+		XK_KP_Multiply, 	// KEYPAD_MULTIPLY
+		XK_KP_Add, 			// KEYPAD_PLUS
+		XK_KP_Subtract, 	// KEYPAD_MINUS
+		XK_KP_Enter,		// KEYPAD_ENTER
+		
+		0 // terminator
 		};
 
 	typedef std::map<KeySym, wm::KeyEvent::Symbol> Keymap;
