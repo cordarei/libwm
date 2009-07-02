@@ -290,6 +290,16 @@ namespace
 		XK_Sys_Req,			// SYS_REQ
 		XK_Pause,			// PAUSE
 		XK_Print,			// PRINT
+
+		XK_dead_grave, 		// DEAD_GRAVE
+		XK_dead_acute, 		// DEAD_ACUTE
+		XK_dead_circumflex,	// DEAD_CIRCUMFLEX
+		XK_dead_tilde, 		// DEAD_TILDE
+		XK_dead_macron, 	// DEAD_MACRON
+		XK_dead_breve, 		// DEAD_BREVE
+		XK_dead_abovedot,	// DEAD_ABOVEDOT
+		XK_dead_diaeresis,	// DEAD_DIAERESIS
+		XK_dead_abovering,	// DEAD_ABOVERING
 		
 		0 // terminator
 		};

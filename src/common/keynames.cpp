@@ -285,6 +285,16 @@ namespace
 		"System request", 	// SYS_REQ
 		"Pause",			// PAUSE
 		"Print screen",		// PRINT
+		
+		"Dead grave", 		// DEAD_GRAVE
+		"Dead acute", 		// DEAD_ACUTE
+		"Dead circumflex",	// DEAD_CIRCUMFLEX
+		"Dead tilde", 		// DEAD_TILDE
+		"Dead macron", 		// DEAD_MACRON
+		"Dead breve", 		// DEAD_BREVE
+		"Dead abovedot",	// DEAD_ABOVEDOT
+		"Dead diaeresis",	// DEAD_DIAERESIS
+		"Dead abovering",	// DEAD_ABOVERING
 
 		0 // terminator
 		};

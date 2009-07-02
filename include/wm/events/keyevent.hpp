@@ -377,6 +377,16 @@ namespace wm
 				PAUSE = 0x146,
 				PRINT = 0x147,
 				
+				DEAD_GRAVE = 0x148,
+				DEAD_ACUTE = 0x149,
+				DEAD_CIRCUMFLEX = 0x14a,
+				DEAD_TILDE = 0x14b,
+				DEAD_MACRON = 0x14c,
+				DEAD_BREVE = 0x14d,
+				DEAD_ABOVEDOT = 0x14e,
+				DEAD_DIAERESIS = 0x14f,
+				DEAD_ABOVERING = 0x150,
+				
 				NUM_KEYSYMS // TERMINATOR
 				};
 		
