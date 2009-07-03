@@ -8,6 +8,8 @@
 #include <wm/event.hpp>
 #include <wm/events.hpp>
 #include <wm/eventhandler.hpp>
+#include <wm/pixelformat.hpp>
+#include <wm/configuration.hpp>
 
 namespace wm
 {
@@ -119,6 +121,31 @@ namespace wm
 		event.accept(handler);
 		return os;	
 	}
+	
+	std::ostream& operator<<(std::ostream& os, const PixelFormat& format)
+	{
+		return os << "PixelFormat"
+			<< "  r: " << format.red()
+			<< "  g: " << format.green()
+			<< "  b: " << format.blue()
+			<< "  a: " << format.alpha()
+			<< "  depth: " << format.depth()
+			<< "  stencil: " << format.stencil()
+			;
+	}
+	
+	std::ostream& operator<<(std::ostream& os, const Configuration& config)
+	{
+		int num = config.numFormats();
+		os << num << " pixel formats" << std::endl;
+		
+		for(int i = 0; i < num; ++i)
+		{
+			os << config.getFormat(i) << std::endl;
+		}
+		
+		return os;
+	}	
 }
 
 #endif

@@ -51,7 +51,7 @@ namespace wm
 			bool filter = XFilterEvent(&event, None);
 			
 			wm::Window* window =  impl->registry.get(event.xany.window);
-				
+			
 			if(window)
 			{
 				const Event *ptr = xlib::fromXEvent(*window, event, filter);

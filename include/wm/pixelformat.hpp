@@ -1,50 +1,40 @@
 #ifndef PIXELFORMAT_HPP
 #define PIXELFORMAT_HPP
 
+#include <wm/export.hpp>
+
 namespace wm
 {
-	class PixelFormat
+	class Configuration;
+
+	class WM_EXPORT PixelFormat
 	{
 		public:
-			enum /* class */ DataType {
-				UNSIGNED_BYTE,
-				UNSIGNED_SHORT,
-				UNSIGNED_INT,
-				FLOAT
-				/*, HALF_FLOAT */
-				};
-		
-			explicit PixelFormat(
-				int red = 8,		// color buffer size
-				int green = 8,
-				int blue = 8,
-				int alpha = 8,
-				int depth = 24,		// depth-stencil buffer size
-				int stencil = 8,
-				int samples = 4,	// multisample samples
-				int buffers = 1,	// multisample buffers
-				bool srgb = false,
-				DataType type = UNSIGNED_BYTE)
-				: red(red)
-				, green(green)
-				, blue(blue)
-				, alpha(alpha)
-				, depth(depth)
-				, stencil(stencil)
-				, samples(samples)
-				, buffers(buffers)
-				, srgb(srgb)
-				, type(type)
+			int red() const;
+			int green() const;
+			int blue() const;
+			int alpha() const;
+			int depth() const;
+			int stencil() const;
+			
+		private:
+			struct impl_t;
+			impl_t *impl;
+			const Configuration *configuration;
+			
+			PixelFormat(const Configuration& configuration, impl_t *data)
+				: impl(data)
+				, configuration(&configuration)
 			{
-			}	
-
-			int red, green, blue, alpha;
-			int depth, stencil;
-			int samples, buffers;
-			bool srgb;
-			DataType type;
+			}
+			
+			friend class Configuration;
+			friend class Surface;
+			friend class Context;
 	};
 }
+
+#undef WM_EXPORT
 
 #endif
 

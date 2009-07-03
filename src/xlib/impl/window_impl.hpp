@@ -13,7 +13,9 @@ namespace wm
 {
 	struct Window::impl_t
 	{
-		impl_t() : width(0), height(0) {}
+		impl_t() : screen(0), width(0), height(0) {}
+
+		int screen;
 	
 		// Used by EventReader when dispatching resize events
 		unsigned int width, height;

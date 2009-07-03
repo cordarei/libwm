@@ -7,6 +7,7 @@ namespace wm
 {
 	class Window;
 	class Context;
+	class Surface;
 
 	class WM_EXPORT Display
 	{
@@ -26,8 +27,10 @@ namespace wm
 			friend class EventReader;
 			friend class Window;
 			friend class Context;
+			friend class Configuration;
+			friend class Surface;
 			
-			friend void WM_EXPORT makeCurrent(Window&, Context&);
+			friend void WM_EXPORT makeCurrent(Context &context, Surface &draw, Surface &read);
 	};
 }
 

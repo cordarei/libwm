@@ -244,7 +244,6 @@ namespace wm
 	{
 		long event_mask = 
 			StructureNotifyMask |
-			ExposureMask |
 //			PointerMotionMask |
 			ButtonPressMask |
 			ButtonReleaseMask |

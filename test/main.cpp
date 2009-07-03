@@ -5,8 +5,10 @@
 
 #include <wm/display.hpp>
 #include <wm/window.hpp>
+#include <wm/configuration.hpp>
 #include <wm/pixelformat.hpp>
 #include <wm/context.hpp>
+#include <wm/surface.hpp>
 
 #include <wm/connection.hpp>
 #include <wm/eventhandler.hpp>
@@ -71,8 +73,11 @@ int main(int, char *[])
 	wm::Display display;
 	wm::Window window(display, 0, 400, 300);
 	
-	wm::Context context(window, 1, 2);
-	makeCurrent(window, context);
+	wm::Configuration config(window);
+	wm::PixelFormat format = config.getFormat(0);
+	
+	wm::Surface surface(window, format);
+	wm::Context context(format);
 
 	struct Handler : public wm::EventHandler
 	{
@@ -85,7 +90,7 @@ int main(int, char *[])
 		virtual void handle(const wm::ExposeEvent &event)
 		{
 			test::draw(width, height);
-			window->swap();
+			event.window().surface().swap();
 		}
 
 		virtual void handle(const wm::KeyEvent &event)
@@ -138,8 +143,10 @@ int main(int, char *[])
 	wm::Connection connection(window, handler);
 
 	window.show();
-	window.swap();
-
+	makeCurrent(context, surface, surface);
+	
+	surface.swap();
+	
 	while(!handler.quit_flag) window.dispatch(true);
 
 	return 0;

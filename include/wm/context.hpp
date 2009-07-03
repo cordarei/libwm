@@ -11,8 +11,7 @@ namespace wm
 	class WM_EXPORT Context
 	{
 		public:
-			Context(Window &window, int majorVersion, int minorVersion);
-			Context(Window &window, Context& sharedContext, int majorVersion, int minorVersion);
+			explicit Context(const PixelFormat &format, Context *shared = 0);
 			~Context();
 			
 			Display& display() { return display_; }
@@ -25,8 +24,11 @@ namespace wm
 			impl_t* impl;
 			
 			Display &display_;
-			friend void WM_EXPORT makeCurrent(Window&, Context&);
+
+			friend void WM_EXPORT makeCurrent(Context &context, Surface &draw, Surface &read);
 	};
+	
+	void WM_EXPORT makeCurrent(Context &context, Surface &draw, Surface &read);
 }
 
 #undef WM_EXPORT
