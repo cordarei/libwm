@@ -77,7 +77,7 @@ int main(int, char *[])
 	wm::PixelFormat format = config.getFormat(0);
 	
 	wm::Surface surface(window, format);
-	wm::Context context(format);
+	wm::Context context(window, format);
 
 	struct Handler : public wm::EventHandler
 	{

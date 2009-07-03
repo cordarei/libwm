@@ -11,7 +11,7 @@ namespace wm
 	class WM_EXPORT Context
 	{
 		public:
-			explicit Context(const PixelFormat &format, Context *shared = 0);
+			explicit Context(Window& window, const PixelFormat &format, Context *shared = 0);
 			~Context();
 			
 			Display& display() { return display_; }

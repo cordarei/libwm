@@ -152,8 +152,9 @@ namespace wm
 						if(window.impl->sizemove)
 						{
 							window.impl->dirty = true;
-							return 0;
 						}
+
+						return TRUE;
 					}
 
 					const wm::Event *event = wm::win32::fromWin32Event(window, message, wparam, lparam);
@@ -186,7 +187,7 @@ namespace wm
 
 		WNDCLASSEXW klass;
 		klass.cbSize = sizeof(WNDCLASSEXW);
-		klass.style = 0;
+		klass.style = CS_OWNDC | CS_HREDRAW | CS_VREDRAW;
 		klass.lpfnWndProc = &EventReader::wndproc;
 		klass.cbClsExtra = 0;
 		klass.cbWndExtra = sizeof(Window*);

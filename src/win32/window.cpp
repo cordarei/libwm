@@ -43,48 +43,6 @@ namespace
 
 		return hwnd;
 	}
-
-	void setPixelFormat(HWND hwnd, const wm::PixelFormat& format)
-	{
-		HDC hdc = GetDC(hwnd);
-		if(!hdc)
-			throw wm::Exception("Can't get win32 device context" + wm::win32::getErrorMsg());
-
-		PIXELFORMATDESCRIPTOR pfd;
-		std::memset(&pfd, 0, sizeof(PIXELFORMATDESCRIPTOR));
-
-		pfd.nSize = sizeof(pfd);
-		pfd.nVersion = 1;
-		pfd.dwFlags =
-			PFD_DRAW_TO_WINDOW |
-			PFD_SUPPORT_OPENGL |
-			PFD_DOUBLEBUFFER;
-
-		pfd.iPixelType = PFD_TYPE_RGBA;
-		pfd.cRedBits = format.red;
-		pfd.cGreenBits = format.green;
-		pfd.cBlueBits = format.blue;
-		pfd.cAlphaBits = format.alpha;
-		pfd.cDepthBits = format.depth;
-		pfd.cStencilBits = format.stencil;
-
-		int fmt = ChoosePixelFormat(hdc, &pfd);
-		if(!fmt)
-		{
-			DWORD err = GetLastError();
-			ReleaseDC(hwnd, hdc);
-			throw wm::Exception("Can't choose pixel format" + wm::win32::getErrorMsg(err));
-		}
-		
-		if(!SetPixelFormat(hdc, fmt, &pfd))
-		{
-			DWORD err = GetLastError();
-			ReleaseDC(hwnd, hdc);
-			throw wm::Exception("Can't set pixel format" + wm::win32::getErrorMsg(err));
-		}
-
-		ReleaseDC(hwnd, hdc);
-	}
 }
 
 namespace wm
@@ -93,8 +51,7 @@ namespace wm
 		Display& display,
 		int,
 		unsigned int width,
-		unsigned int height,
-		const PixelFormat& format)
+		unsigned int height)
 		: impl(new impl_t)
 		, display_(display)
 	{
@@ -119,7 +76,7 @@ namespace wm
 					throw Exception("Can't set win32 Window user data" + win32::getErrorMsg(err));
 			}
 
-			setPixelFormat(impl->hwnd, format);
+			// setPixelFormat(impl->hwnd, format);
 		} catch(...)
 		{
 			if(!DestroyWindow(impl->hwnd))
@@ -215,22 +172,6 @@ namespace wm
 		} 
 
 		SetWindowTextW(impl->hwnd, array.get());
-	}
-	
-	void Window::swap()
-	{
-		HDC hdc = GetDC(impl->hwnd);
-		if(!hdc)
-			throw Exception("Can't get handle to win32 device context" + win32::getErrorMsg());
-
-		if(!SwapBuffers(hdc))
-		{
-			DWORD err = GetLastError();
-			ReleaseDC(impl->hwnd, hdc);
-			throw Exception("Can't swap buffers: " + win32::getErrorMsg(err));
-		}
-
-		ReleaseDC(impl->hwnd, hdc);
 	}
 }
 
