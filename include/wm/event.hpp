@@ -13,8 +13,7 @@ namespace wm
 			
 			virtual void accept(EventHandler& handler) const = 0;
 			
-			Window &window() { return *window_; }
-			const Window &window() const { return *window_; }
+			Window &window() const { return *window_; }
 			
 		protected:
 			explicit Event(Window& window) : window_(&window) {}

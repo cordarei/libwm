@@ -2,6 +2,7 @@
 #include <wm/display.hpp>
 #include <wm/window.hpp>
 #include <wm/surface.hpp>
+#include <wm/events/resizeevent.hpp>
 
 #include <glx/impl/surface_impl.hpp>
 #include <glx/impl/pixelformat_impl.hpp>
@@ -10,6 +11,20 @@
 
 namespace wm
 {
+	void Surface::impl_t::ResizeHandler::handle(const ResizeEvent& event)
+	{
+		Window &window = event.window();
+		Display &display = window.display();
+		Surface &surface = window.surface();
+
+		XResizeWindow(
+			display.impl->display,
+			surface.impl->subwindow,
+			event.width(),
+			event.height());
+
+	}
+
 	Surface::Surface(Window &window, const PixelFormat& format)
 		: impl(new impl_t(window))
 	{
@@ -85,10 +100,12 @@ namespace wm
 		
 		window.surface_ = this;
 		window.display().impl->registry.add(impl->subwindow, &window);
+		impl->connection.connect();
 	}
 	
 	Surface::~Surface()
 	{
+		impl->connection.disconnect();
 		impl->window->display().impl->registry.remove(impl->subwindow);
 		impl->window->surface_ = 0;
 
