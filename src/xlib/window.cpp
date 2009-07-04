@@ -40,10 +40,7 @@ namespace wm
 			);
 			
 		if(!impl->window)
-		{
-			XFree(impl->visualinfo);
 			throw wm::Exception("Can't create Window");
-		}
 		
 		if(!XSetWMProtocols(
 			display.impl->display,
@@ -51,7 +48,6 @@ namespace wm
 			&display.impl->wm_delete_window,
 			1))
 		{
-			XFree(impl->visualinfo);
 			XDestroyWindow(display.impl->display, impl->window);
 			throw wm::Exception("Can't set X Window manager protocols (WM_DELETE_WINDOW)");
 		}
@@ -66,7 +62,6 @@ namespace wm
 			);
 		if(!impl->xic)
 		{
-			XFree(impl->visualinfo);
 			XDestroyWindow(display.impl->display, impl->window);
 			throw wm::Exception("Can't set X Window manager protocols (WM_DELETE_WINDOW)");			
 		}
@@ -76,7 +71,6 @@ namespace wm
 		if(XGetICValues(impl->xic, XNFilterEvents, &xic_event_mask, NULL))
 		{
 			XDestroyIC(impl->xic);
-			XFree(impl->visualinfo);
 			XDestroyWindow(display.impl->display, impl->window);
 			throw Exception("Can't query event mask from X input context");
 		}
@@ -96,7 +90,6 @@ namespace wm
 		display().impl->registry.remove(impl->window);
 		
 		XDestroyIC(impl->xic);
-		XFree(impl->visualinfo);
 		XDestroyWindow(display().impl->display, impl->window);
 		
 		delete impl;

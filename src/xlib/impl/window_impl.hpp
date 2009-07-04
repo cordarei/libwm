@@ -22,7 +22,6 @@ namespace wm
 
 		// Window handle
 		::Window window;
-		XVisualInfo *visualinfo;
 		
 		// X input context
 		XIC xic;

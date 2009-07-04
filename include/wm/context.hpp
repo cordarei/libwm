@@ -7,6 +7,7 @@ namespace wm
 {
 	class Window;
 	class Display;
+	class Surface;
 
 	class WM_EXPORT Context
 	{

@@ -18,7 +18,7 @@
 
 namespace wm
 {
-	Context::Context(const PixelFormat &format, Context *shared)
+	Context::Context(Window&, const PixelFormat &format, Context *shared)
 		: impl(new impl_t)
 		, display_(*format.configuration->impl->display)
 	{

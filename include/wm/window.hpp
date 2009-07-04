@@ -12,6 +12,7 @@ namespace wm
 	class Display;
 	class EventHandler;
 	class Surface;
+	class Context;
 	
 	namespace common
 	{
