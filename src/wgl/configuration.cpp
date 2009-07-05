@@ -43,6 +43,7 @@ namespace wm
 				!(pfd.dwFlags & PFD_DRAW_TO_WINDOW) ||
 				(pfd.dwFlags & PFD_NEED_PALETTE) ||
 				(pfd.dwFlags & PFD_NEED_SYSTEM_PALETTE) ||
+				!(pfd.dwFlags & PFD_DOUBLEBUFFER) ||
 				pfd.iPixelType != PFD_TYPE_RGBA)
 				continue;
 
