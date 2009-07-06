@@ -1,6 +1,7 @@
 #ifndef CONFIGURATION_IMPL_HPP
 #define CONFIGURATION_IMPL_HPP
 
+#include <list>
 #include <vector>
 
 #include <wm/configuration.hpp>
@@ -24,7 +25,8 @@ namespace wm
 
 		Display *display;	
 		int versionMajor, versionMinor;
-		std::vector<PixelFormat::impl_t> formatdata;
+		std::list<PixelFormat::impl_t> formatdata;
+		std::vector<PixelFormat> formats;
 	};
 }
 

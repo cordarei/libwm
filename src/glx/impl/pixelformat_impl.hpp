@@ -9,15 +9,12 @@ namespace wm
 {
 	struct PixelFormat::impl_t
 	{
-		impl_t()
-			: fbconfig(0)
+		explicit impl_t(GLXFBConfig fbconfig = 0)
+			: fbconfig(fbconfig)
 		{
 		}
 
 		GLXFBConfig fbconfig;
-		int red, green, blue, alpha;
-		int depth, stencil;
-
 	};
 }
 

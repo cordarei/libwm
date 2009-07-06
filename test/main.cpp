@@ -74,7 +74,7 @@ int main(int, char *[])
 	wm::Window window(display, 0, 400, 300);
 	
 	wm::Configuration config(window);
-	wm::PixelFormat format = config.getFormat(0);
+	const wm::PixelFormat& format = config.getFormat(0);
 	
 	wm::Surface surface(window, format);
 	wm::Context context(window, format);

@@ -10,21 +10,35 @@ namespace wm
 	class WM_EXPORT PixelFormat
 	{
 		public:
-			int red() const;
-			int green() const;
-			int blue() const;
-			int alpha() const;
-			int depth() const;
-			int stencil() const;
+			struct Descriptor
+			{
+				Descriptor(int red, int green, int blue, int alpha, int depth, int stencil)
+					: red(red)
+					, green(green)
+					, blue(blue)
+					, alpha(alpha)
+					, depth(depth)
+					, stencil(stencil)
+				{
+				}
+					
+				
+				int red, green, blue, alpha;
+				int depth, stencil;
+			};
+
+			const Descriptor &descriptor() const { return descriptor_; }
 			
 		private:
 			struct impl_t;
 			impl_t *impl;
-			const Configuration *configuration;
+			Configuration *configuration;
+			Descriptor descriptor_;
 			
-			PixelFormat(const Configuration& configuration, impl_t *data)
-				: impl(data)
+			PixelFormat(const Descriptor& descriptor, Configuration& configuration, impl_t &data)
+				: impl(&data)
 				, configuration(&configuration)
+				, descriptor_(descriptor)
 			{
 			}
 			

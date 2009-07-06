@@ -59,18 +59,27 @@ namespace wm
 			if(!(render_type & GLX_RGBA_BIT) || !(drawable_type & GLX_WINDOW_BIT))
 				continue;
 				
-			impl->formatdata.push_back(PixelFormat::impl_t());
-			PixelFormat::impl_t &format = impl->formatdata.back();
+			impl->formatdata.push_back(PixelFormat::impl_t(*config));
+			PixelFormat::impl_t &formatimpl = impl->formatdata.back();
+
+			int red, green, blue, alpha;
+			int depth, stencil;
 			
-			format.fbconfig = *config;
+			checkedGetFBConfigAttrib(xdisplay, *config, GLX_RED_SIZE, red);
+			checkedGetFBConfigAttrib(xdisplay, *config, GLX_GREEN_SIZE, green);
+			checkedGetFBConfigAttrib(xdisplay, *config, GLX_BLUE_SIZE, blue);
+			checkedGetFBConfigAttrib(xdisplay, *config, GLX_ALPHA_SIZE, alpha);
 
-			checkedGetFBConfigAttrib(xdisplay, *config, GLX_RED_SIZE, format.red);
-			checkedGetFBConfigAttrib(xdisplay, *config, GLX_GREEN_SIZE, format.green);
-			checkedGetFBConfigAttrib(xdisplay, *config, GLX_BLUE_SIZE, format.blue);
-			checkedGetFBConfigAttrib(xdisplay, *config, GLX_ALPHA_SIZE, format.alpha);
-
-			checkedGetFBConfigAttrib(xdisplay, *config, GLX_DEPTH_SIZE, format.depth);
-			checkedGetFBConfigAttrib(xdisplay, *config, GLX_STENCIL_SIZE, format.stencil);
+			checkedGetFBConfigAttrib(xdisplay, *config, GLX_DEPTH_SIZE, depth);
+			checkedGetFBConfigAttrib(xdisplay, *config, GLX_STENCIL_SIZE, stencil);
+			
+			impl->formats.push_back(
+				PixelFormat(
+					PixelFormat::Descriptor(red, green, blue, alpha, depth, stencil),
+					*this,
+					formatimpl
+					)
+				);
 		}
 	}
 
@@ -79,8 +88,8 @@ namespace wm
 		delete impl;
 	}
 
-	int Configuration::numFormats() const { return impl->formatdata.size(); }
-	PixelFormat Configuration::getFormat(int index) const { return PixelFormat(*this, &impl->formatdata.at(index)); }
+	int Configuration::numFormats() const { return impl->formats.size(); }
+	const PixelFormat& Configuration::getFormat(int index) const { return impl->formats.at(index); }
 
 }
 

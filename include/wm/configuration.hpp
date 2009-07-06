@@ -16,7 +16,7 @@ namespace wm
 			~Configuration();
 			
 			int numFormats() const;
-			PixelFormat getFormat(int index) const;
+			const PixelFormat& getFormat(int index) const;
 	
 			Display& display() const { return *display_; }
 

@@ -122,15 +122,15 @@ namespace wm
 		return os;	
 	}
 	
-	std::ostream& operator<<(std::ostream& os, const PixelFormat& format)
+	std::ostream& operator<<(std::ostream& os, const PixelFormat::Descriptor& descriptor)
 	{
 		return os << "PixelFormat"
-			<< "  r: " << format.red()
-			<< "  g: " << format.green()
-			<< "  b: " << format.blue()
-			<< "  a: " << format.alpha()
-			<< "  depth: " << format.depth()
-			<< "  stencil: " << format.stencil()
+			<< "  r: " << descriptor.red
+			<< "  g: " << descriptor.green
+			<< "  b: " << descriptor.blue
+			<< "  a: " << descriptor.alpha
+			<< "  depth: " << descriptor.depth
+			<< "  stencil: " << descriptor.stencil
 			;
 	}
 	
@@ -141,7 +141,7 @@ namespace wm
 		
 		for(int i = 0; i < num; ++i)
 		{
-			os << config.getFormat(i) << std::endl;
+			os << config.getFormat(i).descriptor() << std::endl;
 		}
 		
 		return os;
