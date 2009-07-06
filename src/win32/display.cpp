@@ -8,44 +8,13 @@
 #include <wm/events.hpp>
 
 #include <common/eventqueue.hpp>
+#include <win32/impl/classname.hpp>
 #include "impl/error.hpp"
 #include "impl/display_impl.hpp"
 #include "impl/window_impl.hpp"
 #include "impl/eventfactory.hpp"
 
 #include <windows.h>
-
-namespace
-{
-	char getHexChar(unsigned int idx)
-	{
-		if(idx >= 16) return '!';
-		return (idx < 10)
-			? '0' + idx
-			: 'a' + (idx - 10);
-	}
-
-	// Simple hex string representation of Display pointer
-	std::vector<WCHAR> genClassNameStr(const wm::Display *display)
-	{
-		size_t size = sizeof(const wm::Display*);
-		const unsigned char *begin =
-			reinterpret_cast<const unsigned char *>(&display);
-
-		std::vector<WCHAR> str;
-		str.reserve(2 * size + 1);
-		for(const unsigned char *ptr = begin;
-			ptr != begin + size;
-			++ptr)
-		{
-			str.push_back(getHexChar(*ptr & 0x0f)); // put least significant digit first for added obscurity
-			str.push_back(getHexChar(*ptr & 0xf0 >> 4));
-		}
-		str.push_back(0);
-
-		return str;
-	}
-}
 
 namespace wm
 {
@@ -173,7 +142,7 @@ namespace wm
 		: impl(new impl_t)
 	{
 		// Generate per-instance unique classname string
-		impl->classname = genClassNameStr(this);
+		impl->classname = win32::genClassNameStr(this);
 
 		// Get win32 module handle
 		impl->hInstance = GetModuleHandle(0);

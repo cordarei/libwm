@@ -1,11 +1,16 @@
 #include <windows.h>
 
+#include <wm/display.hpp>
 #include <wm/window.hpp>
 #include <wm/configuration.hpp>
 
 #include <win32/impl/error.hpp>
+#include <win32/impl/display_impl.hpp>
 #include <win32/impl/window_impl.hpp>
 #include <wgl/impl/configuration_impl.hpp>
+#include <wgl/impl/dummywindow.hpp>
+
+#include <wgl/impl/extensions.hpp>
 
 namespace wm
 {
@@ -13,8 +18,9 @@ namespace wm
 		: impl(new impl_t)
 		, display_(&window.display())
 	{
-		HWND hwnd = window.impl->hwnd;
+		impl->extensions.init(window.display().impl->hInstance);
 
+		HWND hwnd = window.impl->hwnd;
 		HDC hdc = GetDC(hwnd);
 		if(!hdc)
 			throw wm::Exception("Can't get win32 device context" + wm::win32::getErrorMsg());

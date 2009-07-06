@@ -8,6 +8,7 @@
 #include <wm/pixelformat.hpp>
 
 #include <wgl/impl/pixelformat_impl.hpp>
+#include <wgl/impl/extensions.hpp>
 
 namespace wm
 {
@@ -15,6 +16,8 @@ namespace wm
 	{
 		std::list<PixelFormat::impl_t> formatdata;
 		std::vector<PixelFormat> formats;
+
+		wgl::Extensions extensions;
 	};
 }
 

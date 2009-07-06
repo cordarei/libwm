@@ -82,8 +82,9 @@ namespace wm
 
 		if(!wglMakeCurrent(hdc, hglrc))
 		{
+			DWORD err = GetLastError();
 			ReleaseDC(hwnd, hdc);	
-			throw Exception("Can't set current context");
+			throw Exception("Can't set current context: " + win32::getErrorMsg(err));
 		}
 
 		ReleaseDC(hwnd, hdc);	
