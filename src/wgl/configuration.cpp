@@ -47,18 +47,24 @@ namespace wm
 				pfd.iPixelType != PFD_TYPE_RGBA)
 				continue;
 
-			impl->formatdata.push_back(PixelFormat::impl_t());
-			PixelFormat::impl_t &format = impl->formatdata.back();
+			int red, green, blue, alpha;
+			int depth, stencil;
 
-			format.index = index;
+			red = pfd.cRedBits;
+			green = pfd.cGreenBits;
+			blue = pfd.cBlueBits;
+			alpha = pfd.cAlphaBits;
 
-			format.red = pfd.cRedBits;
-			format.green = pfd.cGreenBits;
-			format.blue = pfd.cBlueBits;
-			format.alpha = pfd.cAlphaBits;
+			depth = pfd.cDepthBits;
+			stencil = pfd.cStencilBits;
 
-			format.depth = pfd.cDepthBits;
-			format.stencil = pfd.cStencilBits;
+			impl->formatdata.push_back(PixelFormat::impl_t(index));
+			impl->formats.push_back(
+				PixelFormat(
+					PixelFormat::Descriptor(red, green, blue, alpha, depth, stencil),
+					*this,
+					impl->formatdata.back()
+					));
 		}
 
 		ReleaseDC(hwnd, hdc);
@@ -69,7 +75,6 @@ namespace wm
 		delete impl;
 	}
 	
-	int Configuration::numFormats() const { return impl->formatdata.size(); }
-
-	PixelFormat Configuration::getFormat(int index) const { return PixelFormat(*this, &impl->formatdata.at(index)); }
+	int Configuration::numFormats() const { return impl->formats.size(); }
+	const PixelFormat& Configuration::getFormat(int index) const { return impl->formats.at(index); }
 }

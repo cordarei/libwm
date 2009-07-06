@@ -10,7 +10,7 @@ namespace wm
 	class WM_EXPORT PixelFormat
 	{
 		public:
-			struct Descriptor
+			struct WM_EXPORT Descriptor
 			{
 				Descriptor(int red, int green, int blue, int alpha, int depth, int stencil)
 					: red(red)

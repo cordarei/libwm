@@ -7,10 +7,9 @@ namespace wm
 {
 	struct PixelFormat::impl_t
 	{
-		int index;
+		explicit impl_t(int index = 0) : index(index) { }
 
-		int red, green, blue, alpha;
-		int depth, stencil;
+		int index;
 	};
 }
 
