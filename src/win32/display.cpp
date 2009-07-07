@@ -13,6 +13,7 @@
 #include "impl/display_impl.hpp"
 #include "impl/window_impl.hpp"
 #include "impl/eventfactory.hpp"
+#include <win32/impl/keymap.hpp>
 
 #include <windows.h>
 
@@ -124,6 +125,25 @@ namespace wm
 						}
 
 						return TRUE;
+					} else if(message == WM_KEYDOWN ||
+							message == WM_KEYUP ||
+							message == WM_SYSKEYDOWN ||
+							message == WM_SYSKEYUP)
+					{
+						bool filter;
+
+						wm::KeyEvent::Symbol translated =
+							win32::translateKeyEvent(hwnd, message, wparam, lparam, filter);
+
+						if(!filter)
+						{
+							window.impl->eventq.push(new KeyEvent(
+								window,
+								translated,
+								(message == WM_KEYDOWN || message == WM_SYSKEYDOWN)));
+						}
+
+						return 0;
 					}
 
 					const wm::Event *event = wm::win32::fromWin32Event(window, message, wparam, lparam);

@@ -7,7 +7,6 @@
 #include <wm/event.hpp>
 #include <wm/events.hpp>
 #include "impl/eventfactory.hpp"
-#include "impl/keymap.hpp"
 
 #include <windows.h>
 
@@ -1043,18 +1042,6 @@ namespace
 	
 	const size_t num_names = sizeof(message_names) / sizeof(message_names[0]);
 
-	const wm::Event *makeKey(
-		wm::Window& window,
-		UINT message,
-		WPARAM wparam,
-		LPARAM lparam)
-	{
-		return new wm::KeyEvent(
-			window, 
-			wm::win32::mapVirtualKeyCode(wparam),
-			message==WM_KEYDOWN);
-	}
-
 	const wm::Event *makeButton(
 		wm::Window& window,
 		UINT message,
@@ -1174,9 +1161,6 @@ namespace wm
 			{
 				temp_t()
 				{
-					map[WM_KEYUP] = &makeKey;
-					map[WM_KEYDOWN] = &makeKey;
-
 					map[WM_CHAR] = &makeChar;
 
 					map[WM_LBUTTONDOWN]= &makeButton;

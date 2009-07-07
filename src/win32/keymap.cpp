@@ -260,6 +260,89 @@ namespace wm
 			if(i == map.end()) return wm::KeyEvent::UNKNOWN;
 			return i->second;
 		}
+
+		wm::KeyEvent::Symbol translateKeyEvent(HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam, bool &filter)
+		{
+			filter = false;
+
+			if ( !(HIWORD(lparam) & 0x100) )	// Handle Keypad and Numlock
+			{
+				UINT mapped = MapVirtualKeyW(HIWORD(lparam) & 0xFF, MAPVK_VSC_TO_VK);
+
+				switch(mapped)
+				{
+					case VK_INSERT:     return KeyEvent::KEYPAD_0;
+					case VK_END:        return KeyEvent::KEYPAD_1;
+					case VK_DOWN:       return KeyEvent::KEYPAD_2;
+					case VK_NEXT:       return KeyEvent::KEYPAD_3;
+					case VK_LEFT:       return KeyEvent::KEYPAD_4;
+					case VK_CLEAR:      return KeyEvent::KEYPAD_5;
+					case VK_RIGHT:      return KeyEvent::KEYPAD_6;
+					case VK_HOME:       return KeyEvent::KEYPAD_7;
+					case VK_UP:         return KeyEvent::KEYPAD_8;
+					case VK_PRIOR:      return KeyEvent::KEYPAD_9;
+					case VK_DIVIDE:     return KeyEvent::KEYPAD_DIVIDE;
+					case VK_MULTIPLY:   return KeyEvent::KEYPAD_MULTIPLY;
+					case VK_SUBTRACT:   return KeyEvent::KEYPAD_MINUS;
+					case VK_ADD:        return KeyEvent::KEYPAD_PLUS;
+					case VK_DELETE:     return KeyEvent::KEYPAD_SEPARATOR;
+					default:			break;
+				}
+			}
+
+			if(wparam == VK_SHIFT)
+			{
+				UINT scancode = MapVirtualKeyW(VK_RSHIFT, MAPVK_VK_TO_VSC);
+				if(((lparam & 0x01ff0000) >> 16) == scancode)
+					return KeyEvent::RSHIFT;
+				return KeyEvent::LSHIFT;
+			} else if(wparam == VK_CONTROL)
+			{
+				if(lparam & 0x01000000)
+					return KeyEvent::RCRTL;
+
+				if(message == WM_SYSKEYUP)
+				{
+					// WM_SYSKEYUP following the release of AltGR
+					filter = true;
+					return wm::KeyEvent::UNKNOWN;
+				}
+
+				// Detect AltGR
+				LONG msgtime = GetMessageTime();
+				MSG msg;
+				if(PeekMessage(&msg, hwnd, WM_KEYFIRST, WM_KEYLAST, PM_NOREMOVE))
+				{
+					if((msg.message == WM_KEYDOWN || msg.message == WM_SYSKEYDOWN) &&
+						msg.wParam == VK_MENU &&
+						(msg.lParam & 0x01000000) &&
+						msg.time == msgtime)
+					{
+						filter = true;
+						return KeyEvent::UNKNOWN; // next message is RALT down
+					}
+				}
+
+				return KeyEvent::LCTRL;
+			} else if(wparam == VK_MENU)
+			{
+				if(lparam & 0x01000000)
+					return KeyEvent::RALT;
+				return KeyEvent::LALT;
+			} else if(wparam == VK_RETURN)
+			{
+				if(lparam & 0x01000000)
+					return KeyEvent::KEYPAD_ENTER;
+				return KeyEvent::RETURN;
+			}
+
+			UINT charcode = MapVirtualKeyW(wparam, MAPVK_VK_TO_CHAR);
+			if((charcode >= 0x20 && charcode < 0x40) || // some ASCII characters
+				(charcode >= 0xa0 && charcode <= 0xff)) // Latin-1 supplement
+				return static_cast<KeyEvent::Symbol>(charcode);
+
+			return mapVirtualKeyCode(wparam);
+		}
 	}
 }
 

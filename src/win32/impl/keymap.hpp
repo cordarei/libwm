@@ -10,6 +10,9 @@ namespace wm
 	namespace win32
 	{
 		wm::KeyEvent::Symbol mapVirtualKeyCode(WPARAM vCode);
+
+		// NOTE: translateKeyEvent must be called from the Window Procedure
+		wm::KeyEvent::Symbol translateKeyEvent(HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam, bool &filter);
 	}
 }
 
