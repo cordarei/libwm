@@ -3,18 +3,9 @@
 #include <string>
 #include <stdexcept>
 
-#include <wm/display.hpp>
-#include <wm/window.hpp>
-#include <wm/configuration.hpp>
-#include <wm/pixelformat.hpp>
-#include <wm/context.hpp>
-#include <wm/surface.hpp>
-
-#include <wm/connection.hpp>
-#include <wm/eventhandler.hpp>
-#include <wm/event.hpp>
-#include <wm/events.hpp>
-#include <wm/ostream_output.hpp>
+#include <wm/wm.hpp>
+#include <wm/util/eventprinter.hpp>
+#include <wm/util/ostream_output.hpp>
 
 #include "draw.hpp"
 
@@ -137,7 +128,7 @@ int main(int, char *[])
 		unsigned int width, height;
 	} handler(window);
 
-	wm::EventPrinter printer(std::cout);
+	wm::util::EventPrinter printer(std::cout);
 	wm::Connection printerconn(window, printer);
 
 	wm::Connection connection(window, handler);

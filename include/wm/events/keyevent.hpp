@@ -8,103 +8,189 @@
 
 namespace wm
 {
+	/// A keyboard event
+	/**
+		A keyboard event occurs when the user presses or releases a
+		key on the keyboard.
+	*/
 	class KeyEvent : public Event
 	{
 		public:
+			/// Key symbol enumeration
+			/**
+			
+				@note keys representing the Latin-1 supplement characters
+					(Unicode 0xa0-0xff) are usually mapped to lower case
+					charaters, for example aDIARESIS instead of ADIARESIS.
+				@warning the numeric values of the enumerants may change, use symbols instead
+			*/
 			enum Symbol {
+				/// Unknown key
 				UNKNOWN = 0,
 				
 				// 0x01 - 0x07 unused (total: 7)
 				
+				
+				/// Backspace
 				BACKSPACE = 0x08,
+				/// Tabulator
 				TAB = 0x09,
+				/// Line feed
 				LINEFEED = 0x0a,
+				/// Clear
 				CLEAR = 0x0b,
 				
 				// 0x0c unused
 				
+				/// Return/Enter key
 				RETURN = 0x0d,
 				
 				// 0x0e - 0x1a unused (total: 13)
 				
+				/// The Escape key
 				ESCAPE = 0x1b,
 				
 				// 0x1c - 0x1f unused (total: 4)
 				
+				/// The space bar
 				SPACE = 0x20,
+				/// Exclamation sign
 				EXCLAIM		= 0x21,
+				/// Double quotes
 				DOUBLEQUOTE = 0x22,
+				/// Hash sign (#)
 				HASH		= 0x23,
+				/// Dollar sign
 				DOLLAR		= 0x24,
 				
 				// 0x25 unused
 				
+				/// Ampersand
 				AMPERSAND		= 0x26,
+				/// Quote
 				QUOTE		= 0x27,
+				/// Left parenthesis
 				LEFTPAREN		= 0x28,
+				/// Right parenthesis
 				RIGHTPAREN		= 0x29,
+				/// Asterisk
 				ASTERISK		= 0x2a,
+				/// Plus
 				PLUS		= 0x2b,
+				/// Comma
 				COMMA		= 0x2c,
+				/// Minus
 				MINUS		= 0x2d,
+				/// Period
 				PERIOD		= 0x2e,
+				/// Slash
 				SLASH		= 0x2f,
 
+				/// Number 0
 				KEY_0 = 0x30,
+				/// Number 1
 				KEY_1 = 0x31,
+				/// Number 2
 				KEY_2 = 0x32,
+				/// Number 3
 				KEY_3 = 0x33,
+				/// Number 4
 				KEY_4 = 0x34,
+				/// Number 5
 				KEY_5 = 0x35,
+				/// Number 6
 				KEY_6 = 0x36,
+				/// Number 7
 				KEY_7 = 0x37,
+				/// Number 8
 				KEY_8 = 0x38,
+				/// Number 9
 				KEY_9 = 0x39,
 				
+				/// Colon
 				COLON = 0x3a,
+				/// Semicolon
 				SEMICOLON = 0x3b,
+				/// Less than
 				LESS = 0x3c,
+				/// Equals
 				EQUALS = 0x3d,
+				/// Greater than
 				GREATER = 0x3e,
+				/// Question mark
 				QUESTION = 0x3f,
+				/// At sign (@)
 				AT = 0x40,
 				
+				/// Key 'A'
 				KEY_A = 0x41,
+				/// Key 'B'
 				KEY_B = 0x42,
+				/// Key 'C'
 				KEY_C = 0x43,
+				/// Key 'D'
 				KEY_D = 0x44,
+				/// Key 'E'
 				KEY_E = 0x45,
+				/// Key 'F'
 				KEY_F = 0x46,
+				/// Key 'G'
 				KEY_G = 0x47,
+				/// Key 'H'
 				KEY_H = 0x48,
+				/// Key 'I'
 				KEY_I = 0x49,
+				/// Key 'J'
 				KEY_J = 0x4a,
+				/// Key 'K'
 				KEY_K = 0x4b,
+				/// Key 'L'
 				KEY_L = 0x4c,
+				/// Key 'M'
 				KEY_M = 0x4d,
+				/// Key 'N'
 				KEY_N = 0x4e,
+				/// Key 'O'
 				KEY_O = 0x4f,
+				/// Key 'P'
 				KEY_P = 0x50,
+				/// Key 'Q'
 				KEY_Q = 0x51,
+				/// Key 'R'
 				KEY_R = 0x52,
+				/// Key 'S'
 				KEY_S = 0x53,
+				/// Key 'T'
 				KEY_T = 0x54,
+				/// Key 'U'
 				KEY_U = 0x55,
+				/// Key 'V'
 				KEY_V = 0x56,
+				/// Key 'W'
 				KEY_W = 0x57,
+				/// Key 'X'
 				KEY_X = 0x58,
+				/// Key 'Y'
 				KEY_Y = 0x59,
+				/// Key 'Z'
 				KEY_Z = 0x5a,
-				
+
+				/// Left bracket
 				LEFTBRACKET = 0x5b,
+				/// Backslash
 				BACKSLASH = 0x5c,
+				/// Right bracket
 				RIGHTBRACKET = 0x5d,
+				/// Caret
 				CARET = 0x5e,
+				/// Underscore
 				UNDERSCORE = 0x5f,
+				/// Backquote
 				BACKQUOTE = 0x60,
 				
 				// 0x61 - 0x7e unused (total: 30)
 				
+				/// Delete
 				DELETE = 0x7f,
 				
 				// END OF ASCII
@@ -305,92 +391,173 @@ namespace wm
 				/// latin small letter y with diaeresis
 				yDIAERESIS = 0xff,				
 
+				/// Keypad 0
 				KEYPAD_0 = 0x100,
+				/// Keypad 1
 				KEYPAD_1 = 0x101,
+				/// Keypad 2
 				KEYPAD_2 = 0x102,
+				/// Keypad 3
 				KEYPAD_3 = 0x103,
+				/// Keypad 4
 				KEYPAD_4 = 0x104,
+				/// Keypad 5
 				KEYPAD_5 = 0x105,
+				/// Keypad 6
 				KEYPAD_6 = 0x106,
+				/// Keypad 7
 				KEYPAD_7 = 0x107,
+				/// Keypad 8
 				KEYPAD_8 = 0x108,
+				/// Keypad 9
 				KEYPAD_9 = 0x109,
+				/// Keypad comma
 				KEYPAD_SEPARATOR = 0x10a,
+				/// Keypad divide
 				KEYPAD_DIVIDE = 0x10b,
+				/// Keypad multiply
 				KEYPAD_MULTIPLY = 0x10c,
+				/// Keypad plus
 				KEYPAD_PLUS = 0x10d,
+				/// Keypad minus
 				KEYPAD_MINUS = 0x10e,
+				/// Keypad enter
 				KEYPAD_ENTER = 0x10f,
 				
+				/// The up arrow
 				UP = 0x110,
+				/// The down arrow
 				DOWN = 0x111,
+				/// The left arrow
 				LEFT = 0x112,
+				/// The right arrow
 				RIGHT = 0x113,
+				///	Insert
 				INSERT = 0x114,
+				/// Home
 				HOME = 0x115,
+				/// End
 				END = 0x116,
+				/// Page up
 				PAGEUP = 0x117,
+				/// Page down
 				PAGEDOWN = 0x118,
 				
+				/// Function key F1
 				F1 = 0x119,
+				/// Function key F2
 				F2 = 0x11a,
+				/// Function key F3
 				F3 = 0x11b,
+				/// Function key F4
 				F4 = 0x11c,
+				/// Function key F5
 				F5 = 0x11d,
+				/// Function key F6
 				F6 = 0x11e,
+				/// Function key F7
 				F7 = 0x11f,
+				/// Function key F8
 				F8 = 0x120,
+				/// Function key F9
 				F9 = 0x121,
+				/// Function key F10
 				F10 = 0x122,
+				/// Function key F11
 				F11 = 0x123,
+				/// Function key F12
 				F12 = 0x124,
+				/// Function key F13
 				F13 = 0x125,
+				/// Function key F14
 				F14 = 0x126,
+				/// Function key F15
 				F15 = 0x127,
+				/// Function key F16
 				F16 = 0x128,
+				/// Function key F17
 				F17 = 0x129,
+				/// Function key F18
 				F18 = 0x12a,
+				/// Function key F19
 				F19 = 0x12b,
+				/// Function key F20
 				F20 = 0x12c,
+				/// Function key F21
 				F21 = 0x12d,
+				/// Function key F22
 				F22 = 0x12e,
+				/// Function key F23
 				F23 = 0x12f,
+				/// Function key F24
 				F24 = 0x130,
 				
+				/// Num Lock
 				NUMLOCK = 0x131,
+				/// Caps Lock
 				CAPSLOCK = 0x132,
+				/// Scroll Lock
 				SCROLLLOCK = 0x133,
+				
+				/// Left shift
 				LSHIFT = 0x134,
+				/// Right shift
 				RSHIFT = 0x135,
+				/// Left control
 				LCTRL = 0x136,
+				/// Right control
 				RCRTL = 0x137,
+				/// Left ALT
 				LALT = 0x138,
+				/// Right ALT
 				RALT = 0x139,
+				/// Left Super key
 				LSUPER = 0x140,
+				/// Right Super key
 				RSUPER = 0x141,
 
+				/// AltGR
 				ALTGR = 0x142,
+				/// Multi key compose
 				COMPOSE = 0x143,
+				/// Menu key (usually between right Super and Control)
 				MENU = 0x144,
 				
+				/// System request
 				SYS_REQ = 0x145,
+				/// Pause
 				PAUSE = 0x146,
+				/// Print screen
 				PRINT = 0x147,
 				
+				/// Dead grave accent
 				DEAD_GRAVE = 0x148,
+				/// Dead acute accent
 				DEAD_ACUTE = 0x149,
+				/// Dead circumflex
 				DEAD_CIRCUMFLEX = 0x14a,
+				/// Dead tilde
 				DEAD_TILDE = 0x14b,
+				/// Dead macron
 				DEAD_MACRON = 0x14c,
+				/// Dead breve
 				DEAD_BREVE = 0x14d,
+				/// Dead dot above letter
 				DEAD_ABOVEDOT = 0x14e,
+				/// Dead diaeresis
 				DEAD_DIAERESIS = 0x14f,
+				/// Dead ring above letter
 				DEAD_ABOVERING = 0x150,
 				
 				NUM_KEYSYMS // TERMINATOR
 				};
 		
-		
+			/// Create a new key event
+			/**
+				@param window the Window object that recieved the key event
+				@param symbol the key Symbol
+				@param state true if the key was pressed, false if released
+			*/
 			KeyEvent(
 				Window &window,
 				Symbol symbol,
@@ -401,9 +568,19 @@ namespace wm
 			{
 			}
 			
+			/// The key symbol
+			/**
+				@return the key symbol of the pressed/released key
+			*/
 			Symbol symbol() const { return symbol_; }
+			
+			/// The state of the key
+			/**
+				@return true if the key was pressed, false if released			
+			*/			
 			bool state() const { return state_; }
 
+			/// Visitor pattern entry point
 			virtual void accept(EventHandler &handler) const { handler.handle(*this); }
 			
 		private:
@@ -411,6 +588,14 @@ namespace wm
 			bool state_;
 	};
 	
+	/// Get a string representation of a key symbol (in UTF-8)
+	/**
+		Some key symbols representing international character symbols
+		(most notably the Latin-1 supplement of unicode) are represented
+		in UTF-8.
+		
+		@return a string representation of a key symbol	(UTF-8)
+	*/
 	const char WM_EXPORT *keyName(wm::KeyEvent::Symbol);
 }
 

@@ -9,12 +9,26 @@ namespace wm
 	class PixelFormat;
 	class Context;
 
+	/// A rendering surface
 	class WM_EXPORT Surface
 	{
 		public:
+			/// Create a new rendering surface
+			/**
+				Create a new rendering surface associated to a window.
+				A window can have only attached surface. After the
+				surface is deleted, a new surface cannot be attached
+				to the same window.
+
+				@param window the window to draw to
+				@param format the pixel format to use
+			*/
 			Surface(Window &window, PixelFormat const &format);
+			
+			/// Destroy a rendering surface
 			~Surface();
 		
+			/// Swap buffers
 			void swap();
 		
 		private:

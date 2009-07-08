@@ -6,9 +6,14 @@
 
 namespace wm
 {
+	/// An exception
 	struct Exception : public std::runtime_error
 	{
-		Exception(const std::string& msg)
+		/// Create a new Exception
+		/**
+			@param msg the Exception message
+		*/
+		explicit Exception(const std::string& msg)
 			: std::runtime_error(msg)
 		{
 		}

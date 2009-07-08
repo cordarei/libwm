@@ -8,24 +8,37 @@
 
 namespace wm
 {
+	/// A text input event
+	/**
+		A character event occurs when the user has typed some text input,
+		typically when pressing one or more keys on the keyboard.
+	*/
 	class CharacterEvent : public Event
 	{
 		public:
+			/// An integer big enough to handle all Unicode code points
+			typedef boost::uint32_t Unicode;
+		
+			/// Create a new CharacterEvent
 			CharacterEvent(
 				Window &window,
-				boost::uint32_t unicode)
+				Unicode unicode)
 				: Event(window)
 				, unicode_(unicode)
 			{
 			}
 
+			/// Visitor pattern entry point
 			virtual void accept(EventHandler &handler) const { handler.handle(*this); }
 
-			boost::uint32_t unicode() const { return unicode_; }
-
+			/// The Unicode code point
+			/**
+				@return the typed Unicode code point
+			*/
+			Unicode unicode() const { return unicode_; }
 
 		private:
-			boost::uint32_t unicode_;
+			Unicode unicode_;
 	};
 }
 
