@@ -16,6 +16,7 @@ find_package(OpenGL REQUIRED)
 include_directories(${OPENGL_INCLUDE_DIR})
 
 add_subdirectory(src)
+add_subdirectory(doc)
 add_subdirectory(test)
 
 set(CPACK_PACKAGE_VERSION_MAJOR ${WM_VERSION_MAJOR})
