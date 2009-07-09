@@ -65,7 +65,8 @@ int main(int, char *[])
 	wm::Window window(display, 0, 400, 300);
 	
 	wm::Configuration config(window);
-	const wm::PixelFormat& format = config.getFormat(0);
+	const wm::PixelFormat& format =
+		choose(config, wm::PixelFormat::Descriptor(8, 8, 8, 8, 16, 0));
 	
 	wm::Surface surface(window, format);
 	wm::Context context(window, format);
