@@ -53,13 +53,7 @@ namespace
 	}
 }
 
-#if defined(WIN32)
-#define NOMINMAX // otherwise windows.h macro max will conflict with std::max
-#include <windows.h>
-int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR /* cmdLine */, int)
-#else
-int main(int, char *[])
-#endif
+int wm_main(int argc, char *argv[])
 {
 	wm::Display display;
 	wm::Window window(display, 0, 400, 300);
