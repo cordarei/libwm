@@ -31,6 +31,7 @@ namespace wm
 		
 		Connection connection;
 
+		::Display* xdisplay;
 		Colormap colormap;
 		::Window subwindow;
 		GLXWindow glxwindow;

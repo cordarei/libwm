@@ -14,11 +14,10 @@ namespace wm
 	void Surface::impl_t::ResizeHandler::handle(const ResizeEvent& event)
 	{
 		Window &window = event.window();
-		Display &display = window.display();
 		Surface &surface = window.surface();
 
 		XResizeWindow(
-			display.impl->display,
+			surface.impl->xdisplay,
 			surface.impl->subwindow,
 			event.width(),
 			event.height());
@@ -32,6 +31,7 @@ namespace wm
 			throw wm::Exception("Window already has an attached surface");
 			
 		::Display *xdisplay = window.display().impl->display;
+		impl->xdisplay = xdisplay;
 
 		unsigned int width, height;
 		window.getSize(width, height);

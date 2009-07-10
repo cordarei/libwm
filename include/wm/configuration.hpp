@@ -49,6 +49,7 @@ namespace wm
 			Display* display_;
 			
 			friend class Context;
+			friend class PixelFormat;
 	};
 }
 

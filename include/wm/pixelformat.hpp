@@ -69,6 +69,7 @@ namespace wm
 			}
 			
 			friend class Configuration;
+			friend struct Configuration::impl_t;
 			friend class Surface;
 			friend class Context;
 	};
