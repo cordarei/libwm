@@ -110,40 +110,13 @@ namespace
 	
 }
 
-#include <boost/cstdint.hpp>
-
-namespace
-{
-	boost::uint32_t decode_utf8(const unsigned char* data, int len)
-	{
-		if(len == 0) return 0;
-		else if(len == 1
-			&& (data[0] & 0x80) == 0
-				) return data[0];
-		else if(len == 2
-			&& (data[0] & 0xe0) == 0xc0
-			&& (data[1] & 0xc0) == 0x80
-				) return ((data[0] & 0x1f) << 6) | (data[1] & 0x3f);
-		else if(len == 3
-			&& (data[0] & 0xf0) == 0xe0
-			&& (data[1] & 0xc0) == 0x80
-			&& (data[2] & 0xc0) == 0x80
-				) return ((data[0] & 0x0f) << 12) | ((data[1] & 0x3f) << 6) | (data[2] & 0x3f); 
-		else if(len == 4
-			&& (data[0] & 0xf7) == 0xf0
-			&& (data[1] & 0x3f) == 0x80
-			&& (data[2] & 0x3f) == 0x80
-			&& (data[3] & 0x3f) == 0x80
-				) return ((data[0] & 0x7) << 18) | ((data[1] & 0x3f) << 12) | ((data[2] & 0x3f) << 6) | (data[3] & 0x3f);
-		throw wm::Exception("Invalid UTF-8");
-	}
-}
-
 #include <wm/display.hpp>
 #include <wm/window.hpp>
 #include "impl/window_impl.hpp"
 #include "impl/display_impl.hpp"
 #include "impl/eventfactory.hpp"
+
+#include <wm/util/utf8.hpp>
 
 namespace wm
 {
@@ -226,7 +199,7 @@ namespace wm
 						// Then return CharacterEvent
 						return new wm::CharacterEvent(
 							window,
-							decode_utf8(
+							wm::util::decode_utf8(
 								reinterpret_cast<const unsigned char*>(buffer),
 								len
 							));
