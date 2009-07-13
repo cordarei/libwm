@@ -3,6 +3,8 @@
 
 #include <wm/event.hpp>
 #include <wm/eventhandler.hpp>
+#include <wm/mouse.hpp>
+#include <wm/keyboard.hpp>
 
 namespace wm
 {
@@ -21,18 +23,24 @@ namespace wm
 				@param y the vertical position of the mouse pointer when this event occured
 				@param button the number of the mouse button
 				@param state true if the mouse button was pressed, false if released
+				@param buttons mouse button state mask
+				@param keymod keyboard modifier state mask 
 			*/			
 			ButtonEvent(
 				Window& window,
 				unsigned int x,
 				unsigned int y,
-				int button,
-				bool state)
+				mouse::Button button,
+				bool state,
+				mouse::ButtonMask buttons,
+				keyboard::KeyMod keymod)
 				: Event(window)
 				, x_(x)
 				, y_(y)
 				, button_(button)
 				, state_(state)
+				, buttons_(buttons)
+				, keymod_(keymod)
 			{
 			}
 			
@@ -53,7 +61,7 @@ namespace wm
 			/**
 				@return the number of the mouse button
 			*/
-			int button() const { return button_; }
+			mouse::Button button() const { return button_; }
 			
 			/// The state of the button
 			/**
@@ -61,13 +69,27 @@ namespace wm
 			*/			
 			bool state() const { return state_; }
 			
+			/// State of mouse buttons
+			/**
+				@return bitmask of mouse buttons
+			*/
+			mouse::ButtonMask buttons() const { return buttons_; }
+			
+			/// State of keyboard modifiers
+			/**
+				@return bitmask of keyboard modifiers
+			*/
+			keyboard::KeyMod keymod() const { return keymod_; }
+			
 			/// Visitor pattern entry point
 			virtual void accept(EventHandler &handler) const { handler.handle(*this); }
 		
 		private:
 			unsigned int x_, y_;
-			int button_;
+			mouse::Button button_;
 			bool state_;
+			mouse::ButtonMask buttons_;
+			keyboard::KeyMod keymod_;
 	};
 }
 

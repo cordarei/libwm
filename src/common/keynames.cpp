@@ -1,8 +1,9 @@
-#include <wm/events/keyevent.hpp>
+#include <wm/keyboard.hpp>
+#include <wm/mouse.hpp>
 
 namespace
 {
-	const char* keynames[wm::KeyEvent::NUM_KEYSYMS+1] = {
+	const char* keynames[wm::keyboard::NUM_KEYSYMS+1] = {
 		"Unknown", 			// UNKNOWN
 		0, 0, 0, 0, 0,		// 0x01 - 0x07 unused (total: 7)
 		0, 0, 
@@ -302,10 +303,36 @@ namespace
 
 namespace wm
 {
-	const char *keyName(wm::KeyEvent::Symbol symbol)
+	namespace keyboard
 	{
-		if(symbol < wm::KeyEvent::NUM_KEYSYMS && keynames[symbol] != 0) return keynames[symbol];
-		return "";
+		const char *keyName(wm::keyboard::Symbol symbol)
+		{
+			if(symbol < wm::keyboard::NUM_KEYSYMS && keynames[symbol] != 0) return keynames[symbol];
+			return "";
+		}
+	}
+	
+	namespace mouse
+	{
+		const char *buttonName(wm::mouse::Button button)
+		{
+			const char *buttonnames[] = {
+				"Unknown", 
+				"Left", 
+				"Middle", 
+				"Right", 
+				"Wheel Up", 
+				"Wheel Down", 
+				"Scroll Left", 
+				"Scroll Right", 
+				"Button X", 
+				"Button Y"
+				};
+				
+			return (button >= 0 && button < sizeof(buttonnames) / sizeof(*buttonnames)) ?
+				buttonnames[button] :
+				buttonnames[0];
+		}
 	}
 }
 

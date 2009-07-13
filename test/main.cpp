@@ -38,7 +38,7 @@ int wm_main(int argc, char *argv[])
 
 		virtual void handle(const wm::KeyEvent &event)
 		{
-			if(event.symbol() == wm::KeyEvent::ESCAPE &&
+			if(event.symbol() == wm::keyboard::ESCAPE &&
 				event.state())
 			{
 				quit_flag = true;

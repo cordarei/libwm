@@ -71,8 +71,10 @@ namespace
 			window,
 			event.xbutton.x,
 			event.xbutton.y,
-			event.xbutton.button,
-			event.type == ButtonPress);
+			wm::xlib::mapButton(event.xbutton.button),
+			event.type == ButtonPress,
+			wm::xlib::mapButtons(event.xmotion.state),
+			wm::xlib::mapKeyMod(event.xmotion.state));
 	}
 	
 	const wm::Event* makeFocus(
@@ -116,7 +118,9 @@ namespace
 		return new wm::MotionEvent(
 			window,
 			event.xmotion.x,
-			event.xmotion.y);
+			event.xmotion.y,
+			wm::xlib::mapButtons(event.xmotion.state),
+			wm::xlib::mapKeyMod(event.xmotion.state));
 	}
 }
 
@@ -203,7 +207,11 @@ namespace wm
 					{
 						// X input method (XIM) tells us that characters have been written
 						// First, propagate KeyEvent to event queue
-						KeyEvent *key = new KeyEvent(window, xlib::mapXKeySym(keysym), true);
+						KeyEvent *key = new KeyEvent(
+							window,
+							xlib::mapXKeySym(keysym),
+							xlib::mapKeyMod(event.xkey.state),
+							true);
 						window.impl->eventq.push(key); 	// eventq handles the destruction of the pushed 
 						
 						// Then return CharacterEvent
@@ -219,6 +227,7 @@ namespace wm
 				return new wm::KeyEvent(
 					window,
 					xlib::mapXKeySym(keysym),
+					xlib::mapKeyMod(event.xkey.state),
 					event.type == KeyPress);
 			}
 	};

@@ -13,6 +13,8 @@
 #include <wm/pixelformat.hpp>
 #include <wm/surface.hpp>
 #include <wm/window.hpp>
+#include <wm/keyboard.hpp>
+#include <wm/mouse.hpp>
 
 /// Windowing and rendering context management
 namespace wm { }

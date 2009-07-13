@@ -8,11 +8,39 @@
 #include <wm/event.hpp>
 #include <wm/events.hpp>
 #include <wm/eventhandler.hpp>
+#include <wm/keyboard.hpp>
 
 namespace wm
 {
 	namespace util
 	{
+		namespace detail
+		{
+			std::ostream &printKeyMod(std::ostream& os, wm::keyboard::KeyMod mod)
+			{
+				return os << ""
+					<< ((mod & wm::keyboard::MOD_SHIFT) ? "Shift " : "")
+					<< ((mod & wm::keyboard::MOD_CONTROL) ? "Control " : "")
+					<< ((mod & wm::keyboard::MOD_ALT) ? "Alt " : "")
+					<< ((mod & wm::keyboard::MOD_SUPER) ? "Super " : "")
+					<< ((mod & wm::keyboard::MOD_ALTGR) ? "AltGr " : "")
+					<< ((mod & wm::keyboard::MOD_NUMLOCK) ? "Num Lock " : "")
+					<< ((mod & wm::keyboard::MOD_CAPSLOCK) ? "Caps Lock " : "")
+					<< ((!mod) ? "None " : "")
+					;
+			}
+		
+			std::ostream &printButtonMask(std::ostream &os, wm::mouse::ButtonMask mask)
+			{
+				return os << ""
+					<< ((mask & wm::mouse::MASK_LEFT) ? "Left " : "")
+					<< ((mask & wm::mouse::MASK_MIDDLE) ? "Middle " : "")
+					<< ((mask & wm::mouse::MASK_RIGHT) ? "Right " : "")
+					<< ((!mask) ? "None " : "")
+					;		
+			}
+		}
+	
 		/// An event handler that prints representations of events to an output stream
 		/**
 			An example event handler that prints string representations
@@ -57,9 +85,13 @@ namespace wm
 						<< "ButtonEvent("
 						<< "x = " << event.x()
 						<< ", y = " << event.y()
-						<< ", button = " << event.button()
+						<< ", button = " << mouse::buttonName(event.button())
 						<< ", state = " << (event.state() ? "Down" : "Up")
-						<< ")" << delim;
+						<< ", buttons = ";
+					detail::printButtonMask(*os, event.buttons());
+					*os << ", keymod = ";
+					detail::printKeyMod(*os, event.keymod());
+					*os << ")" << delim;
 				}
 
 				/// Print a KeyEvent
@@ -71,9 +103,12 @@ namespace wm
 					typedef unsigned int uint;
 					*os
 						<< "KeyEvent("
-						<< "symbol = " << uint(event.symbol()) << " \"" << keyName(event.symbol()) << '"'
+						<< "symbol = " << uint(event.symbol())
+						<< " \"" << keyboard::keyName(event.symbol()) << '"'
 						<< ", state = " << (event.state() ? "Down" : "Up")
-						<< ")" << delim;
+						<< ", keymod = ";
+					detail::printKeyMod(*os, event.keymod());	
+					*os	<< ")" << delim;
 				}
 
 				/// Print a FocusEvent
@@ -167,7 +202,11 @@ namespace wm
 						<< "MotionEvent("
 						<< "x = " << event.x()
 						<< ", y = " << event.y()
-						<< ")" << delim;
+						<< ", buttons = ";
+					detail::printButtonMask(*os, event.buttons());
+					*os << ", keymod = ";
+					detail::printKeyMod(*os, event.keymod());
+					*os << ")" << delim;
 				}
 			private:
 				std::ostream* os;

@@ -3,12 +3,13 @@
 #include <X11/Xlib.h>
 #include <X11/keysym.h>
 
-#include <wm/events/keyevent.hpp>
+#include <wm/keyboard.hpp>
+#include <wm/mouse.hpp>
 #include "impl/keymap.hpp"
 
 namespace
 {
-	KeySym reverse_keymap[wm::KeyEvent::NUM_KEYSYMS+1] = {
+	KeySym reverse_keymap[wm::keyboard::NUM_KEYSYMS+1] = {
 		0, 					// UNKNOWN
 		0, 0, 0, 0, 0,		// 0x01 - 0x07 unused (total: 7)
 		0, 0, 
@@ -304,7 +305,7 @@ namespace
 		0 // terminator
 		};
 
-	typedef std::map<KeySym, wm::KeyEvent::Symbol> Keymap;
+	typedef std::map<KeySym, wm::keyboard::Symbol> Keymap;
 	
 	const struct Mapper
 	{
@@ -312,11 +313,11 @@ namespace
 		{
 			typedef unsigned int uint;
 			for(uint i = 0;
-				i < uint(wm::KeyEvent::NUM_KEYSYMS);
+				i < uint(wm::keyboard::NUM_KEYSYMS);
 				++i)
 			{
 				KeySym sym = reverse_keymap[i];
-				if(sym) map[sym] = wm::KeyEvent::Symbol(i);
+				if(sym) map[sym] = wm::keyboard::Symbol(i);
 			}
 		}
 		
@@ -328,12 +329,50 @@ namespace wm
 {
 	namespace xlib
 	{
-		wm::KeyEvent::Symbol mapXKeySym(KeySym sym)
+		wm::keyboard::Symbol mapXKeySym(KeySym sym)
 		{
 			const Keymap &map = mapper.map;
 			Keymap::const_iterator i = map.find(sym);
-			if(i == map.end()) return wm::KeyEvent::UNKNOWN;
+			if(i == map.end()) return wm::keyboard::UNKNOWN;
 			return i->second;
+		}
+
+		wm::keyboard::KeyMod mapKeyMod(unsigned int state)
+		{
+			return 0
+				| ((state & ShiftMask) ? wm::keyboard::MOD_SHIFT : 0)
+				| ((state & ControlMask) ? wm::keyboard::MOD_CONTROL : 0)
+				| ((state & Mod1Mask) ? wm::keyboard::MOD_ALT : 0)
+				| ((state & Mod4Mask) ? wm::keyboard::MOD_SUPER : 0)
+				| ((state & Mod5Mask) ? wm::keyboard::MOD_ALTGR : 0)
+				| ((state & Mod2Mask) ? wm::keyboard::MOD_NUMLOCK : 0)
+				| ((state & LockMask) ? wm::keyboard::MOD_CAPSLOCK : 0)
+				;
+		}
+		
+		wm::mouse::ButtonMask mapButtons(unsigned int state)
+		{
+			return 0
+				| ((state & Button1Mask) ? wm::mouse::MASK_LEFT : 0)
+				| ((state & Button2Mask) ? wm::mouse::MASK_MIDDLE : 0)
+				| ((state & Button3Mask) ? wm::mouse::MASK_RIGHT : 0)
+				;
+		}
+		
+		wm::mouse::Button mapButton(unsigned int button)
+		{
+			switch(button)
+			{
+				case 1: return wm::mouse::BUTTON_LEFT;
+				case 2: return wm::mouse::BUTTON_MIDDLE;
+				case 3: return wm::mouse::BUTTON_RIGHT;
+				case 4: return wm::mouse::WHEEL_UP;
+				case 5: return wm::mouse::WHEEL_DOWN;
+				case 6: return wm::mouse::SCROLL_LEFT;
+				case 7: return wm::mouse::SCROLL_RIGHT;
+				case 8: return wm::mouse::BUTTON_X;
+				default: return wm::mouse::UNKNOWN;
+			}
 		}
 	}
 }

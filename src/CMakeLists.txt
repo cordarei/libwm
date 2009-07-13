@@ -38,8 +38,6 @@ if(UNIX)
 	target_link_libraries(wm ${OPENGL_gl_LIBRARY} ${GLX_LIBRARY})
 endif(UNIX)
 
-add_subdirectory(test)
-
 set_target_properties(wm PROPERTIES VERSION ${WM_VERSION} SOVERSION ${WM_VERSION_MAJOR})
 install(TARGETS wm DESTINATION lib)
 
