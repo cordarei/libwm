@@ -10,6 +10,7 @@
 #include <wm/events/mouseoverevent.hpp>
 #include <wm/events/resizeevent.hpp>
 #include <wm/events/showevent.hpp>
+#include <wm/events/motionevent.hpp>
 
 #endif
 

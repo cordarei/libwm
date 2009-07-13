@@ -157,6 +157,18 @@ namespace wm
 					*os << ")" << delim;
 				}
 
+				/// Print a MotionEvent
+				/**
+					@param event the event to print
+				*/
+				virtual void handle(const MotionEvent& event)
+				{
+					*os
+						<< "MotionEvent("
+						<< "x = " << event.x()
+						<< ", y = " << event.y()
+						<< ")" << delim;
+				}
 			private:
 				std::ostream* os;
 				std::string delim;

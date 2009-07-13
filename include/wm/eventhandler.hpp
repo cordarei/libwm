@@ -12,6 +12,7 @@ namespace wm
 	class ShowEvent;
 	class CloseEvent;
 	class CharacterEvent;
+	class MotionEvent;
 
 	/// An event handler
 	/**
@@ -78,6 +79,12 @@ namespace wm
 				@param event the CharacterEvent event object
 			*/
 			virtual void handle(const CharacterEvent &event) { }
+
+			/// Handle a mouse motion event
+			/**
+				@param event the MotionEvent event object
+			*/
+			virtual void handle(const MotionEvent &event) { }
 			
 		protected:
 			EventHandler() {}

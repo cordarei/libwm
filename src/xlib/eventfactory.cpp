@@ -107,7 +107,17 @@ namespace
 			event.type == MapNotify
 			);
 	}
-	
+
+	const wm::Event* makeMotion(
+		wm::Window& window,
+		const XEvent &event,
+		bool)
+	{
+		return new wm::MotionEvent(
+			window,
+			event.xmotion.x,
+			event.xmotion.y);
+	}
 }
 
 #include <wm/display.hpp>
@@ -217,7 +227,7 @@ namespace wm
 	{
 		long event_mask = 
 			StructureNotifyMask |
-//			PointerMotionMask |
+			PointerMotionMask |
 			ButtonPressMask |
 			ButtonReleaseMask |
 			KeyPressMask |
@@ -252,6 +262,7 @@ namespace wm
 					map[LeaveNotify] = makeMouseOver;
 					map[MapNotify] = makeShow;
 					map[UnmapNotify] = makeShow;
+					map[MotionNotify] = makeMotion;
 					
 					map[KeyPress] = &EventReader::makeKey;
 					map[KeyRelease] = &EventReader::makeKey;
