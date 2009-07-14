@@ -1044,6 +1044,26 @@ namespace
 	
 	const size_t num_names = sizeof(message_names) / sizeof(message_names[0]);
 
+#undef MOD_CONTROL		// hairy win32 #defines cause compilation errors
+#undef MOD_SHIFT
+	wm::keyboard::KeyMod mapKeyMod(WPARAM wparam)
+	{	
+		return 0
+			| ((wparam & MK_CONTROL) ? wm::keyboard::MOD_CONTROL : 0)
+			| ((wparam & MK_SHIFT) ? wm::keyboard::MOD_SHIFT : 0)
+			;
+	}
+
+	wm::mouse::ButtonMask mapButtons(WPARAM wparam)
+	{
+		return 0 
+			| ((wparam & MK_LBUTTON) ? wm::mouse::MASK_LEFT : 0)
+			| ((wparam & MK_MBUTTON) ? wm::mouse::MASK_MIDDLE : 0)
+			| ((wparam & MK_RBUTTON) ? wm::mouse::MASK_RIGHT : 0)
+			;
+	}
+
+
 	const wm::Event *makeButton(
 		wm::Window& window,
 		UINT message,
@@ -1101,26 +1121,13 @@ namespace
 
 		}
 
-#undef MOD_CONTROL
-#undef MOD_SHIFT
-		wm::keyboard::KeyMod keymod = 0
-			| ((wparam & MK_CONTROL) ? wm::keyboard::MOD_CONTROL : 0)
-			| ((wparam & MK_SHIFT) ? wm::keyboard::MOD_SHIFT : 0)
-			;
-
-		wm::mouse::ButtonMask buttons = 0
-			| ((wparam & MK_LBUTTON) ? wm::mouse::MASK_LEFT : 0)
-			| ((wparam & MK_MBUTTON) ? wm::mouse::MASK_MIDDLE : 0)
-			| ((wparam & MK_RBUTTON) ? wm::mouse::MASK_RIGHT : 0)
-			;
-
 		return new wm::ButtonEvent(
 			window,
 			x, y,
 			button,
 			state,
-			buttons,
-			keymod);
+			mapButtons(wparam),
+			mapKeyMod(wparam));
 	}
 
 	const wm::Event *makeFocus(
@@ -1159,6 +1166,23 @@ namespace
 
 		return new wm::CharacterEvent(window, codepoint);
 	}
+
+	const wm::Event *makeMotion(
+		wm::Window& window,
+		UINT message,
+		WPARAM wparam,
+		LPARAM lparam)
+	{
+		unsigned int x = LOWORD(lparam);
+		unsigned int y = HIWORD(lparam);
+
+		return new wm::MotionEvent(
+			window,
+			x, y,
+			mapButtons(wparam),
+			mapKeyMod(wparam)
+			);
+	}
 }
 
 namespace wm
@@ -1194,6 +1218,8 @@ namespace wm
 					map[WM_XBUTTONUP]= &makeButton;
 					map[WM_MOUSEWHEEL]= &makeButton;
 					map[WM_MOUSEHWHEEL]= &makeButton;
+					
+					map[WM_MOUSEMOVE] = &makeMotion;
 
 					map[WM_SETFOCUS] = &makeFocus;
 					map[WM_KILLFOCUS] = &makeFocus;
