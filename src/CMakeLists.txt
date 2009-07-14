@@ -4,6 +4,7 @@ aux_source_directory(common COMMON_SOURCES)
 
 if(WIN32)
 	add_definitions(-DUNICODE)
+	add_definitions(-DWIN32_LEAN_AND_MEAN)
 
 	aux_source_directory(win32 WIN32_SOURCES)
 	aux_source_directory(wgl WGL_SOURCES)

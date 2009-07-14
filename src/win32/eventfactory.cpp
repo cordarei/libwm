@@ -1079,11 +1079,11 @@ namespace
 			break;
 
 		case WM_XBUTTONDOWN:
-			button = wm::mouse::Button(wm::mouse::BUTTON_X + GET_XBUTTON_WPARAM(wparam));
+			button = wm::mouse::Button(wm::mouse::BUTTON_X + GET_XBUTTON_WPARAM(wparam) - 1);
 			state = true;
 			break;
 		case WM_XBUTTONUP:
-			button = wm::mouse::Button(wm::mouse::BUTTON_X + GET_XBUTTON_WPARAM(wparam));
+			button = wm::mouse::Button(wm::mouse::BUTTON_X + GET_XBUTTON_WPARAM(wparam) - 1);
 			state = false;
 			break;
 
@@ -1101,7 +1101,26 @@ namespace
 
 		}
 
-		return new wm::ButtonEvent(window, x, y, button, state, 0, 0);
+#undef MOD_CONTROL
+#undef MOD_SHIFT
+		wm::keyboard::KeyMod keymod = 0
+			| ((wparam & MK_CONTROL) ? wm::keyboard::MOD_CONTROL : 0)
+			| ((wparam & MK_SHIFT) ? wm::keyboard::MOD_SHIFT : 0)
+			;
+
+		wm::mouse::ButtonMask buttons = 0
+			| ((wparam & MK_LBUTTON) ? wm::mouse::MASK_LEFT : 0)
+			| ((wparam & MK_MBUTTON) ? wm::mouse::MASK_MIDDLE : 0)
+			| ((wparam & MK_RBUTTON) ? wm::mouse::MASK_RIGHT : 0)
+			;
+
+		return new wm::ButtonEvent(
+			window,
+			x, y,
+			button,
+			state,
+			buttons,
+			keymod);
 	}
 
 	const wm::Event *makeFocus(
