@@ -9,6 +9,7 @@
 #include <wm/mouse.hpp>
 #include <wm/keyboard.hpp>
 #include "impl/eventfactory.hpp"
+#include "impl/keymap.hpp"
 
 #include <windows.h>
 
@@ -1121,13 +1122,17 @@ namespace
 
 		}
 
+		wm::keyboard::KeyMod keymod = mapKeyMod(wparam)
+			| (wm::win32::getKeyModState() &
+				~(wm::keyboard::MOD_SHIFT | wm::keyboard::MOD_CONTROL));
+
 		return new wm::ButtonEvent(
 			window,
 			x, y,
 			button,
 			state,
 			mapButtons(wparam),
-			mapKeyMod(wparam));
+			keymod);
 	}
 
 	const wm::Event *makeFocus(
@@ -1176,11 +1181,15 @@ namespace
 		unsigned int x = LOWORD(lparam);
 		unsigned int y = HIWORD(lparam);
 
+		wm::keyboard::KeyMod keymod = mapKeyMod(wparam)
+			| (wm::win32::getKeyModState() &
+				~(wm::keyboard::MOD_SHIFT | wm::keyboard::MOD_CONTROL));
+
 		return new wm::MotionEvent(
 			window,
 			x, y,
 			mapButtons(wparam),
-			mapKeyMod(wparam)
+			keymod
 			);
 	}
 }

@@ -13,6 +13,8 @@ namespace wm
 
 		// NOTE: translateKeyEvent must be called from the Window Procedure
 		wm::keyboard::Symbol translateKeyEvent(HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam, bool &filter);
+
+		wm::keyboard::KeyMod getKeyModState();
 	}
 }
 

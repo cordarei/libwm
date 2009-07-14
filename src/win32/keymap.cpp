@@ -343,6 +343,23 @@ namespace wm
 
 			return mapVirtualKeyCode(wparam);
 		}
+
+		wm::keyboard::KeyMod getKeyModState()
+		{
+#undef MOD_CONTROL
+#undef MOD_SHIFT
+#undef MOD_ALT
+			return 0
+				| ((GetKeyState(VK_SHIFT)<0) ? wm::keyboard::MOD_SHIFT : 0)
+				| ((GetKeyState(VK_CONTROL)<0) ? wm::keyboard::MOD_CONTROL : 0)
+				| ((GetKeyState(VK_MENU)<0) ? wm::keyboard::MOD_ALT : 0)
+				| ((GetKeyState(VK_LWIN)<0 || GetKeyState(VK_RWIN)<0) ? wm::keyboard::MOD_SUPER : 0)
+//				| ((GetKeyState(VK_MENU)) ? wm::keyboard::OD_ALTGR : 0)
+				| ((GetKeyState(VK_NUMLOCK)) ? wm::keyboard::MOD_NUMLOCK : 0)
+				| ((GetKeyState(VK_CAPITAL)) ? wm::keyboard::MOD_CAPSLOCK : 0)
+				;
+		}
+
 	}
 }
 

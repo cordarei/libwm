@@ -137,11 +137,10 @@ namespace wm
 
 						if(!filter)
 						{
-							keyboard::KeyMod keymod = 0;
 							window.impl->eventq.push(new KeyEvent(
 								window,
 								translated,
-								keymod,
+								win32::getKeyModState(),
 								(message == WM_KEYDOWN || message == WM_SYSKEYDOWN)));
 						}
 
