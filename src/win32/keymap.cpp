@@ -1,13 +1,13 @@
 #include <map>
 
-#include <wm/events/keyevent.hpp>
+#include <wm/keyboard.hpp>
 #include "impl/keymap.hpp"
 
 #include <windows.h>
 
 namespace
 {
-	WPARAM reverse_keymap[wm::KeyEvent::NUM_KEYSYMS] = {
+	WPARAM reverse_keymap[wm::keyboard::NUM_KEYSYMS] = {
 		0, 					// UNKNOWN
 		0, 0, 0, 0, 0,		// 0x01 - 0x07 unused (total: 7)
 		0, 0, 
@@ -229,7 +229,7 @@ namespace
 		0					// TERMINATOR
 		};
 
-	typedef std::map<WPARAM, wm::KeyEvent::Symbol> Keymap;
+	typedef std::map<WPARAM, wm::keyboard::Symbol> Keymap;
 	
 	const struct Mapper
 	{
@@ -237,11 +237,11 @@ namespace
 		{
 			typedef unsigned int uint;
 			for(uint i = 0;
-				i < uint(wm::KeyEvent::NUM_KEYSYMS);
+				i < uint(wm::keyboard::NUM_KEYSYMS);
 				++i)
 			{
 				WPARAM wparam = reverse_keymap[i];
-				if(wparam) map[wparam] = wm::KeyEvent::Symbol(i);
+				if(wparam) map[wparam] = wm::keyboard::Symbol(i);
 			}
 		}
 		
@@ -253,15 +253,15 @@ namespace wm
 {
 	namespace win32
 	{
-		wm::KeyEvent::Symbol mapVirtualKeyCode(WPARAM vCode)
+		wm::keyboard::Symbol mapVirtualKeyCode(WPARAM vCode)
 		{
 			const Keymap &map = mapper.map;
 			Keymap::const_iterator i = map.find(vCode);
-			if(i == map.end()) return wm::KeyEvent::UNKNOWN;
+			if(i == map.end()) return wm::keyboard::UNKNOWN;
 			return i->second;
 		}
 
-		wm::KeyEvent::Symbol translateKeyEvent(HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam, bool &filter)
+		wm::keyboard::Symbol translateKeyEvent(HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam, bool &filter)
 		{
 			filter = false;
 
@@ -271,21 +271,21 @@ namespace wm
 
 				switch(mapped)
 				{
-					case VK_INSERT:     return KeyEvent::KEYPAD_0;
-					case VK_END:        return KeyEvent::KEYPAD_1;
-					case VK_DOWN:       return KeyEvent::KEYPAD_2;
-					case VK_NEXT:       return KeyEvent::KEYPAD_3;
-					case VK_LEFT:       return KeyEvent::KEYPAD_4;
-					case VK_CLEAR:      return KeyEvent::KEYPAD_5;
-					case VK_RIGHT:      return KeyEvent::KEYPAD_6;
-					case VK_HOME:       return KeyEvent::KEYPAD_7;
-					case VK_UP:         return KeyEvent::KEYPAD_8;
-					case VK_PRIOR:      return KeyEvent::KEYPAD_9;
-					case VK_DIVIDE:     return KeyEvent::KEYPAD_DIVIDE;
-					case VK_MULTIPLY:   return KeyEvent::KEYPAD_MULTIPLY;
-					case VK_SUBTRACT:   return KeyEvent::KEYPAD_MINUS;
-					case VK_ADD:        return KeyEvent::KEYPAD_PLUS;
-					case VK_DELETE:     return KeyEvent::KEYPAD_SEPARATOR;
+					case VK_INSERT:     return keyboard::KEYPAD_0;
+					case VK_END:        return keyboard::KEYPAD_1;
+					case VK_DOWN:       return keyboard::KEYPAD_2;
+					case VK_NEXT:       return keyboard::KEYPAD_3;
+					case VK_LEFT:       return keyboard::KEYPAD_4;
+					case VK_CLEAR:      return keyboard::KEYPAD_5;
+					case VK_RIGHT:      return keyboard::KEYPAD_6;
+					case VK_HOME:       return keyboard::KEYPAD_7;
+					case VK_UP:         return keyboard::KEYPAD_8;
+					case VK_PRIOR:      return keyboard::KEYPAD_9;
+					case VK_DIVIDE:     return keyboard::KEYPAD_DIVIDE;
+					case VK_MULTIPLY:   return keyboard::KEYPAD_MULTIPLY;
+					case VK_SUBTRACT:   return keyboard::KEYPAD_MINUS;
+					case VK_ADD:        return keyboard::KEYPAD_PLUS;
+					case VK_DELETE:     return keyboard::KEYPAD_SEPARATOR;
 					default:			break;
 				}
 			}
@@ -294,18 +294,18 @@ namespace wm
 			{
 				UINT scancode = MapVirtualKeyW(VK_RSHIFT, MAPVK_VK_TO_VSC);
 				if(((lparam & 0x01ff0000) >> 16) == scancode)
-					return KeyEvent::RSHIFT;
-				return KeyEvent::LSHIFT;
+					return keyboard::RSHIFT;
+				return keyboard::LSHIFT;
 			} else if(wparam == VK_CONTROL)
 			{
 				if(lparam & 0x01000000)
-					return KeyEvent::RCRTL;
+					return keyboard::RCRTL;
 
 				if(message == WM_SYSKEYUP)
 				{
 					// WM_SYSKEYUP following the release of AltGR
 					filter = true;
-					return wm::KeyEvent::UNKNOWN;
+					return wm::keyboard::UNKNOWN;
 				}
 
 				// Detect AltGR
@@ -319,27 +319,27 @@ namespace wm
 						msg.time == msgtime)
 					{
 						filter = true;
-						return KeyEvent::UNKNOWN; // next message is RALT down
+						return keyboard::UNKNOWN; // next message is RALT down
 					}
 				}
 
-				return KeyEvent::LCTRL;
+				return keyboard::LCTRL;
 			} else if(wparam == VK_MENU)
 			{
 				if(lparam & 0x01000000)
-					return KeyEvent::RALT;
-				return KeyEvent::LALT;
+					return keyboard::RALT;
+				return keyboard::LALT;
 			} else if(wparam == VK_RETURN)
 			{
 				if(lparam & 0x01000000)
-					return KeyEvent::KEYPAD_ENTER;
-				return KeyEvent::RETURN;
+					return keyboard::KEYPAD_ENTER;
+				return keyboard::RETURN;
 			}
 
 			UINT charcode = MapVirtualKeyW(wparam, MAPVK_VK_TO_CHAR);
 			if((charcode >= 0x20 && charcode < 0x40) || // some ASCII characters
 				(charcode >= 0xa0 && charcode <= 0xff)) // Latin-1 supplement
-				return static_cast<KeyEvent::Symbol>(charcode);
+				return static_cast<keyboard::Symbol>(charcode);
 
 			return mapVirtualKeyCode(wparam);
 		}

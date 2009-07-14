@@ -6,6 +6,8 @@
 #include <wm/exception.hpp>
 #include <wm/event.hpp>
 #include <wm/events.hpp>
+#include <wm/mouse.hpp>
+#include <wm/keyboard.hpp>
 #include "impl/eventfactory.hpp"
 
 #include <windows.h>
@@ -1051,55 +1053,55 @@ namespace
 		unsigned int x = LOWORD(lparam),
 					 y = HIWORD(lparam);
 
-		int button = 0;
+		wm::mouse::Button button = wm::mouse::UNKNOWN;
 		bool state = false;
 		switch(message)
 		{
 		case WM_LBUTTONDOWN:
-			button = 1; state = true;
+			button = wm::mouse::BUTTON_LEFT; state = true;
 			break;
 		case WM_LBUTTONUP:
-			button = 1; state = false;
+			button = wm::mouse::BUTTON_LEFT; state = false;
 			break;
 
 		case WM_MBUTTONDOWN:
-			button = 2; state = true;
+			button = wm::mouse::BUTTON_MIDDLE; state = true;
 			break;
 		case WM_MBUTTONUP:
-			button = 2; state = false;
+			button = wm::mouse::BUTTON_MIDDLE; state = false;
 			break;
 
 		case WM_RBUTTONDOWN:
-			button = 3; state = true;
+			button = wm::mouse::BUTTON_RIGHT; state = true;
 			break;
 		case WM_RBUTTONUP:
-			button = 3; state = false;
+			button = wm::mouse::BUTTON_RIGHT; state = false;
 			break;
 
 		case WM_XBUTTONDOWN:
-			button = 7 + GET_XBUTTON_WPARAM(wparam);
+			button = wm::mouse::Button(wm::mouse::BUTTON_X + GET_XBUTTON_WPARAM(wparam));
 			state = true;
 			break;
 		case WM_XBUTTONUP:
-			button = 7 + GET_XBUTTON_WPARAM(wparam);
+			button = wm::mouse::Button(wm::mouse::BUTTON_X + GET_XBUTTON_WPARAM(wparam));
 			state = false;
 			break;
 
 		case WM_MOUSEWHEEL:
 			button = GET_WHEEL_DELTA_WPARAM(wparam) < 0 
-				? 4 : 5;
+				? wm::mouse::WHEEL_DOWN : wm::mouse::WHEEL_UP;
 			state = true;
 			break;
 
 		case WM_MOUSEHWHEEL:
 			button = GET_WHEEL_DELTA_WPARAM(wparam) < 0
-				? 6 : 7;
+				? wm::mouse::SCROLL_LEFT : wm::mouse::SCROLL_RIGHT;
 			state = true;
 			break;
 
 		}
 
-		return new wm::ButtonEvent(window, x, y, button, state);
+		return new wm::ButtonEvent(window, x, y, button, state, 0, 0);
 	}
 
 	const wm::Event *makeFocus(

@@ -132,14 +132,16 @@ namespace wm
 					{
 						bool filter;
 
-						wm::KeyEvent::Symbol translated =
+						wm::keyboard::Symbol translated =
 							win32::translateKeyEvent(hwnd, message, wparam, lparam, filter);
 
 						if(!filter)
 						{
+							keyboard::KeyMod keymod = 0;
 							window.impl->eventq.push(new KeyEvent(
 								window,
 								translated,
+								keymod,
 								(message == WM_KEYDOWN || message == WM_SYSKEYDOWN)));
 						}
 
