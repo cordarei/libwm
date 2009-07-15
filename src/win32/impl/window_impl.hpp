@@ -8,20 +8,13 @@
 #include <common/dispatcher.hpp>
 #include <common/eventqueue.hpp>
 
+#include <win32/impl/eventreader.hpp>
+
 namespace wm
 {
 	struct Window::impl_t
 	{
-		impl_t()
-			: sizemove(false)
-			, resizing(false)
-			, dirty(false)
-		{
-		}
-
-		// Window procedure state
-		bool sizemove, resizing, dirty;
-		unsigned int width, height;
+		EventReader eventreader;
 
 		// Window handle
 		HWND hwnd;

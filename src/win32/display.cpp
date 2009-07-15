@@ -9,156 +9,14 @@
 
 #include <common/eventqueue.hpp>
 #include <win32/impl/classname.hpp>
-#include "impl/error.hpp"
-#include "impl/display_impl.hpp"
-#include "impl/window_impl.hpp"
-#include "impl/eventfactory.hpp"
-#include <win32/impl/keymap.hpp>
+#include <win32/impl/error.hpp>
+#include <win32/impl/display_impl.hpp>
+#include <win32/impl/eventreader.hpp>
 
 #include <windows.h>
 
 namespace wm
 {
-	class EventReader
-	{
-		public:
-			static LRESULT CALLBACK wndproc(HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam)
-			{
-				SetLastError(0);
-				wm::Window *ptr =
-					reinterpret_cast<wm::Window*>(
-						GetWindowLongPtr(hwnd, 0));
-				if(!ptr)
-				{
-					DWORD err = GetLastError();
-					if(err)
-						throw wm::Exception("Can't get win32 window user data" +
-							wm::win32::getErrorMsg(err));
-				} else
-				{
-					wm::Window& window = *ptr;
-
-					if(message == WM_ENTERSIZEMOVE)
-					{
-						window.impl->sizemove = true;
-						window.impl->resizing = false;
-						window.impl->dirty = false;
-						return TRUE;
-					} else if(message == WM_EXITSIZEMOVE)
-					{
-						if(window.impl->resizing)
-						{
-							// propagate ResizeEvent
-							window.impl->eventq.push(
-								new wm::ResizeEvent(
-									window, 
-									window.impl->width,
-									window.impl->height
-									));
-						}
-
-						if(window.impl->dirty)
-						{
-							// propagate ExposeEvent
-							window.impl->eventq.push(
-								new wm::ExposeEvent(
-									window,
-									0,
-									0,
-									window.impl->width,
-									window.impl->height
-									));
-						}
-
-						window.impl->sizemove = false;
-
-						return TRUE;
-					} else if(message == WM_SIZE)
-					{
-						unsigned int w = LOWORD(lparam),
-									h = HIWORD(lparam);
-
-						window.impl->width = w;
-						window.impl->height = h;
-
-						if(window.impl->sizemove) window.impl->resizing = true;
-						else
-						{
-							window.impl->eventq.push(
-								new ResizeEvent(
-									window,
-									w,
-									h));
-						}
-
-						return 0; // should return 0 if WM_SIZE processed
-					} else if(message == WM_PAINT)
-					{
-						// ValidateRect prevents Windows from resending WM_PAINT
-						RECT rect, *ptr = 0;
-						if(GetUpdateRect(hwnd, &rect, FALSE)) ptr = &rect;
-						if(!ValidateRect(hwnd, ptr)) // if ptr == NULL, validates entire window
-							throw wm::Exception("Can't validate win32 window rectangle" + wm::win32::getErrorMsg());
-
-						if(window.impl->sizemove)
-						{
-							window.impl->dirty = true;
-							return 0; // should return 0 if WM_PAINT processed
-						} else
-						{
-							// propagate ExposeEvent
-							window.impl->eventq.push(
-								new ExposeEvent(
-									window,
-									ptr ? rect.left : 0,
-									ptr ? rect.top : 0,
-									ptr ? (rect.right - rect.left) : window.impl->width,
-									ptr ? (rect.bottom - rect.top) : window.impl->height
-									));
-							return 0;
-						}
-					} else if(message == WM_ERASEBKGND)
-					{
-						if(window.impl->sizemove)
-						{
-							window.impl->dirty = true;
-						}
-
-						return TRUE;
-					} else if(message == WM_KEYDOWN ||
-							message == WM_KEYUP ||
-							message == WM_SYSKEYDOWN ||
-							message == WM_SYSKEYUP)
-					{
-						bool filter;
-
-						wm::keyboard::Symbol translated =
-							win32::translateKeyEvent(hwnd, message, wparam, lparam, filter);
-
-						if(!filter)
-						{
-							window.impl->eventq.push(new KeyEvent(
-								window,
-								translated,
-								win32::getKeyModState(),
-								(message == WM_KEYDOWN || message == WM_SYSKEYDOWN)));
-						}
-
-						return 0;
-					}
-
-					const wm::Event *event = wm::win32::fromWin32Event(window, message, wparam, lparam);
-					if(event)
-					{
-						window.impl->eventq.push(event);
-						return TRUE;
-					}
-				}
-
-				return DefWindowProc(hwnd, message, wparam, lparam);
-			}
-	};
-
 	Display::Display(const char *name)
 		: impl(new impl_t)
 	{
@@ -178,7 +36,7 @@ namespace wm
 		WNDCLASSEXW klass;
 		klass.cbSize = sizeof(WNDCLASSEXW);
 		klass.style = CS_OWNDC | CS_HREDRAW | CS_VREDRAW;
-		klass.lpfnWndProc = &EventReader::wndproc;
+		klass.lpfnWndProc = &EventReader::WndProc;
 		klass.cbClsExtra = 0;
 		klass.cbWndExtra = sizeof(Window*);
 		klass.hInstance = impl->hInstance;
