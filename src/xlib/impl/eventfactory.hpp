@@ -10,8 +10,6 @@ namespace wm
 	
 	namespace xlib
 	{
-		extern long event_mask;
-	
 		const Event* fromXEvent(
 			wm::Window& window,
 			const XEvent &event,

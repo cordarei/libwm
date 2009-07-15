@@ -6,7 +6,7 @@
 
 #include "impl/display_impl.hpp"
 #include "impl/window_impl.hpp"
-#include "impl/eventfactory.hpp"
+#include <xlib/impl/eventreader.hpp>
 
 namespace wm
 {
@@ -48,15 +48,8 @@ namespace wm
 				&event
 				);
 			
-			bool filter = XFilterEvent(&event, None);
-			
 			wm::Window* window =  impl->registry.get(event.xany.window);
-			
-			if(window)
-			{
-				const Event *ptr = xlib::fromXEvent(*window, event, filter);
-				if(ptr) window->impl->eventq.push(ptr); // eventq takes ownership of event object in ptr
-			}
+			if(window) EventReader::handleXEvent(*window, event);
 		}
 		
 		// TODO: implement a non-blocking version

@@ -11,7 +11,7 @@
 
 #include "impl/display_impl.hpp"
 #include "impl/window_impl.hpp"
-#include "impl/eventfactory.hpp"
+#include <xlib/impl/eventreader.hpp>
 
 namespace wm
 {
@@ -78,7 +78,7 @@ namespace wm
 		XSelectInput(
 			display.impl->display,
 			impl->window,
-			xlib::event_mask | xic_event_mask
+			EventReader::event_mask | xic_event_mask
 			);
 			
 		// TODO: better error handling, perhaps wait for X 
