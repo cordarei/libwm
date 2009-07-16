@@ -53,6 +53,7 @@ namespace wm
 			friend class Context;
 			friend class Configuration;
 			friend class Surface;
+			friend class PixelFormat;
 			
 			friend void WM_EXPORT makeCurrent(Context &context, Surface &draw, Surface &read);
 	};

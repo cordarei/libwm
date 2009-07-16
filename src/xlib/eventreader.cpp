@@ -28,6 +28,7 @@ namespace wm
 			| EnterWindowMask
 			| LeaveWindowMask
 			| FocusChangeMask
+			| ExposureMask
 			;
 			
 	void EventReader::handleXEvent(wm::Window& window, const XEvent& event)

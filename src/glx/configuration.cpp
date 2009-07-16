@@ -31,17 +31,17 @@ namespace
 
 namespace wm
 {
-	Configuration::Configuration(Window &window)
-		: impl(new impl_t(window.display()))
+	Configuration::Configuration(Display &display)
+		: impl(new impl_t(display))
 	{
-		::Display *xdisplay = window.display().impl->display;
+		::Display *xdisplay = display.impl->display;
 		getVersion(xdisplay, impl->versionMajor, impl->versionMinor);
 		
 		int numConfigs;
 		GLXFBConfig *fbconfigs =
 			glXGetFBConfigs(
 				xdisplay,
-				window.impl->screen,
+				DefaultScreen(xdisplay), // TODO: make this work on different screens
 				&numConfigs);
 				
 		if(!fbconfigs || numConfigs <= 0)
@@ -91,5 +91,21 @@ namespace wm
 	int Configuration::numFormats() const { return impl->formats.size(); }
 	const PixelFormat& Configuration::getFormat(int index) const { return impl->formats.at(index); }
 
+	void PixelFormat::set(Window& window) const
+	{
+		::Display *xdisplay = window.display().impl->display;
+		XVisualInfo *visualinfo
+			= glXGetVisualFromFBConfig(xdisplay, impl->fbconfig);
+		if(!visualinfo)
+			throw wm::Exception("Can't get XVisualInfo from pixel format");
+
+		Visual* visual = visualinfo->visual;
+		int depth = visualinfo->depth;
+		
+		XFree(visualinfo);
+		
+		window.impl->visual = visual;
+		window.impl->depth = depth;		
+	}
 }
 

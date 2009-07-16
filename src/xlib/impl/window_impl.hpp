@@ -20,6 +20,13 @@ namespace wm
 		int screen;
 	
 		EventReader eventreader;
+		
+		// PixelFormat information
+		Visual *visual;
+		int depth;
+		
+		// Color map
+		Colormap colormap;		
 
 		// Window handle
 		::Window window;

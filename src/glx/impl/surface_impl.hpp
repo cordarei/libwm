@@ -3,9 +3,6 @@
 
 #include <wm/surface.hpp>
 
-#include <wm/eventhandler.hpp>
-#include <wm/connection.hpp>
-
 #include <X11/Xlib.h>
 #include <GL/glx.h>
 
@@ -17,23 +14,12 @@ namespace wm
 	{
 		explicit impl_t(Window& window)
 			: window(&window)
-			, handler(ResizeHandler())
-			, connection(window, handler, false)
 		{
 		}
 	
 		Window *window;
 	
-		struct ResizeHandler : public EventHandler
-		{
-			virtual void handle(const ResizeEvent& event);
-		} handler;
-		
-		Connection connection;
-
 		::Display* xdisplay;
-		Colormap colormap;
-		::Window subwindow;
 		GLXWindow glxwindow;
 		
 	private:

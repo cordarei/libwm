@@ -11,102 +11,30 @@
 
 namespace wm
 {
-	void Surface::impl_t::ResizeHandler::handle(const ResizeEvent& event)
-	{
-		Window &window = event.window();
-		Surface &surface = window.surface();
-
-		XResizeWindow(
-			surface.impl->xdisplay,
-			surface.impl->subwindow,
-			event.width(),
-			event.height());
-
-	}
-
-	Surface::Surface(Window &window, const PixelFormat& format)
+	Surface::Surface(Window &window)
 		: impl(new impl_t(window))
 	{
+		const PixelFormat& format = window.pixelformat();
+	
 		if(window.surface_)
 			throw wm::Exception("Window already has an attached surface");
 			
 		::Display *xdisplay = window.display().impl->display;
 		impl->xdisplay = xdisplay;
-
-		unsigned int width, height;
-		window.getSize(width, height);
-
-		XVisualInfo* visualinfo = 
-			glXGetVisualFromFBConfig(
-				xdisplay,
-				format.impl->fbconfig
-				);
-				
-		if(!visualinfo)
-			throw wm::Exception("Can't get X Visual info from framebuffer configuration");
-			
-		impl->colormap =
-			XCreateColormap(
-				xdisplay,
-				RootWindow(xdisplay, window.impl->screen),
-				visualinfo->visual,
-				AllocNone
-				);
-			
-		if(impl->colormap == None)
-		{
-			XFree(visualinfo);
-			throw wm::Exception("Can't create X Colormap for Surface");
-		}
-		
-		XSetWindowAttributes attrib;
-		attrib.colormap = impl->colormap;
-		
-		impl->subwindow = 
-			XCreateWindow(
-				xdisplay,
-				window.impl->window,
-				0, 0,
-				width, height,
-				0,
-				visualinfo->depth,
-				InputOutput,
-				visualinfo->visual,
-				CWColormap,
-				&attrib
-				);
-				
-		XFree(visualinfo);
-
-		long event_mask = ExposureMask;
-		XSelectInput(
-			xdisplay,
-			impl->subwindow,
-			event_mask
-			);
-				
-		XMapWindow(
-			xdisplay,
-			impl->subwindow
-			);
 			
 		impl->glxwindow =
 			glXCreateWindow(
 				xdisplay,
 				format.impl->fbconfig,
-				impl->subwindow,
+				window.impl->window,
 				0
 				);
 		
 		window.surface_ = this;
-		window.display().impl->registry.add(impl->subwindow, &window);
-		impl->connection.connect();
 	}
 	
 	Surface::~Surface()
 	{
-		impl->connection.disconnect();
-		impl->window->display().impl->registry.remove(impl->subwindow);
 		impl->window->surface_ = 0;
 
 		::Display* xdisplay = impl->window->display().impl->display;
@@ -114,14 +42,6 @@ namespace wm
 		glXDestroyWindow(
 			xdisplay,
 			impl->glxwindow);
-			
-		XDestroyWindow(
-			xdisplay,
-			impl->subwindow);		
-
-		XFreeColormap(
-			xdisplay,
-			impl->colormap);
 	
 		delete impl;
 	}
