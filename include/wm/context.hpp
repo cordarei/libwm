@@ -15,19 +15,18 @@ namespace wm
 		public:
 			/// Create a new rendering context
 			/**
-				@param window the window on which to create rendering context
 				@param format the pixel format to use with the rendering context
 				@param shared a pointer to a Context to share resources
 					(buffers, textures, shaders, etc) with or 0 for 
 					no shared context
 			*/
-			explicit Context(Window& window, const PixelFormat &format, Context *shared = 0);
+			explicit Context(const PixelFormat &format, Context *shared = 0);
 			
 			/// Destroy a rendering context
 			~Context();
 			
 			/// Get the display associated with this rendering context
-			Display& display() { return display_; }
+			Display& display() const { return *display_; }
 			
 		private:
 			Context(const Context&);
@@ -36,7 +35,7 @@ namespace wm
 			struct impl_t;
 			impl_t* impl;
 			
-			Display &display_;
+			Display *display_;
 
 			friend void WM_EXPORT makeCurrent(Context &context, Surface &draw, Surface &read);
 	};

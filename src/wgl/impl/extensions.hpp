@@ -10,6 +10,9 @@ namespace wm
 {
 	namespace wgl
 	{
+		class DummyWindow;
+		class DummyContext;
+
 		struct Extensions
 		{
 			Extensions()
@@ -22,7 +25,7 @@ namespace wm
 			{
 			}
 
-			void init(HINSTANCE hinstance);
+			void init(DummyWindow& dummywin, DummyContext &dummyctx);
 			bool supported(const std::string &name) const;
 
 			std::set<std::string> extensions;

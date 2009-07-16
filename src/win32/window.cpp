@@ -8,6 +8,7 @@
 #include <wm/exception.hpp>
 #include <wm/display.hpp>
 #include <wm/window.hpp>
+#include <wm/pixelformat.hpp>
 
 #include "impl/error.hpp"
 #include "impl/display_impl.hpp"
@@ -51,9 +52,11 @@ namespace wm
 		Display& display,
 		int,
 		unsigned int width,
-		unsigned int height)
+		unsigned int height,
+		const PixelFormat &format)
 		: impl(new impl_t)
 		, display_(display)
+		, pixelformat_(format)
 	{
 		impl->style = WS_OVERLAPPEDWINDOW;
 		impl->exstyle = WS_EX_OVERLAPPEDWINDOW;
@@ -73,15 +76,15 @@ namespace wm
 			{
 				DWORD err = GetLastError();
 				if(err != 0)
-					throw Exception("Can't set win32 Window user data" + win32::getErrorMsg(err));
+					throw Exception("Can't set win32 Window user data: " + win32::getErrorMsg(err));
 			}
 
-			// setPixelFormat(impl->hwnd, format);
+			format.set(*this);
 		} catch(...)
 		{
 			if(!DestroyWindow(impl->hwnd))
 			{
-				std::cerr << "Can't destroy window" << win32::getErrorMsg() << std::endl;
+				std::cerr << "Can't destroy window: " << win32::getErrorMsg() << std::endl;
 			}
 
 			throw;

@@ -67,11 +67,14 @@ namespace wm
 				, descriptor_(descriptor)
 			{
 			}
+
+			void set(Window& win) const;
 			
 			friend class Configuration;
 			friend struct Configuration::impl_t;
 			friend class Surface;
 			friend class Context;
+			friend class Window;
 	};
 	
 	/// Check if two pixel format descriptors match exactly

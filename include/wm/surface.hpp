@@ -21,9 +21,8 @@ namespace wm
 				to the same window.
 
 				@param window the window to draw to
-				@param format the pixel format to use
 			*/
-			Surface(Window &window, PixelFormat const &format);
+			explicit Surface(Window &window);
 			
 			/// Destroy a rendering surface
 			~Surface();

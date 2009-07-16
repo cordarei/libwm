@@ -25,7 +25,7 @@ namespace wm
 				HINSTANCE hinstance;
 		};
 
-		struct DummyContext
+		class DummyContext
 		{
 			public:
 				explicit DummyContext(HWND hwnd);
@@ -45,9 +45,27 @@ namespace wm
 				~UseContext();
 
 			private:
+				UseContext(const UseContext&);
+				UseContext& operator=(const UseContext&);
+
 				HGLRC oldContext;
 				HDC oldDC;
 
+		};
+
+		class DCGetter
+		{
+			public:
+				explicit DCGetter(HWND hwnd);
+				~DCGetter();
+
+				HDC hdc;
+
+			private:
+				DCGetter(const DCGetter&);
+				DCGetter& operator=(const DCGetter&);
+
+				HWND hwnd;
 		};
 	}
 }

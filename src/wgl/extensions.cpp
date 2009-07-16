@@ -54,24 +54,19 @@ namespace wm
 {
 	namespace wgl
 	{
-		void Extensions::init(HINSTANCE hinstance)
+		void Extensions::init(DummyWindow& dummywin, DummyContext &dummyctx)
 		{
-			wgl::DummyWindow dummywnd(hinstance);
-			wgl::DummyContext dummyctx(dummywnd.hwnd);
-			wgl::UseContext usectx(dummywnd.hwnd, dummyctx.hglrc);
+			wgl::UseContext usectx(dummywin.hwnd, dummyctx.hglrc);
 
 			if(!getProcAddress("wglGetExtensionsStringARB", wglGetExtensionsStringARB))
 				return;
 
-			HDC hdc = GetDC(dummywnd.hwnd);
-			if(!hdc)
-				throw wm::Exception("Can't get win32 device context: " + win32::getErrorMsg());
-
-			std::string extstring = wglGetExtensionsStringARB(hdc);
-
-			ReleaseDC(dummywnd.hwnd, hdc);
-
-			make_set(extensions, extstring);
+			{
+				wgl::DCGetter getter(dummywin.hwnd);
+				const char *extstring = wglGetExtensionsStringARB(getter.hdc);
+				if(!extstring) throw wm::Exception("NULL extension string");
+				make_set(extensions, extstring);
+			}
 
 			init_WGL_ARB_pixel_format(*this);
 		}

@@ -13,6 +13,7 @@ namespace wm
 	class EventHandler;
 	class Surface;
 	class Context;
+	class PixelFormat;
 	
 	namespace common
 	{
@@ -29,12 +30,14 @@ namespace wm
 				@param screen number of screen in display, use 0 for default screen
 				@param width the width of the window
 				@param height the height of the window
+				@param format the pixel format of the window
 			*/
 			Window(
 				Display& display,
 				int screen,
 				unsigned int width,
-				unsigned int height);
+				unsigned int height,
+				const PixelFormat& format);
 			
 			/// Destroy a window
 			~Window();
@@ -81,6 +84,12 @@ namespace wm
 				if(!surface_) throw wm::Exception("No Surface attached to Window");
 				return *surface_;
 			}
+
+			/// Get the pixel format of this Window
+			/**
+				@return the pixel format of this window
+			*/
+			const PixelFormat& pixelformat() const { return pixelformat_; }
 			
 			/// Read events from the event queue and call event handlers
 			/**
@@ -108,6 +117,7 @@ namespace wm
 			struct impl_t;
 			impl_t* impl;
 			Display& display_;
+			const PixelFormat& pixelformat_;
 			Surface *surface_;
 
 			common::Dispatcher &dispatcher();
@@ -118,6 +128,7 @@ namespace wm
 			friend class Context;
 			friend class Configuration;
 			friend class Surface;
+			friend class PixelFormat;
 
 			friend void WM_EXPORT makeCurrent(Context &context, Surface &draw, Surface &read);
 	};

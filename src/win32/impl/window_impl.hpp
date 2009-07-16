@@ -26,6 +26,13 @@ namespace wm
 		common::Dispatcher dispatcher;
 		common::EventQueue eventq;
 	};
+
+	class PixelFormat;
+	namespace win32
+	{
+		// NOTE: implemented in the wgl parts
+		void setPixelFormat(HWND hwnd, const PixelFormat& format);
+	};
 }
 
 #endif

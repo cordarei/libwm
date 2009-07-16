@@ -7,6 +7,7 @@
 #include <wm/configuration.hpp>
 
 #include <win32/impl/error.hpp>
+#include <wm/display.hpp>
 #include <win32/impl/display_impl.hpp>
 #include <win32/impl/window_impl.hpp>
 #include <wgl/impl/configuration_impl.hpp>
@@ -153,42 +154,35 @@ namespace
 
 namespace wm
 {
-	Configuration::Configuration(Window& window)
+	Configuration::Configuration(Display &display)
 		: impl(new impl_t)
-		, display_(&window.display())
+		, display_(&display)
 	{
-		impl->extensions.init(window.display().impl->hInstance);
+		HINSTANCE hinstance	= display.impl->hInstance;
 
+		wgl::DummyWindow dummywin(hinstance);
+		wgl::DummyContext dummyctx(dummywin.hwnd);
+
+		impl->extensions.init(dummywin, dummyctx);
 		boost::scoped_ptr<PixelFormatBuilder> builder(makeFormatBuilder(impl->extensions));
 
-		HWND hwnd = window.impl->hwnd;
-		HDC hdc = GetDC(hwnd);
-		if(!hdc)
-			throw wm::Exception("Can't get win32 device context" + wm::win32::getErrorMsg());
+		wgl::DCGetter getter(dummywin.hwnd);
 
-		try
+		int max_index = builder->maxFormat(getter.hdc);
+
+		for(int index = 1; index <= max_index; ++index)
 		{
-			int max_index = builder->maxFormat(hdc);
+			if(builder->filterFormat(getter.hdc, index))
+				continue;
 
-			for(int index = 1; index <= max_index; ++index)
-			{
-				if(builder->filterFormat(hdc, index))
-					continue;
-
-				impl->formatdata.push_back(PixelFormat::impl_t(index));
-				impl->formats.push_back(
-					PixelFormat(
-						builder->makeDescriptor(hdc, index),
-						*this,
-						impl->formatdata.back()
-						));
-			}
-		} catch(...)
-		{
-			ReleaseDC(hwnd, hdc);
+			impl->formatdata.push_back(PixelFormat::impl_t(index));
+			impl->formats.push_back(
+				PixelFormat(
+					builder->makeDescriptor(getter.hdc, index),
+					*this,
+					impl->formatdata.back()
+					));
 		}
-
-		ReleaseDC(hwnd, hdc);
 	}
 	
 	Configuration::~Configuration()
@@ -198,4 +192,17 @@ namespace wm
 	
 	int Configuration::numFormats() const { return impl->formats.size(); }
 	const PixelFormat& Configuration::getFormat(int index) const { return impl->formats.at(index); }
+}
+
+#include <wgl/impl/pixelformat_impl.hpp>
+
+namespace wm
+{
+	void PixelFormat::set(Window& window) const
+	{
+		PIXELFORMATDESCRIPTOR pfd;
+		wgl::DCGetter getter(window.impl->hwnd);
+		if(!SetPixelFormat(getter.hdc, impl->index, &pfd))
+			throw wm::Exception("Can't set window pixel format: " + win32::getErrorMsg());
+	}
 }

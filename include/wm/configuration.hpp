@@ -15,11 +15,11 @@ namespace wm
 	class WM_EXPORT Configuration
 	{
 		public:
-			/// Get the graphics configuration of a window
+			/// Get the graphics configuration of a display
 			/**
-				@param window the window to get the graphics configuration from
+				@param display the display to get the graphics configuration from
 			*/
-			explicit Configuration(Window& window);
+			explicit Configuration(Display& display);
 			
 			/// Destroy Configuration
 			~Configuration();

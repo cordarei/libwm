@@ -87,33 +87,18 @@ namespace wm
 			pfd.iPixelType = PFD_TYPE_RGBA;
 			pfd.iLayerType = PFD_MAIN_PLANE;
 
-			HDC hdc = GetDC(hwnd);
-			if(!hdc)
-				throw wm::Exception("Can't get win32 device context" + wm::win32::getErrorMsg());
-			
-			int pixelformat = ChoosePixelFormat(hdc, &pfd);
+			DCGetter getter(hwnd);
+
+			int pixelformat = ChoosePixelFormat(getter.hdc, &pfd);
 			if(!pixelformat)
-			{
-				DWORD err = GetLastError();
-				ReleaseDC(hwnd, hdc);
-				throw wm::Exception("ChoosePixelFormat failed: " + win32::getErrorMsg(err));
-			}
+				throw wm::Exception("ChoosePixelFormat failed: " + win32::getErrorMsg());
 
-			if(!SetPixelFormat(hdc, pixelformat, &pfd))
-			{
-				DWORD err = GetLastError();
-				ReleaseDC(hwnd, hdc);
-				throw wm::Exception("SetPixelFormat failed: " + win32::getErrorMsg(err));			
-			}
+			if(!SetPixelFormat(getter.hdc, pixelformat, &pfd))
+				throw wm::Exception("SetPixelFormat failed: " + win32::getErrorMsg());
 
-			hglrc = wglCreateContext(hdc);
+			hglrc = wglCreateContext(getter.hdc);
 			if(!hglrc)
-			{
-				DWORD err = GetLastError();
-				ReleaseDC(hwnd, hdc);
-				throw wm::Exception("Can't create Context" + wm::win32::getErrorMsg(err));
-			}
-			ReleaseDC(hwnd, hdc);
+				throw wm::Exception("Can't create Context" + wm::win32::getErrorMsg());
 		}
 
 		DummyContext::~DummyContext()
@@ -127,17 +112,10 @@ namespace wm
 			oldContext = wglGetCurrentContext();
 			oldDC = wglGetCurrentDC();
 
-			HDC hdc = GetDC(hwnd);
-			if(!hdc)
-				throw wm::Exception("Can't get win32 device context" + wm::win32::getErrorMsg());
+			DCGetter getter(hwnd);
 
-			if(!wglMakeCurrent(hdc, hglrc))
-			{
-				ReleaseDC(hwnd, hdc);	
+			if(!wglMakeCurrent(getter.hdc, hglrc))
 				throw Exception("Can't set current context: " + win32::getErrorMsg());
-			}
-
-			ReleaseDC(hwnd, hdc);
 		}
 
 		UseContext::~UseContext()
@@ -146,6 +124,21 @@ namespace wm
 			{
 				std::cerr << "Can't set current context: " << win32::getErrorMsg() << std::endl;
 			}
+		}
+
+		DCGetter::DCGetter(HWND hwnd)
+			: hdc(0)
+			, hwnd(hwnd)
+		{
+			hdc = GetDC(hwnd);
+			if(!hdc)
+				throw wm::Exception("Can't get win32 device context: " + win32::getErrorMsg());
+		}
+
+		DCGetter::~DCGetter()
+		{
+			if(!ReleaseDC(hwnd, hdc))
+				std::cerr << "Device context not released!" << std::endl;
 		}
 	}
 }
