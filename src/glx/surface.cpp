@@ -1,3 +1,5 @@
+#include <memory>
+
 #include <wm/exception.hpp>
 #include <wm/display.hpp>
 #include <wm/window.hpp>
@@ -12,10 +14,13 @@
 namespace wm
 {
 	Surface::Surface(Window &window)
-		: impl(new impl_t(window))
+		: impl(new impl_t)
+		, window_(&window)
 	{
+		std::auto_ptr<impl_t> impl_guard(impl); // deletes impl object in case of exception
+		
 		const PixelFormat& format = window.pixelformat();
-	
+
 		if(window.surface_)
 			throw wm::Exception("Window already has an attached surface");
 			
@@ -31,13 +36,15 @@ namespace wm
 				);
 		
 		window.surface_ = this;
+		
+		impl_guard.release();
 	}
 	
 	Surface::~Surface()
 	{
-		impl->window->surface_ = 0;
+		window().surface_ = 0;
 
-		::Display* xdisplay = impl->window->display().impl->display;
+		::Display* xdisplay = window().display().impl->display;
 		
 		glXDestroyWindow(
 			xdisplay,
@@ -48,7 +55,7 @@ namespace wm
 	
 	void Surface::swap()
 	{
-		::Display *xdisplay = impl->window->display().impl->display;
+		::Display *xdisplay = window().display().impl->display;
 		glXSwapBuffers(xdisplay, impl->glxwindow);
 	}
 }

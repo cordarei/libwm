@@ -1,3 +1,4 @@
+#include <memory>
 #include <algorithm>
 #include <list>
 #include <vector>
@@ -26,7 +27,8 @@ namespace wm
 		, display_(display)
 		, pixelformat_(format)
 		, surface_(0)
-	{	
+	{
+		std::auto_ptr<impl_t> impl_guard(impl); // deletes impl object in case of exception
 		::Display* xdisplay = display.impl->display;
 
 		format.set(*this);
@@ -113,6 +115,8 @@ namespace wm
 			
 		// Add this window to Display's registry
 		display.impl->registry.add(impl->window, this);
+		
+		impl_guard.release();
 	}
 	
 	Window::~Window()

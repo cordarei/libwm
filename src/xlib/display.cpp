@@ -1,11 +1,13 @@
+#include <memory>
+
 #include <X11/Xlib.h>
 
 #include <wm/exception.hpp>
 #include <wm/display.hpp>
 #include <wm/window.hpp>
 
-#include "impl/display_impl.hpp"
-#include "impl/window_impl.hpp"
+#include <xlib/impl/display_impl.hpp>
+#include <xlib/impl/window_impl.hpp>
 #include <xlib/impl/eventreader.hpp>
 
 namespace wm
@@ -13,6 +15,8 @@ namespace wm
 	Display::Display(const char *name)
 		: impl(new impl_t)
 	{
+		std::auto_ptr<impl_t> impl_guard(impl); // deletes impl object in case of exception
+	
 		impl->display = XOpenDisplay(name);
 		if(!impl->display) throw Exception("Can't open Display");
 		
@@ -24,6 +28,8 @@ namespace wm
 			XCloseDisplay(impl->display);
 			throw Exception("Can't open X input method");
 		}
+		
+		impl_guard.release();
 	}
 	
 	Display::~Display()

@@ -1,3 +1,5 @@
+#include <memory>
+
 #include <GL/glx.h>
 
 #include <wm/exception.hpp>
@@ -20,8 +22,10 @@ namespace wm
 {
 	Context::Context(const PixelFormat &format, Context *shared)
 		: impl(new impl_t)
-		, display_(format.configuration->impl->display)
+		, display_(&format.configuration().display())
 	{
+		std::auto_ptr<impl_t> impl_guard(impl); // deletes impl object in case of exception
+	
 		::Display *xdisplay = display().impl->display;
 		
 		impl->context = 
@@ -37,6 +41,8 @@ namespace wm
 		{
 			throw wm::Exception("Can't create OpenGL context");
 		}
+		
+		impl_guard.release();
 	}
 
 	Context::~Context()

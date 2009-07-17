@@ -1,3 +1,5 @@
+#include <memory>
+
 #include <wm/exception.hpp>
 #include <wm/display.hpp>
 #include <wm/window.hpp>
@@ -32,8 +34,11 @@ namespace
 namespace wm
 {
 	Configuration::Configuration(Display &display)
-		: impl(new impl_t(display))
+		: impl(new impl_t)
+		, display_(&display)
 	{
+		std::auto_ptr<impl_t> impl_guard(impl); // deletes impl object in case of exception
+	
 		::Display *xdisplay = display.impl->display;
 		getVersion(xdisplay, impl->versionMajor, impl->versionMinor);
 		
@@ -80,6 +85,8 @@ namespace wm
 					formatimpl
 					)
 				);
+				
+			impl_guard.release();
 		}
 	}
 

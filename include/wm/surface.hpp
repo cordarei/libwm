@@ -29,13 +29,17 @@ namespace wm
 		
 			/// Swap buffers
 			void swap();
+			
+			/// Get the window of this surface
+			Window& window() const { return *window_; }
 		
 		private:
 			Surface(const Surface&);
 			Surface& operator=(const Surface&);
 		
 			struct impl_t;
-			impl_t *impl;			
+			impl_t *impl;
+			Window *window_;	
 
 			friend void WM_EXPORT makeCurrent(Context &context, Surface &draw, Surface &read);
 	};

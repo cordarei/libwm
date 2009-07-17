@@ -55,15 +55,21 @@ namespace wm
 			*/
 			const Descriptor &descriptor() const { return descriptor_; }
 			
+			/// Get the Configuration object that owns this pixel format
+			/**
+				@return a reference to the Configuration object that owns this pixel format
+			*/
+			Configuration& configuration() const { return *configuration_; }
+			
 		private:
 			struct impl_t;
 			impl_t *impl;
-			Configuration *configuration;
+			Configuration *configuration_;
 			Descriptor descriptor_;
 			
 			PixelFormat(const Descriptor& descriptor, Configuration& configuration, impl_t &data)
 				: impl(&data)
-				, configuration(&configuration)
+				, configuration_(&configuration)
 				, descriptor_(descriptor)
 			{
 			}
