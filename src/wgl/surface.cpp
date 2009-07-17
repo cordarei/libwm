@@ -14,24 +14,23 @@ namespace wm
 {
 	Surface::Surface(Window &window)
 		: impl(new impl_t)
+		, window_(&window)
 	{
-		impl->window = &window;
-		HWND hwnd = window.impl->hwnd;
+		// NOTE: does not throw exceptions, handle impl object cleanup
+		// if exceptions are thrown in this constructor 
+		impl->hwnd = window.impl->hwnd;
 		window.surface_ = this;
 	}
 
 	Surface::~Surface()
 	{
-		// NOTE: window.surface_ intentionally left non-NULL,
-		// because SetPixelFormat can only be done once per window
+		window().surface_ = 0;
 		delete impl;
 	}
 
 	void Surface::swap()
 	{
-		HWND hwnd = impl->window->impl->hwnd;
-
-		wgl::DCGetter getter(hwnd);
+		wgl::DCGetter getter(impl->hwnd);
 
 		if(!SwapBuffers(getter.hdc))
 			throw Exception("Can't swap buffers: " + win32::getErrorMsg());

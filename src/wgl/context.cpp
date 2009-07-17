@@ -1,4 +1,5 @@
 #include <iostream>
+#include <memory>
 
 #include <windows.h>
 
@@ -29,9 +30,11 @@ namespace wm
 
 	Context::Context(const PixelFormat &format, Context *shared)
 		: impl(new impl_t)
-		, display_(&format.configuration->display())
+		, display_(&format.configuration().display())
 	{
 		{
+			std::auto_ptr<impl_t> impl_guard(impl); // deletes impl object in case of exception
+
 			wgl::DummyWindow dummywin(display().impl->hInstance);
 			wgl::DCGetter getter(dummywin.hwnd);
 
@@ -44,6 +47,8 @@ namespace wm
 			impl->hglrc = wglCreateContext(getter.hdc);
 			if(!impl->hglrc)
 				throw wm::Exception("Can't create Context" + wm::win32::getErrorMsg());
+
+			impl_guard.release();
 		}
 
 		if(shared)
@@ -76,7 +81,7 @@ namespace wm
 		if(&draw != &read)
 			throw wm::Exception("Separate draw and read surfaces not supported");
 
-		HWND hwnd = draw.impl->window->impl->hwnd;
+		HWND hwnd = draw.impl->hwnd;
 		HGLRC hglrc = context.impl->hglrc;
 
 		wgl::DCGetter getter(hwnd);

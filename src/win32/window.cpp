@@ -58,6 +58,8 @@ namespace wm
 		, display_(display)
 		, pixelformat_(format)
 	{
+		std::auto_ptr<impl_t> impl_guard(impl); // deletes impl object in case of exception
+
 		impl->style = WS_OVERLAPPEDWINDOW;
 		impl->exstyle = WS_EX_OVERLAPPEDWINDOW;
 
@@ -89,6 +91,8 @@ namespace wm
 
 			throw;
 		}
+
+		impl_guard.release();
 	}
 
 	Window::~Window()

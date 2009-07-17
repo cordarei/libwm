@@ -20,6 +20,8 @@ namespace wm
 	Display::Display(const char *name)
 		: impl(new impl_t)
 	{
+		std::auto_ptr<impl_t> impl_guard(impl); // deletes impl object in case of exception
+
 		// Generate per-instance unique classname string
 		impl->classname = win32::genClassNameStr(this);
 
@@ -49,6 +51,8 @@ namespace wm
 
 		if(!RegisterClassExW(&klass))
 			throw Exception("Can't register win32 window class: " + win32::getErrorMsg());
+
+		impl_guard.release();
 	}
 
 	Display::~Display()

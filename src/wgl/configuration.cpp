@@ -1,3 +1,5 @@
+#include <memory>
+
 #include <boost/scoped_ptr.hpp>
 
 #include <windows.h>
@@ -158,6 +160,8 @@ namespace wm
 		: impl(new impl_t)
 		, display_(&display)
 	{
+		std::auto_ptr<impl_t> impl_guard(impl); // deletes impl object in case of exception
+
 		HINSTANCE hinstance	= display.impl->hInstance;
 
 		wgl::DummyWindow dummywin(hinstance);
@@ -183,6 +187,8 @@ namespace wm
 					impl->formatdata.back()
 					));
 		}
+
+		impl_guard.release();
 	}
 	
 	Configuration::~Configuration()

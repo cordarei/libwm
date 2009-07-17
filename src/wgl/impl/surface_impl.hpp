@@ -5,11 +5,9 @@
 
 namespace wm
 {
-	class Window;
-
 	struct Surface::impl_t
 	{
-		Window *window;
+		HWND hwnd;
 	};
 }
 
