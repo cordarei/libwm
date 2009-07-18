@@ -85,9 +85,9 @@ namespace wm
 					formatimpl
 					)
 				);
-				
-			impl_guard.release();
 		}
+
+		impl_guard.release();
 	}
 
 	Configuration::~Configuration()
