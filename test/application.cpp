@@ -1,10 +1,11 @@
+#include <wm/wm.hpp>
+
 #include <cmath>
 
 #include <boost/thread.hpp>
 #include <boost/date_time/posix_time/posix_time_types.hpp>
 
 #include <wm/opengl/opengl.hpp>
-#include <wm/wm.hpp>
 
 class Application
 {
@@ -49,9 +50,14 @@ class Application
 				{
 					display.dispatch(false);
 					win.window.dispatch(false);
-					
+
+#undef min	// Damn windows.h macros
+#undef max
 					boost::this_thread::sleep(
-						std::min(next_redraw, next_update) - pt::microsec_clock::local_time());
+						std::max(
+							std::min(next_redraw, next_update) - pt::microsec_clock::local_time(),
+							pt::time_duration(pt::milliseconds(1))							
+						));
 				}
 			}
 		}

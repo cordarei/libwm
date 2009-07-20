@@ -82,11 +82,17 @@ namespace wm
 			TranslateMessage(&msg);
 
 			if(DispatchMessageW(&msg) < 0)
-			{
 				throw Exception("Can't dispatch message to window procedures: " + win32::getErrorMsg());
+		} else
+		{
+			MSG msg;
+
+			while(PeekMessageW(&msg, 0, 0, 0, PM_REMOVE)) // NOTE: PeekMessageW does not return errors
+			{
+				TranslateMessage(&msg);
+				if(DispatchMessageW(&msg) < 0)
+					throw Exception("Can't dispatch message to window procedures: " + win32::getErrorMsg());
 			}
 		}
-		
-		// TODO: implement a non-blocking version
 	}
 }
