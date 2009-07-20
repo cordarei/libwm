@@ -200,7 +200,10 @@ namespace wm
 				display().dispatch(true);
 			}
 			
-			impl->dispatcher.dispatch(*event);
+			do
+			{
+				impl->dispatcher.dispatch(*event);
+			} while(impl->eventq.poll(event));
 		} else
 		{
 			boost::scoped_ptr<const Event> event;

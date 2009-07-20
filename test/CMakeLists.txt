@@ -12,5 +12,10 @@ if(WIN32)
 endif(WIN32)
 
 add_executable(test ${EXECUTABLE_OPTIONS} main.cpp draw.cpp)
-target_link_libraries(test wm)
-target_link_libraries(test ${ENTRYPOINT_LIBRARY})
+target_link_libraries(test wm ${ENTRYPOINT_LIBRARY})
+
+find_package(Boost REQUIRED COMPONENTS date_time thread)
+
+add_executable(application ${EXECUTABLE_OPTIONS} application.cpp)
+target_link_libraries(application wm ${ENTRYPOINT_LIBRARY} ${Boost_THREAD_LIBRARY} ${Boost_DATE_TIME_LIBRARY})
+

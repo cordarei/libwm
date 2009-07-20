@@ -49,16 +49,19 @@ namespace wm
 		
 		if(block)
 		{
-			XNextEvent(
-				impl->display,
-				&event
-				);
+			XNextEvent(impl->display, &event);
 			
 			wm::Window* window =  impl->registry.get(event.xany.window);
 			if(window) EventReader::handleXEvent(*window, event);
+		} else
+		{
+			while(XCheckMaskEvent(impl->display, ~0, &event) ||
+				XCheckTypedEvent(impl->display, ClientMessage, &event))
+			{
+				wm::Window* window =  impl->registry.get(event.xany.window);
+				if(window) EventReader::handleXEvent(*window, event);				
+			}
 		}
-		
-		// TODO: implement a non-blocking version
 	}
 }
 
