@@ -1,8 +1,15 @@
 find_package(Doxygen)
 
+set(SHARE_PREFIX .)
+if(UNIX)
+	set(SHARE_PREFIX share)
+endif(UNIX)
+
 if(DOXYGEN_FOUND)
+	set(DOC_PREFIX ${SHARE_PREFIX}/doc/)
+
 	configure_file(${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile.in ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile)
 	add_custom_target(doc ${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile)
-	install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/html DESTINATION doc)
+	install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/html DESTINATION "${DOC_PREFIX}${PROJECT_NAME}-${PROJECT_VERSION}" COMPONENT doc)
 endif(DOXYGEN_FOUND)
 
