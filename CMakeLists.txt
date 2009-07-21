@@ -11,8 +11,12 @@ if(NOT BUILD_SHARED_LIBS)
 	option(BUILD_SHARED_LIBS "Build shared libraries" ON)
 endif(NOT BUILD_SHARED_LIBS)
 
+configure_file(${CMAKE_SOURCE_DIR}/config.hpp.in ${CMAKE_BINARY_DIR}/include/wm/config.hpp)
+install(FILES ${CMAKE_BINARY_DIR}/include/wm/config.hpp DESTINATION include/wm COMPONENT devel)
+include_directories(${CMAKE_BINARY_DIR}/include)
+
 include_directories(${CMAKE_SOURCE_DIR}/include)
-install(DIRECTORY ${CMAKE_SOURCE_DIR}/include/wm DESTINATION include) 
+install(DIRECTORY ${CMAKE_SOURCE_DIR}/include/wm DESTINATION include COMPONENT devel) 
 
 find_package(Boost REQUIRED)
 include_directories(${Boost_INCLUDE_DIR})

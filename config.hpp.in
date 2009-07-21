@@ -1,0 +1,11 @@
+#ifndef WM_CONFIG_HPP
+#define WM_CONFIG_HPP
+
+#cmakedefine BUILD_SHARED_LIBS
+
+#ifdef BUILD_SHARED_LIBS
+	#define WM_BUILD_SHARED_LIBS
+	#undef BUILD_SHARED_LIBS
+#endif
+
+#endif
