@@ -32,9 +32,9 @@ namespace wm
 		: impl(new impl_t)
 		, display_(&format.configuration().display())
 	{
-		{
-			std::auto_ptr<impl_t> impl_guard(impl); // deletes impl object in case of exception
+		std::auto_ptr<impl_t> impl_guard(impl); // deletes impl object in case of exception
 
+		{
 			wgl::DummyWindow dummywin(display().impl->hInstance);
 			wgl::DCGetter getter(dummywin.hwnd);
 
@@ -47,8 +47,6 @@ namespace wm
 			impl->hglrc = wglCreateContext(getter.hdc);
 			if(!impl->hglrc)
 				throw wm::Exception("Can't create Context" + wm::win32::getErrorMsg());
-
-			impl_guard.release();
 		}
 
 		if(shared)
@@ -61,6 +59,7 @@ namespace wm
 			}
 		}
 
+		impl_guard.release();
 	}
 
 	Context::~Context()
