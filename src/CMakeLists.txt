@@ -21,11 +21,13 @@ if(UNIX)
 		if(NOT GLX_INCLUDE_DIR)
 			message(FATAL_ERROR "Can't locate glx.h")
 		endif(NOT GLX_INCLUDE_DIR)
+		mark_as_advanced(GLX_INCLUDE_DIR)
 
 		find_library(GLX_LIBRARY NAMES GLX glx GL gl)
 		if(NOT GLX_INCLUDE_DIR)
 			message(FATAL_ERROR "Can't locate GLX library")
 		endif(NOT GLX_INCLUDE_DIR)
+		mark_as_advanced(GLX_LIBRARY)
 
 		include_directories(${GLX_INCLUDE_DIR})
 	else(APPLE)
