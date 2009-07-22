@@ -48,6 +48,7 @@ namespace wm
 
 			Display* display_;
 			
+			friend class Surface;
 			friend class Context;
 			friend class PixelFormat;
 	};

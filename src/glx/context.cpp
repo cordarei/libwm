@@ -25,22 +25,33 @@ namespace wm
 		, display_(&format.configuration().display())
 	{
 		std::auto_ptr<impl_t> impl_guard(impl); // deletes impl object in case of exception
+		impl->extensions = &format.configuration().impl->extensions;
 	
 		::Display *xdisplay = display().impl->display;
-		
-		impl->context = 
-			glXCreateNewContext(
-				xdisplay,
-				format.impl->fbconfig,
-				GLX_RGBA_TYPE,
-				shared ? shared->impl->context : 0,
-				True
-				);
+
+		impl->context = 0;
+#ifdef GLX_VERSION_1_3
+		if(impl->extensions->supported(1, 3))
+		{
+			impl->context = 
+				impl->extensions->glXCreateNewContext(
+					xdisplay,
+					format.impl->fbconfig,
+					GLX_RGBA_TYPE,
+					shared ? shared->impl->context : 0,
+					True
+					);
+		} else
+#endif
+		{
+			// TODO: GLX 1.2 init goes here
+		}
 				
 		if(!impl->context)
 		{
 			throw wm::Exception("Can't create OpenGL context");
 		}
+
 		
 		impl_guard.release();
 	}
@@ -57,15 +68,20 @@ namespace wm
 	void WM_EXPORT makeCurrent(Context &context, Surface &draw, Surface &read)
 	{
 		::Display* xdisplay = context.display().impl->display;
-		
-		if(glXMakeContextCurrent(
-			xdisplay,
-			draw.impl->glxwindow,
-			read.impl->glxwindow,
-			context.impl->context)
-				!= True)
+
+#ifdef GLX_VERSION_1_3
+		if(context.impl->extensions->supported(1, 3))
 		{
-			throw wm::Exception("Can't set current OpenGL context");
+			if(context.impl->extensions->glXMakeContextCurrent(
+				xdisplay, draw.impl->glxwindow, read.impl->glxwindow, context.impl->context)
+					!= True)
+			{
+				throw wm::Exception("Can't set current OpenGL context");
+			}
+		} else
+#endif
+		{
+			// TODO: GLX 1.2 make current goes here
 		}
 	}
 }

@@ -4,17 +4,20 @@
 #include <wm/pixelformat.hpp>
 
 #include <GL/glx.h>
+#include <X11/Xlib.h>
 
 namespace wm
 {
 	struct PixelFormat::impl_t
 	{
-		explicit impl_t(GLXFBConfig fbconfig = 0)
-			: fbconfig(fbconfig)
-		{
-		}
-
+	
+		XVisualInfo *visualinfo;
+#ifdef GLX_VERSION_1_3
 		GLXFBConfig fbconfig;
+#endif
+
+		Visual *visual;
+		int depth;		
 	};
 }
 

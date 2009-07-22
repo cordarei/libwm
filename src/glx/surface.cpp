@@ -8,6 +8,7 @@
 
 #include <glx/impl/surface_impl.hpp>
 #include <glx/impl/pixelformat_impl.hpp>
+#include <glx/impl/configuration_impl.hpp>
 #include <xlib/impl/display_impl.hpp>
 #include <xlib/impl/window_impl.hpp>
 
@@ -18,6 +19,7 @@ namespace wm
 		, window_(&window)
 	{
 		std::auto_ptr<impl_t> impl_guard(impl); // deletes impl object in case of exception
+		impl->extensions = &window.pixelformat().configuration().impl->extensions;
 		
 		const PixelFormat& format = window.pixelformat();
 
@@ -26,15 +28,21 @@ namespace wm
 			
 		::Display *xdisplay = window.display().impl->display;
 		impl->xdisplay = xdisplay;
-			
-		impl->glxwindow =
-			glXCreateWindow(
-				xdisplay,
-				format.impl->fbconfig,
-				window.impl->window,
-				0
-				);
-		
+
+#ifdef GLX_VERSION_1_3
+		impl->glxwindow = 0;
+		if(impl->extensions->supported(1, 3))
+		{
+			impl->glxwindow =
+				impl->extensions->glXCreateWindow(
+					xdisplay,
+					format.impl->fbconfig,
+					window.impl->window,
+					0
+					);
+		}
+#endif
+
 		window.surface_ = this;
 		
 		impl_guard.release();
@@ -43,20 +51,28 @@ namespace wm
 	Surface::~Surface()
 	{
 		window().surface_ = 0;
-
-		::Display* xdisplay = window().display().impl->display;
 		
-		glXDestroyWindow(
-			xdisplay,
-			impl->glxwindow);
-	
+#ifdef GLX_VERSION_1_3
+		::Display* xdisplay = window().display().impl->display;
+		if(impl->extensions->supported(1, 3))
+			impl->extensions->glXDestroyWindow(xdisplay, impl->glxwindow);
+#endif
 		delete impl;
 	}
 	
 	void Surface::swap()
 	{
 		::Display *xdisplay = window().display().impl->display;
-		glXSwapBuffers(xdisplay, impl->glxwindow);
+
+#ifdef GLX_VERSION_1_3
+		if(impl->extensions->supported(1, 3))
+		{
+			glXSwapBuffers(xdisplay, impl->glxwindow);
+		} else
+#endif
+		{
+			glXSwapBuffers(xdisplay, window().impl->window);
+		}
 	}
 }
 

@@ -10,10 +10,20 @@ namespace wm
 {
 	class Window;
 
+	namespace glx
+	{
+		struct Extensions;
+	}
+	
 	struct Surface::impl_t
 	{
 		::Display* xdisplay;
+		
+		glx::Extensions *extensions;
+		
+#ifdef GLX_VERSION_1_3
 		GLXWindow glxwindow;
+#endif
 	};
 }
 

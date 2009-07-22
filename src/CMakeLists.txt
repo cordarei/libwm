@@ -31,12 +31,23 @@ if(UNIX)
 	else(APPLE)
 		set(GLX_LIBRARY )
 	endif(APPLE)
+
+	find_library(DLOPEN_LIBRARY NAMES dl)
+	find_path(DLOPEN_INCLUDE_DIR dlfcn.h)
+	if(NOT DLOPEN_LIBRARY OR NOT DLOPEN_INCLUDE_DIR)
+		message(FATAL_ERROR "dlopen not found")
+	endif(NOT DLOPEN_LIBRARY OR NOT DLOPEN_INCLUDE_DIR)
+	mark_as_advanced(DLOPEN_LIBRARY)
+	mark_as_advanced(DLOPEN_INCLUDE_DIR)
 	
+	include_directories(${DLOPEN_INCLUDE_DIR})
+
 	aux_source_directory(xlib XLIB_SOURCES)
 	aux_source_directory(glx GLX_SOURCES)
 	add_library(wm ${COMMON_SOURCES} ${XLIB_SOURCES} ${GLX_SOURCES})
 	target_link_libraries(wm ${X11_LIBRARIES})
 	target_link_libraries(wm ${OPENGL_gl_LIBRARY} ${GLX_LIBRARY})
+	target_link_libraries(wm ${DLOPEN_LIBRARY})
 endif(UNIX)
 
 set_target_properties(wm PROPERTIES VERSION ${PROJECT_VERSION} SOVERSION ${PROJECT_VERSION_MAJOR})

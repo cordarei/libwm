@@ -7,8 +7,15 @@
 
 namespace wm
 {
+	namespace glx
+	{
+		struct Extensions;
+	}
+
 	struct Context::impl_t
 	{
+		glx::Extensions *extensions;
+	
 		GLXContext context;
 	};
 }
