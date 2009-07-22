@@ -18,31 +18,98 @@
 
 namespace 
 {
+	void checked_glXGetConfig(Display *xdisplay, XVisualInfo *visualinfo, int attrib, int &value)
+	{
+		int val;
+		if(glXGetConfig(xdisplay, visualinfo, attrib, &val))
+			throw wm::Exception("glXGetConfig failed");
+		value = val;
+	}
+
 	struct LegacyPixelFormatBuilder : public wm::glx::PixelFormatBuilder
 	{
 		LegacyPixelFormatBuilder(Display* xdisplay, int screen)
 			: xdisplay(xdisplay)
 			, screen(screen)
 		{
+			long template_mask = VisualScreenMask;
+			XVisualInfo vi_template;
+			vi_template.screen = screen;
+			
+			int num;
+			XVisualInfo *vi =
+				XGetVisualInfo(xdisplay, template_mask, &vi_template, &num);
+			if(!vi || num <= 0)
+			{
+				XFree(vi);
+				throw wm::Exception("XGetVisualInfo failed");
+			}
+				
+			visualInfos = vi;
+			numVisualInfos = num;
+			
 		}
 		
 		~LegacyPixelFormatBuilder()
 		{
-			
+			XFree(visualInfos);
 		}
 
-		virtual int numFormats() const = 0;
-		virtual bool filterFormat(int index) const = 0;
-		virtual wm::PixelFormat::Descriptor makeDescriptor(int index) const = 0;
-		virtual void getVisual(int index, Visual *& visual, int &depth) const = 0;
-
-		virtual XVisualInfo* getVisualInfo(int index) const = 0;
-#ifdef GLX_VERSION_1_3
-		virtual GLXFBConfig getFBConfig(int index) const { return 0; }
-#endif
-		
 		Display* xdisplay;
 		int screen;
+		
+		XVisualInfo *visualInfos;
+		int numVisualInfos;
+
+		virtual int numFormats() const { return numVisualInfos; }
+
+		virtual bool filterFormat(int index) const
+		{
+			int use_gl, doublebuffer, rgba;
+			
+			XVisualInfo *vi = getVisualInfo(index);
+			checked_glXGetConfig(xdisplay, vi, GLX_USE_GL, use_gl);
+			checked_glXGetConfig(xdisplay, vi, GLX_DOUBLEBUFFER, doublebuffer);
+			checked_glXGetConfig(xdisplay, vi, GLX_RGBA, rgba);
+			
+			return !use_gl || !doublebuffer || !rgba;			
+		}
+		
+		virtual wm::PixelFormat::Descriptor makeDescriptor(int index) const
+		{
+			int red, green, blue, alpha;
+			int depth, stencil;
+
+			XVisualInfo *vi = getVisualInfo(index);
+			checked_glXGetConfig(xdisplay, vi, GLX_RED_SIZE, red);
+			checked_glXGetConfig(xdisplay, vi, GLX_GREEN_SIZE, green);
+			checked_glXGetConfig(xdisplay, vi, GLX_BLUE_SIZE, blue);
+			checked_glXGetConfig(xdisplay, vi, GLX_ALPHA_SIZE, alpha);
+
+			checked_glXGetConfig(xdisplay, vi, GLX_DEPTH_SIZE, depth);
+			checked_glXGetConfig(xdisplay, vi, GLX_STENCIL_SIZE, stencil);
+
+			return wm::PixelFormat::Descriptor(red, green, blue, alpha, depth, stencil);
+		}
+		
+		virtual void getVisual(int index, Visual *& visual, int &depth) const
+		{
+			XVisualInfo *vi = getVisualInfo(index);
+			visual = vi->visual;
+			depth = vi->depth;	
+		};
+
+		virtual XVisualInfo* getVisualInfo(int index) const
+		{
+			if(index < 0 || index >= numVisualInfos)
+				throw wm::Exception("VisualInfo index out of bounds");
+				
+			return visualInfos + index;
+		}
+		
+#ifdef GLX_VERSION_1_3
+		virtual GLXFBConfig getFBConfig(int index) const { return 0; }
+#endif		
 	};
 
 #ifdef GLX_VERSION_1_3
@@ -93,13 +160,14 @@ namespace
 		
 		virtual bool filterFormat(int index) const
 		{
-			int render_type, drawable_type;
+			int render_type, drawable_type, doublebuffer;
 							
 			GLXFBConfig config = getFBConfig(index);							
 			checkedGetFBConfigAttrib(extensions, xdisplay, config, GLX_RENDER_TYPE, render_type);
 			checkedGetFBConfigAttrib(extensions, xdisplay, config, GLX_DRAWABLE_TYPE, drawable_type);
+			checkedGetFBConfigAttrib(extensions, xdisplay, config, GLX_DOUBLEBUFFER, doublebuffer);
 			
-			return (!(render_type & GLX_RGBA_BIT) || !(drawable_type & GLX_WINDOW_BIT));
+			return (!(render_type & GLX_RGBA_BIT) || !(drawable_type & GLX_WINDOW_BIT) || !doublebuffer);
 		}
 		
 		virtual wm::PixelFormat::Descriptor makeDescriptor(int index) const 
@@ -144,12 +212,11 @@ namespace
 	const wm::glx::PixelFormatBuilder* makeBuilder(const wm::glx::Extensions &extensions, ::Display* xdisplay, int screen)
 	{
 #ifdef GLX_VERSION_1_3
-		if(extensions.versionMajor > 1 || (extensions.versionMajor == 1 && extensions.versionMinor >= 3))
+		if(extensions.supported(1, 3))
 			return new GLX_1_3_PixelFormatBuilder(extensions, xdisplay, screen);
 #endif
 
-//		return new LegacyPixelFormatBuilder(display, screen);
-		return 0;
+		return new LegacyPixelFormatBuilder(xdisplay, screen);
 	}	
 }
 

@@ -44,7 +44,11 @@ namespace wm
 		} else
 #endif
 		{
-			// TODO: GLX 1.2 init goes here
+			impl->context = glXCreateContext(
+				xdisplay,
+				format.impl->visualinfo, 
+				shared ? shared->impl->context : 0,
+				True);
 		}
 				
 		if(!impl->context)
@@ -81,7 +85,14 @@ namespace wm
 		} else
 #endif
 		{
-			// TODO: GLX 1.2 make current goes here
+			if(&read != &draw)
+				throw wm::Exception("Separate draw and read buffers not supported");
+
+			if(glXMakeCurrent(xdisplay, draw.window().impl->window, context.impl->context)
+				!= True)
+			{
+				throw wm::Exception("Can't set current OpenGL context");
+			}
 		}
 	}
 }

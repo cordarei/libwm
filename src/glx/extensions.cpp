@@ -129,8 +129,7 @@ namespace wm
 			try
 			{
 				queryGLXVersion(xdisplay, screen, versionMajor, versionMinor);
-				std::cout << "glx version: " << versionMajor << '.' << versionMinor << std::endl;
-
+				
 #ifdef GLX_VERSION_1_3
 				if(supported(1, 3)) initGLX_1_3(*this);
 #endif

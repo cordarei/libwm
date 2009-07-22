@@ -59,7 +59,7 @@ namespace wm
 #endif
 		delete impl;
 	}
-	
+
 	void Surface::swap()
 	{
 		::Display *xdisplay = window().display().impl->display;
