@@ -180,6 +180,52 @@ namespace wm
 
 		SetWindowTextW(impl->hwnd, array.get());
 	}
+
+	void Window::fullscreen(bool full)
+	{
+		LONG style = full ? WS_POPUP : WS_OVERLAPPEDWINDOW;
+		LONG exstyle = full ? WS_EX_APPWINDOW : WS_EX_OVERLAPPEDWINDOW;
+
+		if(style != impl->style || exstyle != impl->exstyle)
+		{
+			hide();
+
+			if(!SetWindowLong(impl->hwnd, GWL_EXSTYLE, exstyle)
+				|| !SetWindowLong(impl->hwnd, GWL_STYLE, style))
+				throw wm::Exception("Can't set full screen, SetWindowLong failed: " + win32::getErrorMsg());
+
+			RECT rect;
+
+			if(full)
+			{
+				int width = GetSystemMetrics(SM_CXSCREEN);
+				int height = GetSystemMetrics(SM_CYSCREEN);
+
+				if(!width || !height)
+					throw wm::Exception("Can't set full screen, GetSystemMetrics failed: " +
+						win32::getErrorMsg());
+
+				if(!SetRect(&rect, 0, 0, width, height))
+					throw wm::Exception("Can't set window rectangle for resizing");
+			} else
+			{
+				if(!SystemParametersInfo(SPI_GETWORKAREA, 0, &rect, 0))
+					throw wm::Exception("Can't set windowed, SystemParametersInfo failed: "
+						+ win32::getErrorMsg());
+			}
+
+			if(!SetWindowPos(
+				impl->hwnd,
+				HWND_TOPMOST,
+				rect.left, rect.top,
+				rect.right - rect.left, rect.bottom - rect.top,
+				SWP_FRAMECHANGED | SWP_SHOWWINDOW))
+				throw wm::Exception("Can't set full screen, SetWindowPos failed: " + win32::getErrorMsg());
+
+			impl->style = style;
+			impl->exstyle = exstyle;
+		}
+	}
 }
 
 #include <wm/event.hpp>
