@@ -178,7 +178,8 @@ namespace wm
 			if(!array) array.reset(new WCHAR[len]);
 		} 
 
-		SetWindowTextW(impl->hwnd, array.get());
+		if(!SetWindowTextW(impl->hwnd, array.get()))
+			throw wm::Exception("Can't set window title: " + win32::getErrorMsg());
 	}
 
 	void Window::fullscreen(bool full)
