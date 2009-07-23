@@ -17,6 +17,10 @@ namespace wm
 		// WM_DELETE_WINDOW atom for handling window closing
 		Atom wm_delete_window;
 		
+		// Extended windom manager hint atoms for fullscreen, etc
+		Atom _net_wm_state;
+		Atom _net_wm_state_fullscreen;
+		
 		// X input method
 		XIM xim;
 		

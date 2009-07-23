@@ -29,6 +29,7 @@ int wm_main(int argc, char *argv[])
 		{
 			window.getSize(width, height);
 			window.setTitle(title_string.c_str());
+			fullscreen = false;
 		}
 	
 		virtual void handle(const wm::ExposeEvent &event)
@@ -44,6 +45,12 @@ int wm_main(int argc, char *argv[])
 			{
 				quit_flag = true;
 			}
+			
+			if(event.state() && event.symbol() == wm::keyboard::F11)
+			{
+				fullscreen = !fullscreen;
+				window->fullscreen(fullscreen);
+			}			
 		};
 		
 		virtual void handle(const wm::ButtonEvent &event)
@@ -79,6 +86,7 @@ int wm_main(int argc, char *argv[])
 		bool quit_flag;
 		std::string title_string;
 		unsigned int width, height;
+		bool fullscreen;
 	} handler(window);
 
 	wm::util::EventPrinter printer(std::cout);

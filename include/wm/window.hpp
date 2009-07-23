@@ -68,6 +68,18 @@ namespace wm
 			*/
 			void setTitle(const char* title); // utf-8
 			
+			/// Set this window to full screen
+			/**
+				Request the windowing system to change this window
+				to full screen or windowed mode.
+				
+				The window size will be changed and a ResizeEvent will
+				occur.
+			
+				@param full true if full screen, false for windowed
+			*/
+			void fullscreen(bool full);
+			
 			/// Get the display of this window
 			/**
 				@return the Display on which this window was created
