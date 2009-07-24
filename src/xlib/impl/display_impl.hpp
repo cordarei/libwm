@@ -7,6 +7,8 @@
 
 #include <wm/display.hpp>
 
+#include <xlib/impl/ewmh.hpp>
+
 namespace wm
 {
 	struct Display::impl_t
@@ -17,9 +19,8 @@ namespace wm
 		// WM_DELETE_WINDOW atom for handling window closing
 		Atom wm_delete_window;
 		
-		// Extended windom manager hint atoms for fullscreen, etc
-		Atom _net_wm_state;
-		Atom _net_wm_state_fullscreen;
+		// Extended windom manager hints
+		xlib::EWMH ewmh;
 		
 		// X input method
 		XIM xim;

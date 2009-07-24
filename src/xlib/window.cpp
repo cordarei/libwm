@@ -2,7 +2,6 @@
 #include <algorithm>
 #include <list>
 #include <vector>
-#include <cstring>
 
 #include <X11/Xlib.h>
 
@@ -189,32 +188,15 @@ namespace wm
 			0, 0,	// argc, argv
 			0, 0, 0); // XSizeHints, XWMHints, XClassHint
 	}
-}
-
-#include <iostream>
-
-namespace wm{
 
 	void Window::fullscreen(bool full)
 	{
-		const long _NET_WM_STATE_REMOVE = 0;
-		const long _NET_WM_STATE_ADD = 1;
+		xlib::EWMH &ewmh = display().impl->ewmh;
 		
-		::Display* xdisplay = display().impl->display;
-	
-		XEvent event;
-		std::memset(&event, 0, sizeof(XEvent));
-		
-		event.xclient.type = ClientMessage;
-		event.xclient.message_type = display().impl->_net_wm_state;
-		event.xclient.display = xdisplay;
-		event.xclient.window = impl->window;
-		event.xclient.format = 32;
-		event.xclient.data.l[0] = full ? _NET_WM_STATE_ADD : _NET_WM_STATE_REMOVE;
-		event.xclient.data.l[1] = display().impl->_net_wm_state_fullscreen;
-		event.xclient.data.l[3] = 1;
-
-		XSendEvent(xdisplay, RootWindow(xdisplay, impl->screen), False, SubstructureRedirectMask, &event);
+		ewmh.set_fullscreen(
+			impl->window,
+			impl->screen,
+			full ? xlib::EWMH::_NET_WM_STATE_ADD : xlib::EWMH::_NET_WM_STATE_REMOVE);
 	}
 
 	void Window::dispatch(bool block)

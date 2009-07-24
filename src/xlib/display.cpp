@@ -19,20 +19,26 @@ namespace wm
 	
 		impl->display = XOpenDisplay(name);
 		if(!impl->display) throw Exception("Can't open Display");
+
+		impl->xim = 0;
+		try
+		{		
+			// Get atoms for WM_DELETE_WINDOW
+			impl->wm_delete_window = XInternAtom(impl->display, "WM_DELETE_WINDOW", False);
+			
+			// Initialize Extended Window Manager Hints
+			impl->ewmh.init(impl->display);
 		
-		// Get atoms for WM_DELETE_WINDOW
-		impl->wm_delete_window = XInternAtom(impl->display, "WM_DELETE_WINDOW", False);
-		
-		// Get atoms for extended window manager hints
-		impl->_net_wm_state = XInternAtom(impl->display, "_NET_WM_STATE", False);
-		impl->_net_wm_state_fullscreen = XInternAtom(impl->display, "_NET_WM_STATE_FULLSCREEN", False);
-		
-		// Open X Input method
-		impl->xim = XOpenIM(impl->display, 0, 0, 0);
-		if(!impl->xim)
+			// Open X Input method
+			impl->xim = XOpenIM(impl->display, 0, 0, 0);
+			if(!impl->xim)
+				throw Exception("Can't open X input method");
+		} catch(...)
 		{
 			XCloseDisplay(impl->display);
-			throw Exception("Can't open X input method");
+			if(impl->xim) XCloseIM(impl->xim);
+			
+			throw;
 		}
 		
 		impl_guard.release();
