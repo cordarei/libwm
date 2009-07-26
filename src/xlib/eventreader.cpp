@@ -129,16 +129,15 @@ namespace wm
 							len
 						)));
 			}
-
+		} else
+		{
 			window.impl->eventq.push(
 				new wm::KeyEvent(
 					window,
 					xlib::mapXKeySym(keysym),
 					xlib::mapKeyMod(event.xkey.state),
 					event.type == KeyPress));
-			
-		}
-	
+		}		
 	}
 	
 	void EventReader::handleConfigureNotify(wm::Window& window, const XEvent &event, bool filter)
