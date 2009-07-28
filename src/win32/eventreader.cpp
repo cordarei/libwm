@@ -186,11 +186,15 @@ namespace wm
 
 		if(!filter)
 		{
+			bool state = (message == WM_KEYDOWN || message == WM_SYSKEYDOWN);
+			bool repeat = state && ((HIWORD(lparam) & KF_REPEAT) ? true : false);
+
 			window.impl->eventq.push(new KeyEvent(
 				window,
 				translated,
 				win32::getKeyModState(),
-				(message == WM_KEYDOWN || message == WM_SYSKEYDOWN)));
+				state,
+				repeat));
 		}
 
 		return 0;

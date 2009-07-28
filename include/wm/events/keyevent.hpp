@@ -29,7 +29,7 @@ namespace wm
 				keyboard::Symbol symbol,
 				keyboard::KeyMod keymod,
 				bool state,
-				bool repeat = false)
+				bool repeat)
 				: Event(window)
 				, symbol_(symbol)
 				, keymod_(keymod)
