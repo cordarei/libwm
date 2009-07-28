@@ -229,8 +229,8 @@ namespace wm
 		std::auto_ptr<impl_t> impl_guard(impl); // deletes impl object in case of exception
 	
 		::Display *xdisplay = display.impl->display;
+		int screen = display.impl->screen;
 		
-		int screen = DefaultScreen(xdisplay);		// TODO: make this work on different screens
 		impl->extensions.init(xdisplay, screen);
 		
 		impl->builder.reset(makeBuilder(impl->extensions, xdisplay, screen));

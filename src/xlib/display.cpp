@@ -12,13 +12,15 @@
 
 namespace wm
 {
-	Display::Display(const char *name)
+	Display::Display(const char *name, int screen)
 		: impl(new impl_t)
 	{
 		std::auto_ptr<impl_t> impl_guard(impl); // deletes impl object in case of exception
 	
 		impl->display = XOpenDisplay(name);
 		if(!impl->display) throw Exception("Can't open Display");
+		
+		impl->screen = (screen == -1) ? DefaultScreen(impl->display) : screen;
 
 		impl->xim = 0;
 		try
@@ -27,7 +29,7 @@ namespace wm
 			impl->wm_delete_window = XInternAtom(impl->display, "WM_DELETE_WINDOW", False);
 			
 			// Initialize Extended Window Manager Hints
-			impl->ewmh.init(impl->display);
+			impl->ewmh.init(impl->display, impl->screen);
 		
 			// Open X Input method
 			impl->xim = XOpenIM(impl->display, 0, 0, 0);

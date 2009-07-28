@@ -15,6 +15,7 @@ namespace wm
 	{
 		// Display handle
 		::Display *display;
+		int screen;
 		
 		// WM_DELETE_WINDOW atom for handling window closing
 		Atom wm_delete_window;

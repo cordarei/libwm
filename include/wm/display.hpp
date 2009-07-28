@@ -16,8 +16,9 @@ namespace wm
 			/// Open a display
 			/**
 				@param name an optional name parameter, used on some windowing systems
+				@param screen optional screen parameter, used on some windowing systems, -1 for default
 			*/	
-			explicit Display(const char *name = 0);
+			explicit Display(const char *name = 0, int screen = -1);
 			
 			/// Close display
 			~Display();

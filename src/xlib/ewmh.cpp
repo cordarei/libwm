@@ -12,9 +12,10 @@ namespace wm
 {
 	namespace xlib
 	{
-		void EWMH::init(::Display *xdisplay)
+		void EWMH::init(::Display *xdisplay, int screen)
 		{
 			this->xdisplay = xdisplay;
+			this->screen = screen;
 
 			static const struct AtomMapping
 			{
@@ -36,7 +37,6 @@ namespace wm
 				this->*mem = 0;
 			}
 			
-			int screen = DefaultScreen(xdisplay);
 			Window root = RootWindow(xdisplay, screen);	 // TODO: make this work with multiple X screens
 
 			_net_supported = XInternAtom(xdisplay, "_NET_SUPPORTED", False);
@@ -99,7 +99,7 @@ namespace wm
 			XFree(data);
 		}
 		
-		void EWMH::set_wm_state(::Window window, int screen, _NET_WM_STATE_ACTION action, Atom property1, Atom property2) const
+		void EWMH::set_wm_state(::Window window, _NET_WM_STATE_ACTION action, Atom property1, Atom property2) const
 		{
 			XEvent event;
 			std::memset(&event, 0, sizeof(XEvent));

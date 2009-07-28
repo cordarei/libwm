@@ -27,14 +27,12 @@ namespace wm
 			/// Create a new Window
 			/**
 				@param display a display to create the window on
-				@param screen number of screen in display, use 0 for default screen
 				@param width the width of the window
 				@param height the height of the window
 				@param format the pixel format of the window
 			*/
 			Window(
 				Display& display,
-				int screen,
 				unsigned int width,
 				unsigned int height,
 				const PixelFormat& format);

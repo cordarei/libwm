@@ -18,7 +18,7 @@ int wm_main(int argc, char *argv[])
 	const wm::PixelFormat& format =
 		choose(config, wm::PixelFormat::Descriptor(8, 8, 8, 8, 16, 0));
 
-	wm::Window window(display, 0, 400, 300, format);
+	wm::Window window(display, 400, 300, format);
 
 	wm::Surface surface(window);
 	wm::Context context(format);

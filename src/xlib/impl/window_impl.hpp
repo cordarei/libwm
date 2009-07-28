@@ -15,10 +15,6 @@ namespace wm
 {
 	struct Window::impl_t
 	{
-		impl_t() : screen(0) {}
-
-		int screen;
-	
 		EventReader eventreader;
 		
 		// PixelFormat information

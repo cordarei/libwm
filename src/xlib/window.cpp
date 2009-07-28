@@ -19,7 +19,6 @@ namespace wm
 {
 	Window::Window(
 		Display& display,
-		int screen,
 		unsigned int width,
 		unsigned int height,
 		const PixelFormat& format)
@@ -30,16 +29,15 @@ namespace wm
 	{
 		std::auto_ptr<impl_t> impl_guard(impl); // deletes impl object in case of exception
 		::Display* xdisplay = display.impl->display;
+		int screen = display.impl->screen;
 
 		format.set(*this);
-
-		impl->screen = screen;
 
 		// Create colormap		
 		impl->colormap =
 			XCreateColormap(
 				xdisplay,
-				RootWindow(display.impl->display, impl->screen),
+				RootWindow(xdisplay, screen),
 				impl->visual,
 				AllocNone
 				);
@@ -53,7 +51,7 @@ namespace wm
 
 		impl->window = XCreateWindow(
 			display.impl->display,
-			RootWindow(xdisplay, impl->screen),
+			RootWindow(xdisplay, screen),
 			0, 0,
 			width, height,
 			0,
@@ -92,7 +90,7 @@ namespace wm
 			);
 		if(!impl->xic)
 		{
-			XDestroyWindow(display.impl->display, impl->window);
+			XDestroyWindow(xdisplay, impl->window);
 			XFreeColormap(xdisplay, impl->colormap);
 			throw wm::Exception("Can't set X Window manager protocols (WM_DELETE_WINDOW)");			
 		}
@@ -196,7 +194,6 @@ namespace wm
 		if(ewmh._net_wm_state_fullscreen)
 		{
 			ewmh.set_wm_state(impl->window,
-				impl->screen,
 				full ? xlib::EWMH::_NET_WM_STATE_ADD : xlib::EWMH::_NET_WM_STATE_REMOVE,
 				ewmh._net_wm_state_fullscreen,
 				0);

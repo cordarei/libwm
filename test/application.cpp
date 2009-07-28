@@ -93,7 +93,7 @@ class Application
 		{
 			AppWindow(Application &app, wm::Display &display, const wm::PixelFormat& format)
 				: app(app)
-				, window(display, 0, 400, 300, format)
+				, window(display, 400, 300, format)
 				, context(format)
 				, surface(window)
 				, handler(app)

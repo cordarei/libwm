@@ -14,14 +14,16 @@ namespace wm
 				_NET_WM_STATE_ADD = 1,
 				_NET_WM_STATE_TOGGLE = 2 };
 
-			void init(::Display *xdisplay);
+			void init(::Display *xdisplay, int screen);
 			
 			::Display* xdisplay;
+			int screen;
+			
 			Atom _net_supported;
 			Atom _net_wm_state;
 			Atom _net_wm_state_fullscreen;			
 
-			void set_wm_state(::Window window, int screen, _NET_WM_STATE_ACTION action, Atom property1, Atom property2) const;
+			void set_wm_state(::Window window, _NET_WM_STATE_ACTION action, Atom property1, Atom property2) const;
 		};
 	}
 }
