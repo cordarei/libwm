@@ -106,6 +106,7 @@ namespace wm
 						<< "symbol = " << uint(event.symbol())
 						<< " \"" << keyboard::keyName(event.symbol()) << '"'
 						<< ", state = " << (event.state() ? "Down" : "Up")
+						<< ", repeat = " << (event.repeat() ? "true" : "false")
 						<< ", keymod = ";
 					detail::printKeyMod(*os, event.keymod());	
 					*os	<< ")" << delim;

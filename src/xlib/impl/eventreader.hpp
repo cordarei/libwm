@@ -11,6 +11,7 @@ namespace wm
 			EventReader()
 				: width(0)
 				, height(0)
+				, keyrepeat_serial(0)
 			{
 			}
 		
@@ -27,6 +28,7 @@ namespace wm
 			void handleConfigureNotify(wm::Window& window, const XEvent &event, bool filter);
 			
 			unsigned int width, height;
+			unsigned long keyrepeat_serial;
 	};	
 }
 

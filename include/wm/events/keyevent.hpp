@@ -28,11 +28,13 @@ namespace wm
 				Window &window,
 				keyboard::Symbol symbol,
 				keyboard::KeyMod keymod,
-				bool state)
+				bool state,
+				bool repeat = false)
 				: Event(window)
 				, symbol_(symbol)
 				, keymod_(keymod)
 				, state_(state)
+				, repeat_(repeat)
 			{
 			}
 			
@@ -53,6 +55,12 @@ namespace wm
 				@return bitmask of keyboard modifiers
 			*/
 			keyboard::KeyMod keymod() const { return keymod_; }
+			
+			/// Check for keyboard repeat
+			/**
+				@return true if this is an event caused by keyboard autorepeat
+			*/
+			bool repeat() const { return repeat_; }
 
 			/// Visitor pattern entry point
 			virtual void accept(EventHandler &handler) const { handler.handle(*this); }
@@ -61,6 +69,7 @@ namespace wm
 			keyboard::Symbol symbol_;
 			keyboard::KeyMod keymod_;
 			bool state_;
+			bool repeat_;
 	};
 }
 

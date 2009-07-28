@@ -83,11 +83,17 @@ namespace wm
 
 	void EventReader::handleKeyEvent(wm::Window& window, const XEvent &event, bool filter)
 	{
+		::Display *xdisplay = window.display().impl->display;
 		const int keycode_index = 0; // Ignore modmask for keysym
 		KeySym keysym = XKeycodeToKeysym(
-			window.display().impl->display,
+			xdisplay,
 			event.xkey.keycode,
 			keycode_index);
+			
+		bool repeat = false;
+		
+		if(event.type == KeyPress)
+			repeat = (event.xkey.serial == keyrepeat_serial);
 			
 		if(event.type == KeyPress && !filter)
 		{
@@ -120,7 +126,8 @@ namespace wm
 						window,
 						xlib::mapXKeySym(keysym),
 						xlib::mapKeyMod(event.xkey.state),
-						true));
+						true,
+						repeat));
 				
 				// Then propagate CharacterEvent
 				window.impl->eventq.push(
@@ -135,12 +142,43 @@ namespace wm
 			}
 		}
 		
+		if(event.type == KeyRelease)
+		{
+			struct Predicate
+			{
+				
+				Predicate(::Window window, unsigned long serial) : window(window), serial(serial) { }
+
+				::Window window;
+				unsigned long serial;
+
+				static Bool func(::Display *display, XEvent *event, XPointer arg)
+				{
+					const Predicate &pred = *reinterpret_cast<const Predicate*>(arg);
+					
+					return event->type == KeyPress &&
+						event->xkey.window == pred.window &&
+						event->xkey.serial == pred.serial;
+				}
+			} predicate(event.xkey.window, event.xkey.serial);
+
+			XEvent pressevent;
+			if(XCheckIfEvent(xdisplay, &pressevent, &Predicate::func, reinterpret_cast<XPointer>(&predicate)))
+			{
+				XPutBackEvent(xdisplay, &pressevent);
+			
+				keyrepeat_serial = event.xkey.serial;
+				repeat = true;
+			}
+		}
+		
 		window.impl->eventq.push(
 			new wm::KeyEvent(
 				window,
 				xlib::mapXKeySym(keysym),
 				xlib::mapKeyMod(event.xkey.state),
-				event.type == KeyPress));
+				event.type == KeyPress,
+				repeat));
 	}
 	
 	void EventReader::handleConfigureNotify(wm::Window& window, const XEvent &event, bool filter)
