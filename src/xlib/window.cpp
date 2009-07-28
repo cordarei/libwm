@@ -69,10 +69,11 @@ namespace wm
 		}
 		
 		// Listen for WM_DELETE_WINDOW
+		xlib::EWMH &ewmh = display.impl->ewmh;
 		if(!XSetWMProtocols(
 			xdisplay,
 			impl->window,
-			&display.impl->wm_delete_window,
+			&ewmh.wm_delete_window,
 			1))
 		{
 			XDestroyWindow(xdisplay, impl->window);

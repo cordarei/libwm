@@ -25,9 +25,6 @@ namespace wm
 		impl->xim = 0;
 		try
 		{		
-			// Get atoms for WM_DELETE_WINDOW
-			impl->wm_delete_window = XInternAtom(impl->display, "WM_DELETE_WINDOW", False);
-			
 			// Initialize Extended Window Manager Hints
 			impl->ewmh.init(impl->display, impl->screen);
 		

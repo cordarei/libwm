@@ -72,8 +72,10 @@ namespace wm
 
 	void EventReader::handleClientMessage(wm::Window& window, const XEvent &event, bool filter)
 	{
+		xlib::EWMH &ewmh = window.display().impl->ewmh;
+		
 		if(event.xclient.data.l[0] ==
-			window.display().impl->wm_delete_window)
+			ewmh.wm_delete_window)
 		{
 			window.impl->eventq.push(new wm::CloseEvent(window));
 		}

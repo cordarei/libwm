@@ -17,9 +17,6 @@ namespace wm
 		::Display *display;
 		int screen;
 		
-		// WM_DELETE_WINDOW atom for handling window closing
-		Atom wm_delete_window;
-		
 		// Extended windom manager hints
 		xlib::EWMH ewmh;
 		

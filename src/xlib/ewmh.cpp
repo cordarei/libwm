@@ -23,6 +23,7 @@ namespace wm
 				{
 					map["_NET_WM_STATE"] = &EWMH::_net_wm_state;
 					map["_NET_WM_STATE_FULLSCREEN"] = &EWMH::_net_wm_state_fullscreen;
+					map["WM_DELETE_WINDOW"] = &EWMH::wm_delete_window;
 				}
 			
 				typedef std::map<std::string, Atom EWMH::*> map_t;

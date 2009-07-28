@@ -21,7 +21,8 @@ namespace wm
 			
 			Atom _net_supported;
 			Atom _net_wm_state;
-			Atom _net_wm_state_fullscreen;			
+			Atom _net_wm_state_fullscreen;
+			Atom wm_delete_window;	
 
 			void set_wm_state(::Window window, _NET_WM_STATE_ACTION action, Atom property1, Atom property2) const;
 		};
