@@ -78,7 +78,7 @@ namespace wm
 			window.impl->eventq.push(new wm::CloseEvent(window));
 		}
 	}
-	
+
 	void EventReader::handleKeyEvent(wm::Window& window, const XEvent &event, bool filter)
 	{
 		const int keycode_index = 0; // Ignore modmask for keysym
@@ -86,7 +86,7 @@ namespace wm
 			window.display().impl->display,
 			event.xkey.keycode,
 			keycode_index);
-	
+			
 		if(event.type == KeyPress && !filter)
 		{
 			const size_t buffer_size = 6;
@@ -128,16 +128,17 @@ namespace wm
 							reinterpret_cast<const unsigned char*>(buffer),
 							len
 						)));
+
+				return;
 			}
-		} else
-		{
-			window.impl->eventq.push(
-				new wm::KeyEvent(
-					window,
-					xlib::mapXKeySym(keysym),
-					xlib::mapKeyMod(event.xkey.state),
-					event.type == KeyPress));
-		}		
+		}
+		
+		window.impl->eventq.push(
+			new wm::KeyEvent(
+				window,
+				xlib::mapXKeySym(keysym),
+				xlib::mapKeyMod(event.xkey.state),
+				event.type == KeyPress));
 	}
 	
 	void EventReader::handleConfigureNotify(wm::Window& window, const XEvent &event, bool filter)

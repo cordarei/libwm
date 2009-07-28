@@ -19,13 +19,9 @@ namespace wm
 			::Display* xdisplay;
 			Atom _net_supported;
 			Atom _net_wm_state;
-			Atom _net_wm_state_fullscreen;
-			
-			void set_wm_state(::Window window, int screen, _NET_WM_STATE_ACTION action, Atom property1, Atom property2) const;
+			Atom _net_wm_state_fullscreen;			
 
-			void set_fullscreen(::Window window, int screen, _NET_WM_STATE_ACTION action) const;
-			
-			void get_property(Window target, Atom type, Atom property, unsigned char **data) const;
+			void set_wm_state(::Window window, int screen, _NET_WM_STATE_ACTION action, Atom property1, Atom property2) const;
 		};
 	}
 }

@@ -193,10 +193,17 @@ namespace wm
 	{
 		xlib::EWMH &ewmh = display().impl->ewmh;
 		
-		ewmh.set_fullscreen(
-			impl->window,
-			impl->screen,
-			full ? xlib::EWMH::_NET_WM_STATE_ADD : xlib::EWMH::_NET_WM_STATE_REMOVE);
+		if(ewmh._net_wm_state_fullscreen)
+		{
+			ewmh.set_wm_state(impl->window,
+				impl->screen,
+				full ? xlib::EWMH::_NET_WM_STATE_ADD : xlib::EWMH::_NET_WM_STATE_REMOVE,
+				ewmh._net_wm_state_fullscreen,
+				0);
+		} else
+		{
+			throw wm::Exception("Can't set full screen Window: Extended Window Manager Hints not supported");
+		}
 	}
 
 	void Window::dispatch(bool block)
