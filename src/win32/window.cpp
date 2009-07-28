@@ -50,7 +50,6 @@ namespace wm
 {
 	Window::Window(
 		Display& display,
-		int,
 		unsigned int width,
 		unsigned int height,
 		const PixelFormat &format)

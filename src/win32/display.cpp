@@ -17,7 +17,7 @@
 
 namespace wm
 {
-	Display::Display(const char *name)
+	Display::Display(const char*, int)
 		: impl(new impl_t)
 	{
 		std::auto_ptr<impl_t> impl_guard(impl); // deletes impl object in case of exception
