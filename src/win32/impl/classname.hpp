@@ -31,7 +31,7 @@ namespace wm
 				++ptr)
 			{
 				str.push_back(getHexChar(*ptr & 0x0f)); // put least significant digit first for added obscurity
-				str.push_back(getHexChar(*ptr & 0xf0 >> 4));
+				str.push_back(getHexChar((*ptr & 0xf0) >> 4));
 			}
 			str.push_back(0);
 
