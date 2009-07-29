@@ -2,6 +2,7 @@
 #define WM_WIN32_IMPL_KEYMAP_HPP
 
 #include <wm/keyboard.hpp>
+#include <wm/mouse.hpp>
 
 #include <windows.h>
 
@@ -15,6 +16,10 @@ namespace wm
 		wm::keyboard::Symbol translateKeyEvent(HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam, bool &filter);
 
 		wm::keyboard::KeyMod getKeyModState();
+
+		wm::keyboard::KeyMod mapKeyMod(WPARAM wparam);
+		wm::mouse::ButtonMask mapButtons(WPARAM wparam);
+
 	}
 }
 

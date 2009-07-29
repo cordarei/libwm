@@ -69,6 +69,8 @@ namespace wm
 				map[WM_KEYUP] = &EventReader::handleKey;
 				map[WM_SYSKEYDOWN] = &EventReader::handleKey;
 				map[WM_SYSKEYUP] = &EventReader::handleKey;
+				map[WM_MOUSEMOVE] = &EventReader::handleMotion;
+				map[WM_MOUSELEAVE] = &EventReader::handleLeave;
 			}
 
 			typedef std::map<UINT, HandlerFunc> map_t;
@@ -195,6 +197,59 @@ namespace wm
 				win32::getKeyModState(),
 				state,
 				repeat));
+		}
+
+		return 0;
+	}
+
+#undef MOD_SHIFT
+#undef MOD_CONTROL
+
+	LRESULT EventReader::handleMotion(Window& window, HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam)
+	{
+		unsigned int x = LOWORD(lparam);
+		unsigned int y = HIWORD(lparam);
+
+		if(!mouseinside)
+		{
+			if(!mouseinitialized)
+			{
+				mouseinitialized = true;
+
+			} else
+			{
+				TRACKMOUSEEVENT tme;
+				tme.cbSize = sizeof(TRACKMOUSEEVENT);
+				tme.dwFlags = TME_LEAVE;
+				tme.hwndTrack = hwnd;
+
+				if(!TrackMouseEvent(&tme))
+					throw wm::Exception("Can't track mouse event: " + win32::getErrorMsg());
+			}
+			
+			mouseinside = true;
+			window.impl->eventq.push(new MouseOverEvent(window, x, y, true));
+		}
+
+		wm::keyboard::KeyMod keymod = wm::win32::mapKeyMod(wparam)
+			| (wm::win32::getKeyModState() &
+				~(wm::keyboard::MOD_SHIFT | wm::keyboard::MOD_CONTROL));
+
+		window.impl->eventq.push(new wm::MotionEvent(window, x, y, wm::win32::mapButtons(wparam), keymod));
+		return 0;
+	}
+
+	LRESULT EventReader::handleLeave(Window& window, HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam)
+	{
+		mouseinside = false;
+
+		if(!mouseinitialized)
+		{
+			mouseinitialized = true;
+		} else
+		{
+			window.impl->eventq.push(
+				new MouseOverEvent(window, 0, 0, false));
 		}
 
 		return 0;

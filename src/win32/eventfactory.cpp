@@ -7,33 +7,16 @@
 #include <wm/events.hpp>
 #include <wm/mouse.hpp>
 #include <wm/keyboard.hpp>
-#include "impl/eventfactory.hpp"
-#include "impl/keymap.hpp"
+#include <win32/impl/eventfactory.hpp>
+#include <win32/impl/keymap.hpp>
 
 #include <windows.h>
 
+#undef MOD_SHIFT
+#undef MOD_CONTROL
+
 namespace
 {
-#undef MOD_CONTROL		// hairy win32 #defines cause compilation errors
-#undef MOD_SHIFT
-	wm::keyboard::KeyMod mapKeyMod(WPARAM wparam)
-	{	
-		return 0
-			| ((wparam & MK_CONTROL) ? wm::keyboard::MOD_CONTROL : 0)
-			| ((wparam & MK_SHIFT) ? wm::keyboard::MOD_SHIFT : 0)
-			;
-	}
-
-	wm::mouse::ButtonMask mapButtons(WPARAM wparam)
-	{
-		return 0 
-			| ((wparam & MK_LBUTTON) ? wm::mouse::MASK_LEFT : 0)
-			| ((wparam & MK_MBUTTON) ? wm::mouse::MASK_MIDDLE : 0)
-			| ((wparam & MK_RBUTTON) ? wm::mouse::MASK_RIGHT : 0)
-			;
-	}
-
-
 	const wm::Event *makeButton(
 		wm::Window& window,
 		UINT message,
@@ -91,7 +74,7 @@ namespace
 
 		}
 
-		wm::keyboard::KeyMod keymod = mapKeyMod(wparam)
+		wm::keyboard::KeyMod keymod = wm::win32::mapKeyMod(wparam)
 			| (wm::win32::getKeyModState() &
 				~(wm::keyboard::MOD_SHIFT | wm::keyboard::MOD_CONTROL));
 
@@ -100,7 +83,7 @@ namespace
 			x, y,
 			button,
 			state,
-			mapButtons(wparam),
+			wm::win32::mapButtons(wparam),
 			keymod);
 	}
 
@@ -140,27 +123,6 @@ namespace
 
 		return new wm::CharacterEvent(window, codepoint);
 	}
-
-	const wm::Event *makeMotion(
-		wm::Window& window,
-		UINT message,
-		WPARAM wparam,
-		LPARAM lparam)
-	{
-		unsigned int x = LOWORD(lparam);
-		unsigned int y = HIWORD(lparam);
-
-		wm::keyboard::KeyMod keymod = mapKeyMod(wparam)
-			| (wm::win32::getKeyModState() &
-				~(wm::keyboard::MOD_SHIFT | wm::keyboard::MOD_CONTROL));
-
-		return new wm::MotionEvent(
-			window,
-			x, y,
-			mapButtons(wparam),
-			keymod
-			);
-	}
 }
 
 namespace wm
@@ -197,8 +159,6 @@ namespace wm
 					map[WM_MOUSEWHEEL]= &makeButton;
 					map[WM_MOUSEHWHEEL]= &makeButton;
 					
-					map[WM_MOUSEMOVE] = &makeMotion;
-
 					map[WM_SETFOCUS] = &makeFocus;
 					map[WM_KILLFOCUS] = &makeFocus;
 

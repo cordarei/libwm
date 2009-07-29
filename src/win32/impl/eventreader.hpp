@@ -14,6 +14,8 @@ namespace wm
 				: sizemove(false)
 				, resizing(false)
 				, dirty(false)
+				, mouseinitialized(false)
+				, mouseinside(false)
 			{
 			}
 
@@ -28,9 +30,13 @@ namespace wm
 			LRESULT EventReader::handlePaint(Window&, HWND, UINT, WPARAM, LPARAM);
 			LRESULT EventReader::handleEraseBkgnd(Window&, HWND, UINT, WPARAM, LPARAM);
 			LRESULT EventReader::handleKey(Window&, HWND, UINT, WPARAM, LPARAM);
+			LRESULT EventReader::handleMotion(Window&, HWND, UINT, WPARAM, LPARAM);
+			LRESULT EventReader::handleLeave(Window&, HWND, UINT, WPARAM, LPARAM);
 
 			bool sizemove, resizing, dirty;	// win32 size-move state
 			unsigned int width, height;
+
+			bool mouseinitialized, mouseinside;
 	};
 }
 

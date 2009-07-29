@@ -1,7 +1,7 @@
 #include <map>
 
 #include <wm/keyboard.hpp>
-#include "impl/keymap.hpp"
+#include <win32/impl/keymap.hpp>
 
 #include <windows.h>
 
@@ -344,11 +344,12 @@ namespace wm
 			return mapVirtualKeyCode(wparam);
 		}
 
-		wm::keyboard::KeyMod getKeyModState()
-		{
-#undef MOD_CONTROL
+#undef MOD_CONTROL	// windows.h macros
 #undef MOD_SHIFT
 #undef MOD_ALT
+
+		wm::keyboard::KeyMod getKeyModState()
+		{
 			return 0
 				| ((GetKeyState(VK_SHIFT)<0) ? wm::keyboard::MOD_SHIFT : 0)
 				| ((GetKeyState(VK_CONTROL)<0) ? wm::keyboard::MOD_CONTROL : 0)
@@ -360,6 +361,22 @@ namespace wm
 				;
 		}
 
+		wm::keyboard::KeyMod mapKeyMod(WPARAM wparam)
+		{	
+			return 0
+				| ((wparam & MK_CONTROL) ? wm::keyboard::MOD_CONTROL : 0)
+				| ((wparam & MK_SHIFT) ? wm::keyboard::MOD_SHIFT : 0)
+				;
+		}
+
+		wm::mouse::ButtonMask mapButtons(WPARAM wparam)
+		{
+			return 0 
+				| ((wparam & MK_LBUTTON) ? wm::mouse::MASK_LEFT : 0)
+				| ((wparam & MK_MBUTTON) ? wm::mouse::MASK_MIDDLE : 0)
+				| ((wparam & MK_RBUTTON) ? wm::mouse::MASK_RIGHT : 0)
+				;
+		}
 	}
 }
 

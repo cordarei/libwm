@@ -83,6 +83,15 @@ namespace wm
 			}
 
 			format.set(*this);
+
+			// TrackMouseEvent to recieve WM_MOUSELEAVE events
+			TRACKMOUSEEVENT tme;
+			tme.cbSize = sizeof(TRACKMOUSEEVENT);
+			tme.dwFlags = TME_LEAVE;
+			tme.hwndTrack = impl->hwnd;
+
+			if(!TrackMouseEvent(&tme))
+				throw wm::Exception("Can't track mouse events: " + win32::getErrorMsg());
 		} catch(...)
 		{
 			if(!DestroyWindow(impl->hwnd))
