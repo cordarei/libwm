@@ -90,6 +90,8 @@ namespace wm
 			tme.dwFlags = TME_LEAVE;
 			tme.hwndTrack = impl->hwnd;
 
+			impl->cursorVisible = true;
+
 			if(!TrackMouseEvent(&tme))
 				throw wm::Exception("Can't track mouse events: " + win32::getErrorMsg());
 		} catch(...)
@@ -255,9 +257,17 @@ namespace wm
 
 	void Window::showCursor(bool show)
 	{
+		// TODO: synchronize this!
+		// the critical section is between EventReader mouse stuff
+		// and Window::impl_t::cursorVisible in Window::showCursor()
+
 		if(impl->cursorVisible != show)
 		{
-			ShowCursor(show);
+			if(impl->eventreader.mouseinside)
+			{
+				ShowCursor(show);
+			}
+
 			impl->cursorVisible = show;
 		}
 	}

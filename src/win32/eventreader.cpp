@@ -207,6 +207,18 @@ namespace wm
 
 	LRESULT EventReader::handleMotion(Window& window, HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam)
 	{
+		// TODO: synchronize this!
+		// the critical section is between EventReader mouse stuff
+		// and Window::impl_t::cursorVisible in Window::showCursor()
+		if(!window.impl->cursorVisible)
+		{
+			if(!mouseinside || mousehidden)
+			{
+				ShowCursor(false);
+				mousehidden = false; // a bit counterintuitive
+			}
+		}
+
 		unsigned int x = LOWORD(lparam);
 		unsigned int y = HIWORD(lparam);
 
@@ -241,6 +253,15 @@ namespace wm
 
 	LRESULT EventReader::handleLeave(Window& window, HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam)
 	{
+		// TODO: synchronize this!
+		// the critical section is between EventReader mouse stuff
+		// and Window::impl_t::cursorVisible in Window::showCursor()
+		if(!window.impl->cursorVisible && !mousehidden && mouseinitialized)
+		{
+			ShowCursor(true);
+			mousehidden = true;
+		}
+
 		mouseinside = false;
 
 		if(!mouseinitialized)

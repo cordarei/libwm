@@ -16,6 +16,7 @@ namespace wm
 				, dirty(false)
 				, mouseinitialized(false)
 				, mouseinside(false)
+				, mousehidden(false)
 			{
 			}
 
@@ -37,6 +38,9 @@ namespace wm
 			unsigned int width, height;
 
 			bool mouseinitialized, mouseinside;
+			bool mousehidden;
+
+			friend class Window;
 	};
 }
 
