@@ -55,12 +55,24 @@ int wm_main(int argc, char *argv[])
 		
 		virtual void handle(const wm::ButtonEvent &event)
 		{			
-			if(event.state())
+			if(event.state() && event.button() == wm::mouse::BUTTON_LEFT)
 			{
 				unsigned int w, h;
 				window->getSize(w, h);
 				std::cout << "window old size: " << w << "x" << h << std::endl; 
 				window->resize(w+100, h+100);
+			}
+			
+			if(event.button() == wm::mouse::BUTTON_RIGHT)
+			{
+				if(!event.state())
+				{
+					unsigned int w, h;
+					event.window().getSize(w, h);
+					event.window().warpMouse(w / 2, h / 2);
+				}
+
+				event.window().showCursor(!event.state());
 			}
 		}
 

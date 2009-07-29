@@ -31,89 +31,101 @@ namespace wm
 		::Display* xdisplay = display.impl->display;
 		int screen = display.impl->screen;
 
+		// Set pixel format attributes (initializes impl->visual and impl->depth)
 		format.set(*this);
+		
+		try
+		{
+			// Create colormap		
+			impl->colormap =
+				XCreateColormap(
+					xdisplay,
+					RootWindow(xdisplay, screen),
+					impl->visual,
+					AllocNone
+					);
+			if(impl->colormap == None)
+				throw wm::Exception("Can't create X Colormap for Surface");
 
-		// Create colormap		
-		impl->colormap =
-			XCreateColormap(
-				xdisplay,
+			// Create window
+			XSetWindowAttributes attrib;
+			attrib.colormap = impl->colormap;
+			unsigned long attribmask = CWColormap;
+
+			impl->window = XCreateWindow(
+				display.impl->display,
 				RootWindow(xdisplay, screen),
+				0, 0,
+				width, height,
+				0,
+				impl->depth,
+				InputOutput,
 				impl->visual,
-				AllocNone
+				attribmask,
+				&attrib
 				);
-		if(impl->colormap == None)
-			throw wm::Exception("Can't create X Colormap for Surface");
-
-		// Create window
-		XSetWindowAttributes attrib;
-		attrib.colormap = impl->colormap;
-		unsigned long attribmask = CWColormap;
-
-		impl->window = XCreateWindow(
-			display.impl->display,
-			RootWindow(xdisplay, screen),
-			0, 0,
-			width, height,
-			0,
-			impl->depth,
-			InputOutput,
-			impl->visual,
-			attribmask,
-			&attrib
-			);
 			
-		if(!impl->window)
-		{
-			XFreeColormap(xdisplay, impl->colormap);
-			throw wm::Exception("Can't create Window");
-		}
+			if(!impl->window)
+				throw wm::Exception("Can't create Window");
 		
-		// Listen for WM_DELETE_WINDOW
-		xlib::EWMH &ewmh = display.impl->ewmh;
-		if(!XSetWMProtocols(
-			xdisplay,
-			impl->window,
-			&ewmh.wm_delete_window,
-			1))
-		{
-			XDestroyWindow(xdisplay, impl->window);
-			XFreeColormap(xdisplay, impl->colormap);
-			throw wm::Exception("Can't set X Window manager protocols (WM_DELETE_WINDOW)");
-		}
+			// Listen for WM_DELETE_WINDOW
+			xlib::EWMH &ewmh = display.impl->ewmh;
+			if(ewmh.wm_delete_window &&
+			 !XSetWMProtocols(
+				xdisplay,
+				impl->window,
+				&ewmh.wm_delete_window,
+				1))
+				throw wm::Exception("Can't set X Window manager protocols (WM_DELETE_WINDOW)");
 		
-		// Create X input context
-		impl->xic = XCreateIC(
-			display.impl->xim,
-			XNInputStyle, XIMPreeditNothing | XIMStatusNothing,	// we don't have a status or a pre-edit window
-			XNClientWindow, impl->window,
-			XNFocusWindow, impl->window,
-			NULL	// XCreateIC va_list NULL terminator (must be NULL, not 0 to avoid gcc compiler warnings)
-			);
-		if(!impl->xic)
-		{
-			XDestroyWindow(xdisplay, impl->window);
-			XFreeColormap(xdisplay, impl->colormap);
-			throw wm::Exception("Can't set X Window manager protocols (WM_DELETE_WINDOW)");			
-		}
+			// Create X input context
+			impl->xic = XCreateIC(
+				display.impl->xim,
+				XNInputStyle, XIMPreeditNothing | XIMStatusNothing,	// we don't have a status or a pre-edit window
+				XNClientWindow, impl->window,
+				XNFocusWindow, impl->window,
+				NULL	// XCreateIC va_list NULL terminator (must be NULL, not 0 to avoid gcc compiler warnings)
+				);
+			if(!impl->xic)
+				throw wm::Exception("Can't set X Window manager protocols (WM_DELETE_WINDOW)");			
 		
-		// Get event mask from input context and listen to specified events
-		long xic_event_mask;
-		if(XGetICValues(impl->xic, XNFilterEvents, &xic_event_mask, NULL))
-		{
-			XDestroyIC(impl->xic);
-			XDestroyWindow(xdisplay, impl->window);
-			XFreeColormap(xdisplay, impl->colormap);
-			throw Exception("Can't query event mask from X input context");
-		}
+			// Get event mask from input context and listen to specified events
+			long xic_event_mask;
+			if(XGetICValues(impl->xic, XNFilterEvents, &xic_event_mask, NULL))
+				throw Exception("Can't query event mask from X input context");
 		
-		XSelectInput(
-			xdisplay,
-			impl->window,
-			EventReader::event_mask | xic_event_mask
-			);
+			XSelectInput(
+				xdisplay,
+				impl->window,
+				EventReader::event_mask | xic_event_mask
+				);
 			
-		// Add this window to Display's registry
-		display.impl->registry.add(impl->window, this);
+			// Create transparent cursor
+			static const char bitmap_data[] = { 0 };
+			Pixmap pixmap = XCreateBitmapFromData(xdisplay, impl->window, bitmap_data, 1, 1);
+			if(pixmap == None)
+				throw wm::Exception("Can't create X Pixmap for mouse cursor");
+			
+			XColor black;
+			black.pixel = BlackPixel(xdisplay, screen);
+			XQueryColor(xdisplay, impl->colormap, &black);
+			
+			impl->transparentCursor = XCreatePixmapCursor(xdisplay, pixmap, pixmap, &black, &black, 0, 0);
+			XFreePixmap(xdisplay, pixmap);
+
+			if(!impl->transparentCursor)
+				throw wm::Exception("Can't create mouse cursor");
+	
+			// Add this window to Display's registry
+			display.impl->registry.add(impl->window, this);
+		} catch(...)
+		{
+			if(impl->transparentCursor) XFreeCursor(xdisplay, impl->transparentCursor);
+			if(impl->xic) XDestroyIC(impl->xic);
+			if(impl->window) XDestroyWindow(xdisplay, impl->window);
+			if(impl->colormap) XFreeColormap(xdisplay, impl->colormap);
+			throw;
+		}			
 		
 		impl_guard.release();
 	}
@@ -124,10 +136,10 @@ namespace wm
 		
 		::Display* xdisplay = display().impl->display;		
 		
+		XFreeCursor(xdisplay, impl->transparentCursor);
 		XDestroyIC(impl->xic);
 		XDestroyWindow(xdisplay, impl->window);		
 		XFreeColormap(xdisplay, impl->colormap);
-
 		
 		delete impl;
 	}
@@ -204,6 +216,27 @@ namespace wm
 		}
 	}
 
+	void Window::warpMouse(unsigned int x, unsigned int y)
+	{
+		unsigned int w, h;
+		getSize(w, h);
+		
+		if(x >= w || y >= h) return;
+		
+		XWarpPointer(display().impl->display,
+			None,
+			impl->window,
+			0, 0, 0, 0,
+			x, y);
+	}
+	
+	void Window::showCursor(bool show)
+	{
+		::Display *xdisplay = display().impl->display;
+		if(show) XUndefineCursor(xdisplay, impl->window);
+		else XDefineCursor(xdisplay, impl->window, impl->transparentCursor);
+	}
+	
 	void Window::dispatch(bool block)
 	{
 		if(block)

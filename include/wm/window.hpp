@@ -78,6 +78,23 @@ namespace wm
 			*/
 			void fullscreen(bool full);
 			
+			/// Move the mouse pointer inside this window 
+			/**
+				The coordinates are relative to the window client area. If the
+				given coordinates are outside the client area, no moving is
+				performed.
+			
+				@param x horizontal position of the mouse cursor destination
+				@param y vertical position of the mouse cursor destination
+			*/
+			void warpMouse(unsigned int x, unsigned int y);
+			
+			/// Show/Hide the mouse cursor
+			/**
+				@param show true to show mouse cursor, false to hide
+			*/
+			void showCursor(bool show);
+			
 			/// Get the display of this window
 			/**
 				@return the Display on which this window was created

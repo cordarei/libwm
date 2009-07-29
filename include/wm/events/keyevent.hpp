@@ -23,6 +23,7 @@ namespace wm
 				@param symbol the key Symbol
 				@param keymod keyboard modifier state mask 
 				@param state true if the key was pressed, false if released
+				@param repeat true if this event is caused by keyboard autorepeat
 			*/
 			KeyEvent(
 				Window &window,

@@ -15,8 +15,16 @@ namespace wm
 {
 	struct Window::impl_t
 	{
-		EventReader eventreader;
-		
+		impl_t()
+			: visual(0)
+			, depth(0)
+			, colormap(0)
+			, window(0)
+			, xic(0)
+			, transparentCursor(0)
+		{
+		}
+	
 		// PixelFormat information
 		Visual *visual;
 		int depth;
@@ -30,9 +38,14 @@ namespace wm
 		// X input context
 		XIC xic;
 		
+		// Transparent cursor
+		Cursor transparentCursor;
+		
 		// Event dispatching
 		common::Dispatcher dispatcher;
 		common::EventQueue eventq;		
+
+		EventReader eventreader;
 	};
 }
 
