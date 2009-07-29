@@ -22,6 +22,9 @@ namespace wm
 		// Window style and extended style
 		int style, exstyle;
 
+		// Is the mouse cursor visible in this Window?
+		bool cursorVisible;
+
 		// Event dispatching
 		common::Dispatcher dispatcher;
 		common::EventQueue eventq;

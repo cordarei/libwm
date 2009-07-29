@@ -10,9 +10,9 @@
 #include <wm/window.hpp>
 #include <wm/pixelformat.hpp>
 
-#include "impl/error.hpp"
-#include "impl/display_impl.hpp"
-#include "impl/window_impl.hpp"
+#include <win32/impl/error.hpp>
+#include <win32/impl/display_impl.hpp>
+#include <win32/impl/window_impl.hpp>
 
 namespace
 {
@@ -58,6 +58,8 @@ namespace wm
 		, pixelformat_(format)
 	{
 		std::auto_ptr<impl_t> impl_guard(impl); // deletes impl object in case of exception
+
+		impl->cursorVisible = true;
 
 		impl->style = WS_OVERLAPPEDWINDOW;
 		impl->exstyle = WS_EX_OVERLAPPEDWINDOW;
@@ -224,6 +226,30 @@ namespace wm
 
 			impl->style = style;
 			impl->exstyle = exstyle;
+		}
+	}
+
+	void Window::warpMouse(unsigned int x, unsigned int y)
+	{
+		RECT rect;
+		if(!GetClientRect(impl->hwnd, &rect))
+			throw wm::Exception("Can't warp mouse, GetClientRect failed: " + win32::getErrorMsg());
+
+		if(LONG(x) >= rect.right || LONG(y) >= rect.bottom) return;
+
+		POINT point = { 0, 0 };
+		if(!ClientToScreen(impl->hwnd, &point))
+			throw wm::Exception("Can't warp mouse, ClientToScreen failed: " + win32::getErrorMsg());
+
+		SetCursorPos(point.x + x, point.y + y);
+	}
+
+	void Window::showCursor(bool show)
+	{
+		if(impl->cursorVisible != show)
+		{
+			ShowCursor(show);
+			impl->cursorVisible = show;
 		}
 	}
 }
