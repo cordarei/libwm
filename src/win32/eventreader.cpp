@@ -281,14 +281,34 @@ namespace wm
 	{
 		MINMAXINFO *ptr = reinterpret_cast<MINMAXINFO*>(lparam);
 
-		unsigned int minW, minH, maxW, maxH;
+		// TODO: synchronize this!
+		// this read should be atomic
+		unsigned int bounds[][2] = { { window.impl->minW, window.impl->minH }, { window.impl->maxW, window.impl->maxH } };
 
+		LONG style = GetWindowLong(hwnd, GWL_STYLE);
+		if(!style)
+			throw wm::Exception("Can't reply to WM_GETMINMAXINFO, can't get window style: " + win32::getErrorMsg());
+
+		LONG exstyle = GetWindowLong(hwnd, GWL_EXSTYLE);
+		if(!exstyle)
+			throw wm::Exception("Can't reply to WM_GETMINMAXINFO, can't get extended window style: " + win32::getErrorMsg());
+
+		for(int i = 0; i < 2; ++i)
 		{
-			// TODO: synchronize this!
-			// this read should be atomic
-			minW = window.impl->minW; minH = window.impl->minH;
-			maxW = window.impl->maxW; maxH = window.impl->maxH;
+			if(!bounds[i][0] || !bounds[i][1]) continue;
+
+			RECT rect;
+			if(!SetRect(&rect, 0, 0, bounds[i][0], bounds[i][1]))
+				throw wm::Exception("Can't set fullscreen, SetRect failed: " + win32::getErrorMsg());
+
+			if(!AdjustWindowRectEx(&rect, style, false, exstyle))
+				throw wm::Exception("Can't set fullscreen, AdjustWindowRectEx failed: " + win32::getErrorMsg());
+
+			bounds[i][0] = rect.right - rect.left;
+			bounds[i][1] = rect.bottom - rect.top;
 		}
+
+		unsigned int minW = bounds[0][0], minH = bounds[0][1], maxW = bounds[1][0], maxH = bounds[1][1];
 
 		LRESULT result = 0;
 

@@ -49,6 +49,8 @@ int wm_main(int argc, char *argv[])
 			
 			if(event.state() && event.symbol() == wm::keyboard::F11)
 			{
+				// this does not work if fullscreen does not actually switch
+				// because of size limits
 				fullscreen = !fullscreen;
 				window->fullscreen(fullscreen);
 			}
@@ -57,7 +59,11 @@ int wm_main(int argc, char *argv[])
 			{
 				resizable = !resizable;
 				if(resizable) event.window().setMinMaxSize(0, 0, 0, 0);
-				else event.window().setMinMaxSize(200, 200, 200, 200);
+				else
+				{
+					event.window().setMinMaxSize(200, 200, 200, 200);
+					event.window().resize(200, 200);
+				}
 			}
 		};
 		

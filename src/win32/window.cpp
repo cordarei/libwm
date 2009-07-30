@@ -16,6 +16,17 @@
 
 namespace
 {
+	int getStyle(bool fullscreen, bool resizable)
+	{
+		return (fullscreen ? WS_POPUP : WS_OVERLAPPEDWINDOW) &
+			~(resizable ? WS_THICKFRAME : 0);
+	}
+
+	int getExStyle(bool fullscreen)
+	{
+		return fullscreen ? WS_EX_APPWINDOW : WS_EX_OVERLAPPEDWINDOW;
+	}
+
 	HWND createWindow(HINSTANCE hInstance, const WCHAR *wndclass, int width, int height, int style, int exstyle)
 	{
 		RECT rect;
@@ -59,16 +70,13 @@ namespace wm
 	{
 		std::auto_ptr<impl_t> impl_guard(impl); // deletes impl object in case of exception
 
-		impl->style = WS_OVERLAPPEDWINDOW;
-		impl->exstyle = WS_EX_OVERLAPPEDWINDOW;
-
 		impl->hwnd = createWindow(
 			display.impl->hInstance,
 			&(display.impl->classname)[0],
 			width,
 			height,
-			impl->style,
-			impl->exstyle);
+			getStyle(false, false),
+			getExStyle(false));
 
 		try
 		{
@@ -145,12 +153,17 @@ namespace wm
 
 	void Window::resize(unsigned int width, unsigned int height)
 	{
+		LONG style = GetWindowLong(impl->hwnd, GWL_STYLE);
+		if(!style)
+			throw wm::Exception("Can't resize window, unable to query window style: " + win32::getErrorMsg());
+
+		LONG exstyle = GetWindowLong(impl->hwnd, GWL_EXSTYLE);
+		if(!exstyle)
+			throw wm::Exception("Can't resize window, unable to query extended window style: " + win32::getErrorMsg());
+
 		RECT rect;
 		if(!SetRect(&rect, 0, 0, width, height))
 			throw wm::Exception("Can't set window rectangle for resizing");
-
-		int style = impl->style,
-			exstyle = impl->exstyle;
 
 		if(!AdjustWindowRectEx(&rect, style, false, exstyle))
 			throw wm::Exception("Can't adjust window bounds rectangle: " + wm::win32::getErrorMsg());
@@ -196,10 +209,29 @@ namespace wm
 	{
 		if(full == impl->fullscreen) return;
 
-		unsigned int minW = impl->minW, minH = impl->minH, maxW = impl->maxW, maxH = impl->maxH;
+		LONG style = getStyle(full, impl->resizable);
+		LONG exstyle = getExStyle(full);
+
+		unsigned int bounds[][2] = { { impl->minW, impl->minH }, { impl->maxW, impl->maxH } };
+
+		for(int i = 0; i < 2; ++i)
+		{
+			if(!bounds[i][0] || !bounds[i][1]) continue;
+
+			RECT rect;
+			if(!SetRect(&rect, 0, 0, bounds[i][0], bounds[i][1]))
+				throw wm::Exception("Can't set fullscreen, SetRect failed: " + win32::getErrorMsg());
+
+			if(!AdjustWindowRectEx(&rect, style, false, exstyle))
+				throw wm::Exception("Can't set fullscreen, AdjustWindowRectEx failed: " + win32::getErrorMsg());
+
+			bounds[i][0] = rect.right - rect.left;
+			bounds[i][1] = rect.bottom - rect.top;
+		}
+
+		unsigned int minW = bounds[0][0], minH = bounds[0][1], maxW = bounds[1][0], maxH = bounds[1][1];
 
 		RECT rect;
-
 		if(full)
 		{
 			unsigned int width = GetSystemMetrics(SM_CXSCREEN);
@@ -237,9 +269,6 @@ namespace wm
 			}
 		}
 
-		LONG style = full ? WS_POPUP : WS_OVERLAPPEDWINDOW;
-		LONG exstyle = full ? WS_EX_APPWINDOW : WS_EX_OVERLAPPEDWINDOW;
-
 		hide();
 
 		if(!SetWindowLong(impl->hwnd, GWL_EXSTYLE, exstyle)
@@ -254,8 +283,6 @@ namespace wm
 			SWP_FRAMECHANGED | SWP_SHOWWINDOW))
 			throw wm::Exception("Can't set full screen, SetWindowPos failed: " + win32::getErrorMsg());
 
-		impl->style = style;
-		impl->exstyle = exstyle;
 		impl->fullscreen = full;
 	}
 
@@ -298,6 +325,22 @@ namespace wm
 		// make sure the read is atomic
 		impl->minW = minW; impl->minH = minH;
 		impl->maxW = maxW; impl->maxH = maxH;
+
+		int style = 0;
+		bool resizable = !(minW && minH && minW && maxH &&
+			(minW == maxW) && (minH == maxH));
+
+		if(resizable != impl->resizable)
+		{
+			LONG style = getStyle(impl->fullscreen, impl->resizable);
+
+			hide();
+			if(!SetWindowLong(impl->hwnd, GWL_STYLE, style))
+				throw wm::Exception("Can't set window resizable style: " + win32::getErrorMsg());
+			show();
+		}
+
+		impl->resizable = resizable;
 	}
 }
 
