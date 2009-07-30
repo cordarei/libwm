@@ -19,7 +19,7 @@ int wm_main(int argc, char *argv[])
 		choose(config, wm::PixelFormat::Descriptor(8, 8, 8, 8, 16, 0));
 
 	wm::Window window(display, 400, 300, format);
-
+	
 	wm::Surface surface(window);
 	wm::Context context(format);
 
@@ -30,6 +30,7 @@ int wm_main(int argc, char *argv[])
 			window.getSize(width, height);
 			window.setTitle(title_string.c_str());
 			fullscreen = false;
+			resizable = true;
 		}
 	
 		virtual void handle(const wm::ExposeEvent &event)
@@ -50,7 +51,14 @@ int wm_main(int argc, char *argv[])
 			{
 				fullscreen = !fullscreen;
 				window->fullscreen(fullscreen);
-			}			
+			}
+			
+			if(event.state() && event.symbol() == wm::keyboard::SPACE)
+			{
+				resizable = !resizable;
+				if(resizable) event.window().setMinMaxSize(0, 0, 0, 0);
+				else event.window().setMinMaxSize(200, 200, 200, 200);
+			}
 		};
 		
 		virtual void handle(const wm::ButtonEvent &event)
@@ -99,6 +107,7 @@ int wm_main(int argc, char *argv[])
 		std::string title_string;
 		unsigned int width, height;
 		bool fullscreen;
+		bool resizable;
 	} handler(window);
 
 	wm::util::EventPrinter printer(std::cout);

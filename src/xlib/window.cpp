@@ -237,6 +237,28 @@ namespace wm
 		else XDefineCursor(xdisplay, impl->window, impl->transparentCursor);
 	}
 	
+	void Window::setMinMaxSize(unsigned int minW, unsigned int minH, unsigned int maxW, unsigned int maxH)
+	{
+		XSizeHints sizehints;
+		sizehints.flags = 0;
+		
+		if(minW != 0 && minH != 0)
+		{
+			sizehints.flags |= PMinSize;
+			sizehints.min_width = minW;
+			sizehints.min_height = minH;
+		}
+
+		if(maxW != 0 && maxH != 0)
+		{
+			sizehints.flags |= PMaxSize;
+			sizehints.max_width = maxW;
+			sizehints.max_height = maxH;
+		}
+		
+		XSetWMNormalHints(display().impl->display, impl->window, &sizehints);
+	}
+	
 	void Window::dispatch(bool block)
 	{
 		if(block)

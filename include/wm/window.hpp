@@ -95,6 +95,24 @@ namespace wm
 			*/
 			void showCursor(bool show);
 			
+			/// Set size limits for a window or make it unresizable
+			/**
+				If the width or height of the minimum or maximum size limit
+				is equal to 0, that limit is disabled.
+				
+				If the minimum and maximum size limits are equal (and non-zero)
+				the window is made un-resizable.
+				
+				If the minimum size is larger than the maximum size, the results
+				are undefined.
+		
+				@param minW minimum width of the window
+				@param minH minimum height of the window
+				@param maxW maximum width of the window
+				@param maxH maximum height of the window
+			*/
+			void setMinMaxSize(unsigned int minW, unsigned int minH, unsigned int maxW, unsigned int maxH);
+			
 			/// Get the display of this window
 			/**
 				@return the Display on which this window was created
