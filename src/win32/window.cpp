@@ -59,8 +59,6 @@ namespace wm
 	{
 		std::auto_ptr<impl_t> impl_guard(impl); // deletes impl object in case of exception
 
-		impl->cursorVisible = true;
-
 		impl->style = WS_OVERLAPPEDWINDOW;
 		impl->exstyle = WS_EX_OVERLAPPEDWINDOW;
 
@@ -196,48 +194,69 @@ namespace wm
 
 	void Window::fullscreen(bool full)
 	{
+		if(full == impl->fullscreen) return;
+
+		unsigned int minW = impl->minW, minH = impl->minH, maxW = impl->maxW, maxH = impl->maxH;
+
+		RECT rect;
+
+		if(full)
+		{
+			unsigned int width = GetSystemMetrics(SM_CXSCREEN);
+			unsigned int height = GetSystemMetrics(SM_CYSCREEN);
+
+			if(!width || !height)
+				throw wm::Exception("Can't set full screen, GetSystemMetrics failed: " +
+					win32::getErrorMsg());
+
+			if(((minW != 0 && minH != 0) && (width < minW || height < minH)) ||
+				((maxW != 0 && maxH != 0) && (width > maxW || height > maxH)))
+				return;
+
+			if(!SetRect(&rect, 0, 0, width, height))
+				throw wm::Exception("Can't set window rectangle for resizing");
+		} else
+		{
+			if(!SystemParametersInfo(SPI_GETWORKAREA, 0, &rect, 0))
+				throw wm::Exception("Can't set windowed, SystemParametersInfo failed: "
+					+ win32::getErrorMsg());
+
+			unsigned int width = rect.right - rect.left;
+			unsigned int height = rect.bottom - rect.top;
+
+			if(minW != 0 && minH != 0)
+			{
+				if(width < minW) rect.right = rect.left + minW;
+				if(height < minH) rect.bottom = rect.top + minH;
+			}
+
+			if(maxW != 0 && maxH != 0)
+			{
+				if(width > maxW) rect.right = rect.left + maxW;
+				if(height > maxH) rect.bottom = rect.top + maxH;
+			}
+		}
+
 		LONG style = full ? WS_POPUP : WS_OVERLAPPEDWINDOW;
 		LONG exstyle = full ? WS_EX_APPWINDOW : WS_EX_OVERLAPPEDWINDOW;
 
-		if(style != impl->style || exstyle != impl->exstyle)
-		{
-			hide();
+		hide();
 
-			if(!SetWindowLong(impl->hwnd, GWL_EXSTYLE, exstyle)
-				|| !SetWindowLong(impl->hwnd, GWL_STYLE, style))
-				throw wm::Exception("Can't set full screen, SetWindowLong failed: " + win32::getErrorMsg());
+		if(!SetWindowLong(impl->hwnd, GWL_EXSTYLE, exstyle)
+			|| !SetWindowLong(impl->hwnd, GWL_STYLE, style))
+			throw wm::Exception("Can't set full screen, SetWindowLong failed: " + win32::getErrorMsg());
 
-			RECT rect;
+		if(!SetWindowPos(
+			impl->hwnd,
+			HWND_TOPMOST,
+			rect.left, rect.top,
+			rect.right - rect.left, rect.bottom - rect.top,
+			SWP_FRAMECHANGED | SWP_SHOWWINDOW))
+			throw wm::Exception("Can't set full screen, SetWindowPos failed: " + win32::getErrorMsg());
 
-			if(full)
-			{
-				int width = GetSystemMetrics(SM_CXSCREEN);
-				int height = GetSystemMetrics(SM_CYSCREEN);
-
-				if(!width || !height)
-					throw wm::Exception("Can't set full screen, GetSystemMetrics failed: " +
-						win32::getErrorMsg());
-
-				if(!SetRect(&rect, 0, 0, width, height))
-					throw wm::Exception("Can't set window rectangle for resizing");
-			} else
-			{
-				if(!SystemParametersInfo(SPI_GETWORKAREA, 0, &rect, 0))
-					throw wm::Exception("Can't set windowed, SystemParametersInfo failed: "
-						+ win32::getErrorMsg());
-			}
-
-			if(!SetWindowPos(
-				impl->hwnd,
-				HWND_TOPMOST,
-				rect.left, rect.top,
-				rect.right - rect.left, rect.bottom - rect.top,
-				SWP_FRAMECHANGED | SWP_SHOWWINDOW))
-				throw wm::Exception("Can't set full screen, SetWindowPos failed: " + win32::getErrorMsg());
-
-			impl->style = style;
-			impl->exstyle = exstyle;
-		}
+		impl->style = style;
+		impl->exstyle = exstyle;
+		impl->fullscreen = full;
 	}
 
 	void Window::warpMouse(unsigned int x, unsigned int y)
@@ -270,6 +289,15 @@ namespace wm
 
 			impl->cursorVisible = show;
 		}
+	}
+
+	void Window::setMinMaxSize(unsigned int minW, unsigned int minH, unsigned int maxW, unsigned int maxH)
+	{
+		// TODO: synchronize this!
+		// The EventReader reads these on WM_GETMINMAXINFO
+		// make sure the read is atomic
+		impl->minW = minW; impl->minH = minH;
+		impl->maxW = maxW; impl->maxH = maxH;
 	}
 }
 

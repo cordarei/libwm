@@ -71,6 +71,7 @@ namespace wm
 				map[WM_SYSKEYUP] = &EventReader::handleKey;
 				map[WM_MOUSEMOVE] = &EventReader::handleMotion;
 				map[WM_MOUSELEAVE] = &EventReader::handleLeave;
+				map[WM_GETMINMAXINFO] = &EventReader::handleGetMinMaxInfo;
 			}
 
 			typedef std::map<UINT, HandlerFunc> map_t;
@@ -275,4 +276,37 @@ namespace wm
 
 		return 0;
 	}
+
+	LRESULT EventReader::handleGetMinMaxInfo(Window& window, HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam)
+	{
+		MINMAXINFO *ptr = reinterpret_cast<MINMAXINFO*>(lparam);
+
+		unsigned int minW, minH, maxW, maxH;
+
+		{
+			// TODO: synchronize this!
+			// this read should be atomic
+			minW = window.impl->minW; minH = window.impl->minH;
+			maxW = window.impl->maxW; maxH = window.impl->maxH;
+		}
+
+		LRESULT result = 0;
+
+		if(minW != 0 && minH != 0)
+		{
+			ptr->ptMinTrackSize.x = minW;
+			ptr->ptMinTrackSize.y = minH;
+			result = TRUE;
+		}
+
+		if(maxW != 0 && maxH != 0)
+		{
+			ptr->ptMaxSize.x = ptr->ptMaxTrackSize.x = maxW;
+			ptr->ptMaxSize.y = ptr->ptMaxTrackSize.y = maxH;
+			result = TRUE;
+		}
+
+		return result;
+	}
+
 }

@@ -33,6 +33,7 @@ namespace wm
 			LRESULT EventReader::handleKey(Window&, HWND, UINT, WPARAM, LPARAM);
 			LRESULT EventReader::handleMotion(Window&, HWND, UINT, WPARAM, LPARAM);
 			LRESULT EventReader::handleLeave(Window&, HWND, UINT, WPARAM, LPARAM);
+			LRESULT handleGetMinMaxInfo(Window& window, HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam);
 
 			bool sizemove, resizing, dirty;	// win32 size-move state
 			unsigned int width, height;
