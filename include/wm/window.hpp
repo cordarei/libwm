@@ -179,6 +179,10 @@ namespace wm
 				to event handlers. EventHandler::handle will be called
 				for all events and all event handlers connected to
 				this window.
+				
+				Display::wait or Display::poll must be called before this
+				function to listen for windowing system events, process
+				them and add them to the Window event queues.
 
 				If there are no events available in the event queue, this
 				function returns immediately.

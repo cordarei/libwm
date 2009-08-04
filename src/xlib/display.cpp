@@ -54,24 +54,24 @@ namespace wm
 	
 	class Event;
 	
-	void Display::dispatch(bool block)
+	void Display::wait()
 	{
 		XEvent event;
+
+		XNextEvent(impl->display, &event);
 		
-		if(block)
+		wm::Window* window =  impl->registry.get(event.xany.window);
+		if(window) EventReader::handleXEvent(*window, event);
+	}
+	
+	void Display::poll()
+	{
+		XEvent event;
+		while(XCheckMaskEvent(impl->display, ~0, &event) ||
+			XCheckTypedEvent(impl->display, ClientMessage, &event))
 		{
-			XNextEvent(impl->display, &event);
-			
 			wm::Window* window =  impl->registry.get(event.xany.window);
 			if(window) EventReader::handleXEvent(*window, event);
-		} else
-		{
-			while(XCheckMaskEvent(impl->display, ~0, &event) ||
-				XCheckTypedEvent(impl->display, ClientMessage, &event))
-			{
-				wm::Window* window =  impl->registry.get(event.xany.window);
-				if(window) EventReader::handleXEvent(*window, event);				
-			}
 		}
 	}
 }

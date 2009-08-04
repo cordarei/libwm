@@ -267,29 +267,31 @@ namespace wm
 		XClearArea(xdisplay, impl->window, x, y, width, height, True);
 	}
 	
-	void Window::dispatch(bool block)
+	void Window::wait()
 	{
-		if(block)
-		{
-			boost::scoped_ptr<const Event> event;
+		boost::scoped_ptr<const Event> event;
 
-			while(!impl->eventq.poll(event))
-			{
-				display().dispatch(true);
-			}
-			
-			do
-			{
-				impl->dispatcher.dispatch(*event);
-			} while(impl->eventq.poll(event));
-		} else
+		while(!impl->eventq.poll(event))
+			display().wait();
+		
+		do
 		{
-			boost::scoped_ptr<const Event> event;
-			while(impl->eventq.poll(event))
-			{
-				impl->dispatcher.dispatch(*event);
-			}
+			impl->dispatcher.dispatch(*event);
+		} while(impl->eventq.poll(event));
+	}
+	
+	bool Window::dispatch()
+	{
+		boost::scoped_ptr<const Event> event;
+		bool gotone = false;
+		
+		while(impl->eventq.poll(event))
+		{
+			impl->dispatcher.dispatch(*event);
+			gotone = true;
 		}
+		
+		return gotone;
 	}
 		
 	common::Dispatcher& Window::dispatcher()
