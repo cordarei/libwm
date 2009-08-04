@@ -258,6 +258,14 @@ namespace wm
 		
 		XSetWMNormalHints(display().impl->display, impl->window, &sizehints);
 	}
+
+	void Window::repaint(unsigned int x, unsigned int y, unsigned int width, unsigned int height)
+	{
+		if(width == 0 || height == 0) x = y = width = height = 0;
+	
+		::Display* xdisplay = display().impl->display;
+		XClearArea(xdisplay, impl->window, x, y, width, height, True);
+	}
 	
 	void Window::dispatch(bool block)
 	{

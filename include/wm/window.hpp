@@ -113,6 +113,23 @@ namespace wm
 			*/
 			void setMinMaxSize(unsigned int minW, unsigned int minH, unsigned int maxW, unsigned int maxH);
 			
+			/// Request window repaint
+			/**
+				Ask the windowing system to be repainted. The windowing
+				system will respond and an ExposeEvent will be generated
+				when appropriate.
+				
+				If the width or the height of the dirty rectangle
+				area is zero, the entire window be repainted.
+				
+				@param x the left side of the dirty rectangle
+				@param y the top side of the dirty rectangle
+				@param width the width of the dirty rectangle
+				@param height the height of the dirty rectangle
+				@see wm::ExposeEvent
+			*/
+			void repaint(unsigned int x = 0, unsigned int y = 0, unsigned int width = 0, unsigned int height = 0);
+			
 			/// Get the display of this window
 			/**
 				@return the Display on which this window was created

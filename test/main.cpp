@@ -31,11 +31,12 @@ int wm_main(int argc, char *argv[])
 			window.setTitle(title_string.c_str());
 			fullscreen = false;
 			resizable = true;
+			flipped = false;
 		}
 	
 		virtual void handle(const wm::ExposeEvent &event)
 		{
-			test::draw(width, height);
+			test::draw(width, height, flipped);
 			event.window().surface().swap();
 		}
 
@@ -64,6 +65,12 @@ int wm_main(int argc, char *argv[])
 					event.window().setMinMaxSize(200, 200, 200, 200);
 					event.window().resize(200, 200);
 				}
+			}
+			
+			if(event.state() && event.symbol() == wm::keyboard::RETURN)
+			{
+				flipped = !flipped;
+				event.window().repaint();
 			}
 		};
 		
@@ -114,6 +121,7 @@ int wm_main(int argc, char *argv[])
 		unsigned int width, height;
 		bool fullscreen;
 		bool resizable;
+		bool flipped;
 	} handler(window);
 
 	wm::util::EventPrinter printer(std::cout);

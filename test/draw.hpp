@@ -3,7 +3,7 @@
 
 namespace test
 {
-	void draw(unsigned int width, unsigned int height);
+	void draw(unsigned int width, unsigned int height, bool flipped);
 }
 
 #endif

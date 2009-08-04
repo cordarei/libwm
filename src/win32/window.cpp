@@ -342,6 +342,10 @@ namespace wm
 
 		impl->resizable = resizable;
 	}
+	
+	void Window::repaint(unsigned int x, unsigned int y, unsigned int width, unsigned int height)
+	{
+	}
 }
 
 #include <wm/event.hpp>
