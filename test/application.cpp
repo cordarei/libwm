@@ -27,7 +27,7 @@ class Application
 			namespace pt = boost::posix_time;
 			const pt::time_duration interval = pt::seconds(1) / 60,
 				update_interval = pt::seconds(1) / 120;
-			const float update_dt = 1.0 / 120.0f;
+			const float update_dt = 1.0f / 120.0f;
 			pt::ptime next_redraw = pt::microsec_clock::local_time(),
 				next_update = next_redraw;
 			while(!quit)

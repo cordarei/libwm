@@ -345,6 +345,17 @@ namespace wm
 	
 	void Window::repaint(unsigned int x, unsigned int y, unsigned int width, unsigned int height)
 	{
+		RECT rect, *ptr = 0;
+
+		if(width != 0 && height != 0)
+		{
+			if(!SetRect(&rect, x, y, width, height))
+				throw wm::Exception("Can't repaint Window, SetRect failed: " + win32::getErrorMsg());
+			ptr = &rect;
+		}
+
+		if(!RedrawWindow(impl->hwnd, ptr, 0, RDW_INVALIDATE))
+			throw wm::Exception("Can't repaint Window, RedrawWindow failed: " + win32::getErrorMsg());
 	}
 }
 
