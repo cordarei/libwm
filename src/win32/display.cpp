@@ -70,29 +70,30 @@ namespace wm
 		delete impl;
 	}
 
-	void Display::dispatch(bool block)
+	void Display::wait()
 	{
-		if(block)
+		MSG msg;
+
+		if(GetMessageW(&msg, 0, 0, 0) == -1) // Yep, the return type is BOOL and it returns -1 on error
+			throw Exception("Can't get win32 message: " + win32::getErrorMsg());
+
+		TranslateMessage(&msg);
+
+		if(DispatchMessageW(&msg) < 0)
+			throw Exception("Can't dispatch message to window procedures: " + win32::getErrorMsg());
+
+		poll();
+	}
+
+	void Display::poll()
+	{
+		MSG msg;
+
+		while(PeekMessageW(&msg, 0, 0, 0, PM_REMOVE)) // NOTE: PeekMessageW does not return errors
 		{
-			MSG msg;
-
-			if(GetMessageW(&msg, 0, 0, 0) == -1) // Yep, the return type is BOOL and it returns -1 on error
-				throw Exception("Can't get win32 message: " + win32::getErrorMsg());
-
 			TranslateMessage(&msg);
-
 			if(DispatchMessageW(&msg) < 0)
 				throw Exception("Can't dispatch message to window procedures: " + win32::getErrorMsg());
-		} else
-		{
-			MSG msg;
-
-			while(PeekMessageW(&msg, 0, 0, 0, PM_REMOVE)) // NOTE: PeekMessageW does not return errors
-			{
-				TranslateMessage(&msg);
-				if(DispatchMessageW(&msg) < 0)
-					throw Exception("Can't dispatch message to window procedures: " + win32::getErrorMsg());
-			}
 		}
 	}
 }

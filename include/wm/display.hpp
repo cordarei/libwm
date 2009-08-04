@@ -23,25 +23,43 @@ namespace wm
 			/// Close display
 			~Display();
 			
-			/// Listen for events and add them to the event queue
+			/// Wait for events from the windowing system and add events to window event queues
 			/**
 				This function listens for events from the windowing
-				system and adds them to the event queue of the
-				appropriate Windows.
-				
-				This function can be used in blocking or non-blocking
-				mode. In blocking mode, this function waits for an event
-				to arrive while in non-blocking mode the function returns
-				immediately if there are no events available.
-				
-				On some platforms, this function may block depending on
-				user input. For example, this function does not return
-				while the user is resizing a window.
-			
-				@param block true if this function should wait for events
+				system, processes them and adds events to the event queues
+				of the appropriate Windows. This function may add zero or more
+				events to event queues, because windowing system
+				events and Libwm events don't have a one-to-one correspondance.
+
+				If no windowing system events are available, this function waits
+				until an event arrives.
+
+				@see Display::poll
+				@see Window::wait
+				@see Window::dispatch
 			*/
-			void dispatch(bool block);
+			void wait();
 			
+			/// Poll for events from the windowing system and add them to window event queues
+			/**
+				This function listens for events from the windowing
+				system, processes them and adds events to the event queues
+				of the appropriate Windows. This function may add zero or more
+				events to event queues, because windowing system
+				events and Libwm events don't have a one-to-one correspondance.
+
+				If no windowing system events are available, this function returns
+				immediately.
+
+				Processing the events may take an indefinate amount of time and may
+				be affected by user interaction.
+
+				@see Display::wait
+				@see Window::wait
+				@see Window::dispatch
+			*/
+			void poll();
+						
 		private:
 			Display(const Display&);
 			Display& operator=(const Display&);

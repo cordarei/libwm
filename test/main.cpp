@@ -134,7 +134,7 @@ int wm_main(int argc, char *argv[])
 	
 	surface.swap();
 	
-	while(!handler.quit_flag) window.dispatch(true);
+	while(!handler.quit_flag) window.wait();
 
 	return 0;
 }

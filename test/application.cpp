@@ -48,8 +48,8 @@ class Application
 					next_redraw = timer + interval;
 				} else
 				{
-					display.dispatch(false);
-					win.window.dispatch(false);
+					display.poll();
+					win.window.dispatch();
 
 #undef min	// Damn windows.h macros
 #undef max

@@ -9,6 +9,7 @@
 #include <wm/display.hpp>
 #include <wm/window.hpp>
 #include <wm/pixelformat.hpp>
+#include <wm/event.hpp>
 
 #include <win32/impl/error.hpp>
 #include <win32/impl/display_impl.hpp>
@@ -16,7 +17,7 @@
 
 namespace
 {
-	int getStyle(bool fullscreen, bool resizable)
+	int getStyle(bool fullscreen, bool resizable)3
 	{
 		return (fullscreen ? WS_POPUP : WS_OVERLAPPEDWINDOW) &
 			~(resizable ? WS_THICKFRAME : 0);
@@ -357,35 +358,32 @@ namespace wm
 		if(!RedrawWindow(impl->hwnd, ptr, 0, RDW_INVALIDATE))
 			throw wm::Exception("Can't repaint Window, RedrawWindow failed: " + win32::getErrorMsg());
 	}
-}
 
-#include <wm/event.hpp>
-
-namespace wm
-{
-	void Window::dispatch(bool block)
+	void Window::wait()
 	{
-		if(block)
-		{
-			boost::scoped_ptr<const Event> event;
+		boost::scoped_ptr<const Event> event;
 
-			while(!impl->eventq.poll(event))
-			{
-				display().dispatch(true);
-			}
-			
-			do
-			{
-				impl->dispatcher.dispatch(*event);
-			} while(impl->eventq.poll(event));
-		} else
+		while(!impl->eventq.poll(event))
+			display().wait();
+		
+		do
 		{
-			boost::scoped_ptr<const Event> event;
-			while(impl->eventq.poll(event))
-			{
-				impl->dispatcher.dispatch(*event);
-			}
-		}		
+			impl->dispatcher.dispatch(*event);
+		} while(impl->eventq.poll(event));
+	}
+
+	bool Window::dispatch()
+	{
+		boost::scoped_ptr<const Event> event;
+		bool gotone = false;
+
+		while(impl->eventq.poll(event))
+		{
+			impl->dispatcher.dispatch(*event);
+			gotone = true;
+		}
+
+		return gotone;
 	}
 
 	common::Dispatcher& Window::dispatcher()

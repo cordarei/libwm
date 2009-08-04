@@ -153,24 +153,44 @@ namespace wm
 			*/
 			const PixelFormat& pixelformat() const { return pixelformat_; }
 			
-			/// Read events from the event queue and call event handlers
+			/// Wait for events and dispatch them to event handlers
 			/**
-				Reads events from window-specific event queues and calls
-				all event handlers connected to this window. This function
-				can be used in blocking or non-blocking mode. In blocking
-				mode this function waits for events if none are available
-				in the event queue. The non-blocking version returns
-				immediately if no events are available.
-			
-				In blocking mode, this function calls Display::dispatch(true)
-				until an event arrives for this window.
-			
-				@param block true if this function should wait for events
-				@see wm::Display::dispatch
-				@see wm::EventHandler
-				@see wm::Connection
-			*/			
-			void dispatch(bool block);
+				Dispatch all events in the event queue of this window
+				to event handlers. EventHandler::handle will be called
+				for all events and all event handlers connected to
+				this window.
+
+				If there are no events available in the event queue,
+				this function waits (using Display::wait) until events
+				are available. This function does not return before
+				at least one event has been dispatched.
+				
+				@see Window::dispatch
+				@see Display::wait
+				@see Display::poll
+				@see EventHandler
+				@see Connection
+			*/
+			void wait();
+
+			/// Dispatch events in the event queue to event handlers
+			/**
+				Dispatch all events in the event queue of this window
+				to event handlers. EventHandler::handle will be called
+				for all events and all event handlers connected to
+				this window.
+
+				If there are no events available in the event queue, this
+				function returns immediately.
+
+				@return true if one or more events were dispatched
+				@see Window::wait
+				@see Display::wait
+				@see Display::poll
+				@see EventHandler
+				@see Connection
+			*/
+			bool dispatch();
 
 		private:
 			Window(const Window&);
