@@ -20,7 +20,7 @@ namespace
 	int getStyle(bool fullscreen, bool resizable)
 	{
 		return (fullscreen ? WS_POPUP : WS_OVERLAPPEDWINDOW) &
-			~(resizable ? WS_THICKFRAME : 0);
+			~(!resizable ? WS_THICKFRAME : 0);
 	}
 
 	int getExStyle(bool fullscreen)
@@ -76,8 +76,8 @@ namespace wm
 			&(display.impl->classname)[0],
 			width,
 			height,
-			getStyle(false, false),
-			getExStyle(false));
+			getStyle(impl->fullscreen, impl->resizable),
+			getExStyle(impl->fullscreen));
 
 		try
 		{
@@ -235,6 +235,17 @@ namespace wm
 		RECT rect;
 		if(full)
 		{
+			// Initialize windowed size for restoration
+			RECT windowRect;
+			if(!GetWindowRect(impl->hwnd, &windowRect))
+				throw wm::Exception("Can't set fullscreen mode, GetWindowRect failed: " + win32::getErrorMsg());
+			impl->windowedPosX = windowRect.left;
+			impl->windowedPosY = windowRect.top;
+
+			if(!GetClientRect(impl->hwnd, &impl->windowedRect))
+				throw wm::Exception("Can't set fullscreen,  GetClientRect failed: " + win32::getErrorMsg());
+
+			// Compute full screen size
 			unsigned int width = GetSystemMetrics(SM_CXSCREEN);
 			unsigned int height = GetSystemMetrics(SM_CYSCREEN);
 
@@ -250,24 +261,32 @@ namespace wm
 				throw wm::Exception("Can't set window rectangle for resizing");
 		} else
 		{
-			if(!SystemParametersInfo(SPI_GETWORKAREA, 0, &rect, 0))
-				throw wm::Exception("Can't set windowed, SystemParametersInfo failed: "
-					+ win32::getErrorMsg());
+			if(!CopyRect(&rect, &impl->windowedRect))
+				throw wm::Exception("Can't switch to windowed mode, SetRect failed: " + win32::getErrorMsg());
+
+			if(!AdjustWindowRectEx(&rect, style, false, exstyle))
+				throw wm::Exception("Can't switch to windowed mode, AdjustWindowRectEx failed: " + win32::getErrorMsg());
 
 			unsigned int width = rect.right - rect.left;
 			unsigned int height = rect.bottom - rect.top;
 
+			rect.left = impl->windowedPosX;
+			rect.top = impl->windowedPosY;
+
 			if(minW != 0 && minH != 0)
 			{
-				if(width < minW) rect.right = rect.left + minW;
-				if(height < minH) rect.bottom = rect.top + minH;
+				if(width < minW) width = minW;
+				if(height < minH) height = minH;
 			}
 
 			if(maxW != 0 && maxH != 0)
 			{
-				if(width > maxW) rect.right = rect.left + maxW;
-				if(height > maxH) rect.bottom = rect.top + maxH;
+				if(width > maxW) width = maxW;
+				if(height > maxH) height = maxH;
 			}
+
+			rect.right = rect.left + width;
+			rect.bottom = rect.top + height;
 		}
 
 		hide();
@@ -333,7 +352,7 @@ namespace wm
 
 		if(resizable != impl->resizable)
 		{
-			LONG style = getStyle(impl->fullscreen, impl->resizable);
+			LONG style = getStyle(impl->fullscreen, resizable);
 
 			hide();
 			if(!SetWindowLong(impl->hwnd, GWL_STYLE, style))

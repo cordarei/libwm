@@ -53,7 +53,7 @@ int wm_main(int argc, char *argv[])
 				// this does not work if fullscreen does not actually switch
 				// because of size limits
 				fullscreen = !fullscreen;
-				window->fullscreen(fullscreen);
+				event.window().fullscreen(fullscreen);
 			}
 			
 			if(event.state() && event.symbol() == wm::keyboard::SPACE)

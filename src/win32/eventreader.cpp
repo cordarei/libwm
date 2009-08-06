@@ -157,7 +157,6 @@ namespace wm
 		if(sizemove)
 		{
 			dirty = true;
-			return 0; // should return 0 if WM_PAINT processed
 		} else
 		{
 			// propagate ExposeEvent
@@ -169,8 +168,9 @@ namespace wm
 					ptr ? (rect.right - rect.left) : width,
 					ptr ? (rect.bottom - rect.top) : height
 					));
-			return 0;
 		}
+
+		return 0; // should return 0 if WM_PAINT processed
 	}
 
 	LRESULT EventReader::handleEraseBkgnd(Window& window, HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam)

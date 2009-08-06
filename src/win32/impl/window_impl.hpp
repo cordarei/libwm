@@ -18,6 +18,8 @@ namespace wm
 			: hwnd(0)
 			, cursorVisible(true)
 			, fullscreen(false)
+			, windowedRect()
+			, windowedPosX(0), windowedPosY(0)
 			, minW(0), minH(0)
 			, maxW(0), maxH(0)
 			, resizable(true)
@@ -30,8 +32,10 @@ namespace wm
 		// Is the mouse cursor visible in this Window?
 		bool cursorVisible;
 
-		// Is the window fullscreen
+		// Is the window fullscreen, windowed size for restoring windowed mode
 		bool fullscreen;
+		RECT windowedRect;
+		unsigned int windowedPosX, windowedPosY;
 
 		// Window size limits
 		unsigned int minW, minH, maxW, maxH;
