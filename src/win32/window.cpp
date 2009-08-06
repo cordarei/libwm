@@ -17,7 +17,7 @@
 
 namespace
 {
-	int getStyle(bool fullscreen, bool resizable)3
+	int getStyle(bool fullscreen, bool resizable)
 	{
 		return (fullscreen ? WS_POPUP : WS_OVERLAPPEDWINDOW) &
 			~(resizable ? WS_THICKFRAME : 0);
