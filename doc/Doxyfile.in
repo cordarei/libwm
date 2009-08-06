@@ -97,9 +97,9 @@ WARN_LOGFILE           =
 #---------------------------------------------------------------------------
 # configuration options related to the input files
 #---------------------------------------------------------------------------
-INPUT                  = @CMAKE_SOURCE_DIR@/include
+INPUT                  = @WM_DOC_SOURCE_DIR@
 INPUT_ENCODING         = UTF-8
-FILE_PATTERNS          = *.hpp
+FILE_PATTERNS          = @WM_DOC_SOURCE_PATTERNS@
 RECURSIVE              = YES
 EXCLUDE                = 
 EXCLUDE_SYMLINKS       = NO
@@ -170,10 +170,10 @@ FORMULA_FONTSIZE       = 10
 #---------------------------------------------------------------------------
 # configuration options related to the LaTeX output
 #---------------------------------------------------------------------------
-GENERATE_LATEX         = NO
+GENERATE_LATEX         = @WM_LATEX_FOUND@
 LATEX_OUTPUT           = latex
-LATEX_CMD_NAME         = latex
-MAKEINDEX_CMD_NAME     = makeindex
+LATEX_CMD_NAME         = @LATEX_COMPILER@
+MAKEINDEX_CMD_NAME     = @MAKEINDEX_COMPILER@
 COMPACT_LATEX          = NO
 PAPER_TYPE             = a4wide
 EXTRA_PACKAGES         = 
@@ -251,7 +251,7 @@ PERL_PATH              = /usr/bin/perl
 CLASS_DIAGRAMS         = YES
 MSCGEN_PATH            = 
 HIDE_UNDOC_RELATIONS   = YES
-HAVE_DOT               = @DOXYGEN_DOT_FOUND@
+HAVE_DOT               = @WM_DOXYGEN_DOT_FOUND@
 DOT_FONTNAME           = FreeSans
 DOT_FONTSIZE           = 10
 DOT_FONTPATH           = 
@@ -267,7 +267,7 @@ CALLER_GRAPH           = NO
 GRAPHICAL_HIERARCHY    = YES
 DIRECTORY_GRAPH        = YES
 DOT_IMAGE_FORMAT       = png
-DOT_PATH               = @DOXYGEN_DOT_EXECUTABLE_PATH@
+DOT_PATH               = @DOXYGEN_DOT_EXECUTABLE@
 DOTFILE_DIRS           = 
 DOT_GRAPH_MAX_NODES    = 50
 MAX_DOT_GRAPH_DEPTH    = 0
