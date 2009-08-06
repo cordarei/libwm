@@ -150,9 +150,18 @@ namespace wm
 	{
 		// ValidateRect prevents Windows from resending WM_PAINT
 		RECT rect, *ptr = 0;
-		if(GetUpdateRect(hwnd, &rect, FALSE)) ptr = &rect;
-		if(!ValidateRect(hwnd, ptr)) // if ptr == NULL, validates entire window
-			throw wm::Exception("Can't validate win32 window rectangle" + wm::win32::getErrorMsg());
+		if(GetUpdateRect(hwnd, &rect, FALSE))
+		{
+			if(!ValidateRect(hwnd, &rect)) // if ptr == NULL, validates entire window
+				throw wm::Exception("Can't validate win32 window rectangle" + wm::win32::getErrorMsg());
+
+			ptr = &rect;
+		} else
+		{
+			DWORD err = GetLastError();
+			if(err)
+				throw wm::Exception("Can't get dirty rectangle, GetUpdateRect failed: " + win32::getErrorMsg(err));
+		}
 
 		if(sizemove)
 		{
@@ -170,7 +179,7 @@ namespace wm
 					));
 		}
 
-		return 0; // should return 0 if WM_PAINT processed
+		return DefWindowProc(hwnd, message, wparam, lparam); // should return 0 if WM_PAINT processed
 	}
 
 	LRESULT EventReader::handleEraseBkgnd(Window& window, HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam)
