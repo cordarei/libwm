@@ -3,8 +3,6 @@
 
 #include <string>
 
-#include <boost/cstdint.hpp>
-
 #include <wm/exception.hpp>
 
 namespace wm
@@ -18,7 +16,7 @@ namespace wm
 			@return Unicode code point or 0 if len == 0
 			@throws wm::Exception if data is NULL or contains invalid UTF-8
 		*/
-		inline boost::uint32_t decode_utf8(const unsigned char* data, int len)
+		inline unsigned int decode_utf8(const unsigned char* data, int len)
 		{
 			if(!data)
 				throw wm::Exception("wm::util::decode_utf8: NULL data");
@@ -52,7 +50,7 @@ namespace wm
 			@return the number of bytes written
 			@throws wm::Exception if invalid Unicode character
 		*/	
-		inline int encode_utf8(boost::uint32_t codepoint, unsigned char *out)
+		inline int encode_utf8(unsigned int codepoint, unsigned char *out)
 		{
 			if(!out)
 				throw wm::Exception("wm::util::encode_utf8: NULL output buffer");
@@ -92,7 +90,7 @@ namespace wm
 			@return Unicode character encoded in UTF-8 string
 			@throws wm::Exception if invalid Unicode character
 		*/
-		inline std::string encode_utf8(boost::uint32_t codepoint)
+		inline std::string encode_utf8(unsigned int codepoint)
 		{
 			unsigned char buf[4];
 			int len = encode_utf8(codepoint, buf);

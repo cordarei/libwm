@@ -1,8 +1,6 @@
 #ifndef WM_EVENTS_CHARACTEREVENT_HPP
 #define WM_EVENTS_CHARACTEREVENT_HPP
 
-#include <boost/cstdint.hpp>
-
 #include <wm/event.hpp>
 #include <wm/eventhandler.hpp>
 
@@ -17,7 +15,7 @@ namespace wm
 	{
 		public:
 			/// An integer big enough to handle all Unicode code points
-			typedef boost::uint32_t Unicode;
+			typedef unsigned int Unicode;
 		
 			/// Create a new CharacterEvent
 			CharacterEvent(
