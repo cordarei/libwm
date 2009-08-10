@@ -14,6 +14,7 @@ namespace wm
 				: sizemove(false)
 				, resizing(false)
 				, dirty(false)
+				, width(0), height(0)
 				, mouseinitialized(false)
 				, mouseinside(false)
 				, mousehidden(false)
