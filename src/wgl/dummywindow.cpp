@@ -25,7 +25,8 @@ namespace wm
 		{
 			this->hinstance = hinstance;
 
-			classname = win32::genClassNameStr(this);
+			WCHAR classname[sizeof(DummyWindow*) * 2 + 1];
+			win32::genClassNameStr(this, classname);
 
 			WNDCLASSEXW klass;
 			klass.cbSize = sizeof(WNDCLASSEXW);
@@ -41,7 +42,8 @@ namespace wm
 			klass.lpszClassName = &classname[0];
 			klass.hIconSm = 0;
 
-			if(!RegisterClassExW(&klass))
+			classatom = RegisterClassExW(&klass);
+			if(!classatom)
 				throw Exception("Can't register win32 window class: " + win32::getErrorMsg());
 
 			hwnd = CreateWindowExW(
@@ -71,7 +73,7 @@ namespace wm
 				std::cerr << "Can't destroy window" << win32::getErrorMsg() << std::endl;
 			}
 
-			if(!UnregisterClassW(&(classname)[0], hinstance))
+			if(!UnregisterClassW(reinterpret_cast<LPCWSTR>(classatom), hinstance))
 			{
 				std::cerr << "Can't unregister win32 window class: " << win32::getErrorMsg();
 			}

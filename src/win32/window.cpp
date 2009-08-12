@@ -28,7 +28,7 @@ namespace
 		return fullscreen ? WS_EX_APPWINDOW : WS_EX_OVERLAPPEDWINDOW;
 	}
 
-	HWND createWindow(HINSTANCE hInstance, const WCHAR *wndclass, int width, int height, int style, int exstyle)
+	HWND createWindow(HINSTANCE hInstance, ATOM classatom, int width, int height, int style, int exstyle)
 	{
 		RECT rect;
 		if(!SetRect(&rect, 0, 0, width, height)) // how likely is this? ;)
@@ -41,7 +41,7 @@ namespace
 		WCHAR nullterm = 0;
 		HWND hwnd = CreateWindowExW(
 			exstyle,
-			wndclass,
+			reinterpret_cast<LPCWSTR>(classatom),
 			&nullterm,	// window title
 			style,
 			CW_USEDEFAULT, CW_USEDEFAULT,
@@ -73,7 +73,7 @@ namespace wm
 
 		impl->hwnd = createWindow(
 			display.impl->hInstance,
-			&(display.impl->classname)[0],
+			display.impl->classatom,
 			width,
 			height,
 			getStyle(impl->fullscreen, impl->resizable),

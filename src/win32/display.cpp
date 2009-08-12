@@ -23,7 +23,8 @@ namespace wm
 		std::auto_ptr<impl_t> impl_guard(impl); // deletes impl object in case of exception
 
 		// Generate per-instance unique classname string
-		impl->classname = win32::genClassNameStr(this);
+		WCHAR classname[sizeof(Display*) * 2 + 1];
+		win32::genClassNameStr(this, classname);
 
 		// Get win32 module handle
 		impl->hInstance = GetModuleHandle(0);
@@ -46,10 +47,11 @@ namespace wm
 		klass.hCursor = hcursor;
 		klass.hbrBackground = 0;
 		klass.lpszMenuName = 0;
-		klass.lpszClassName = &(impl->classname)[0];
+		klass.lpszClassName = classname;
 		klass.hIconSm = 0;
 
-		if(!RegisterClassExW(&klass))
+		impl->classatom = RegisterClassExW(&klass);
+		if(!impl->classatom)
 			throw Exception("Can't register win32 window class: " + win32::getErrorMsg());
 
 		impl_guard.release();
@@ -59,7 +61,7 @@ namespace wm
 	{
 		try
 		{
-			if(!UnregisterClassW(&(impl->classname)[0], impl->hInstance))
+			if(!UnregisterClassW(reinterpret_cast<LPCWSTR>(impl->classatom), impl->hInstance))
 			{
 				std::cerr << "Can't unregister win32 window class: " << win32::getErrorMsg();
 			}

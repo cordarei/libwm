@@ -1,8 +1,6 @@
 #ifndef DUMMYWINDOW_HPP
 #define DUMMYWINDOW_HPP
 
-#include <vector>
-
 #include <windows.h>
 
 namespace wm
@@ -21,7 +19,7 @@ namespace wm
 				DummyWindow(const DummyWindow&);
 				DummyWindow& operator=(const DummyWindow&);
 
-				std::vector<WCHAR> classname;
+				ATOM classatom;
 				HINSTANCE hinstance;
 		};
 
