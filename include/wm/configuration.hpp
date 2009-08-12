@@ -17,6 +17,15 @@ namespace wm
 		public:
 			/// Get the graphics configuration of a display
 			/**
+				In the GLX/Xlib implementation the Configuration constructor queries
+				the GLX version, dynamically loads GLX functions and extensions.
+				If GLX 1.3 is supported, the configuration uses GLXFBConfigs, otherwise
+				XVisualInfos are used for backward compatibility.
+
+				The WGL/Win32 implementation creates a dummy window and a dummy context
+				to query available WGL extensions and the pixel formats. WGL_ARB_pixel_format
+				is used when available, DescribePixelFormat is used for compatibility if not.
+			
 				@param display the display to get the graphics configuration from
 			*/
 			explicit Configuration(Display& display);

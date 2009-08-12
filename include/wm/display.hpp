@@ -15,6 +15,12 @@ namespace wm
 		public:
 			/// Open a display
 			/**
+				In the Xlib implementation, the Display constructor creates a new
+				X Display connection, opens a new X Input Method and initializes
+				Extended Window Manager Hints.
+				
+				The Win32 implementation of Display initializes a window class using RegisterClassExW.
+
 				@param name an optional name parameter, used on some windowing systems
 				@param screen optional screen parameter, used on some windowing systems, -1 for default
 			*/	
