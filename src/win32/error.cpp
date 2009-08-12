@@ -15,14 +15,14 @@ namespace wm
 			LPVOID msgBuf = 0;
 			try
 			{
-				if(!FormatMessage(
+				if(!FormatMessageA(
 					FORMAT_MESSAGE_ALLOCATE_BUFFER | 
 					FORMAT_MESSAGE_FROM_SYSTEM |
 					FORMAT_MESSAGE_IGNORE_INSERTS,
 					NULL,
 					err,
 					0,
-					(LPTSTR) &msgBuf,
+					(LPSTR) &msgBuf,
 					0, NULL ))
 				{
 					return "FormatMessage failed with error code: " +
