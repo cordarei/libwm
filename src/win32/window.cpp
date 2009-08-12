@@ -245,11 +245,10 @@ namespace wm
 			if(!GetClientRect(impl->hwnd, &impl->windowedRect))
 				throw wm::Exception("Can't set fullscreen,  GetClientRect failed: " + win32::getErrorMsg());
 
-			// Compute full screen size
-			unsigned int width = GetSystemMetrics(SM_CXSCREEN);
-			unsigned int height = GetSystemMetrics(SM_CYSCREEN);
-
-			if(!width || !height)
+			// Query full screen size
+			unsigned int width, height;
+			if(!(width = GetSystemMetrics(SM_CXSCREEN)) ||
+				!(height = GetSystemMetrics(SM_CYSCREEN)))
 				throw wm::Exception("Can't set full screen, GetSystemMetrics failed: " +
 					win32::getErrorMsg());
 
@@ -318,7 +317,8 @@ namespace wm
 		if(!ClientToScreen(impl->hwnd, &point))
 			throw wm::Exception("Can't warp mouse, ClientToScreen failed: " + win32::getErrorMsg());
 
-		SetCursorPos(point.x + x, point.y + y);
+		if(!SetCursorPos(point.x + x, point.y + y))
+			throw wm::Exception("Can't set cursor position, SetCursorPos failed: " + win32::getErrorMsg());
 	}
 
 	void Window::showCursor(bool show)
