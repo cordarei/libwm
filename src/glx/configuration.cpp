@@ -26,7 +26,21 @@ namespace
 		value = val;
 	}
 
-	struct LegacyPixelFormatBuilder : public wm::glx::PixelFormatBuilder
+	struct PixelFormatBuilder
+	{
+		virtual ~PixelFormatBuilder() {};
+		virtual int numFormats() const = 0;
+		virtual bool filterFormat(int index) const = 0;
+		virtual wm::PixelFormat::Descriptor makeDescriptor(int index) const = 0;
+		virtual void getVisual(int index, Visual *& visual, int &depth) const = 0;
+		
+		virtual XVisualInfo* getVisualInfo(int index) const = 0;
+#ifdef GLX_VERSION_1_3
+		virtual GLXFBConfig getFBConfig(int index) const = 0;
+#endif
+	};
+
+	struct LegacyPixelFormatBuilder : public PixelFormatBuilder
 	{
 		LegacyPixelFormatBuilder(Display* xdisplay, int screen)
 			: xdisplay(xdisplay)
@@ -121,7 +135,7 @@ namespace
 		}
 	}
 
-	struct GLX_1_3_PixelFormatBuilder : public wm::glx::PixelFormatBuilder
+	struct GLX_1_3_PixelFormatBuilder : public PixelFormatBuilder
 	{
 		GLX_1_3_PixelFormatBuilder(const wm::glx::Extensions &extensions, Display *xdisplay, int screen)
 			: extensions(extensions)
@@ -209,7 +223,7 @@ namespace
 	};
 #endif
 	
-	const wm::glx::PixelFormatBuilder* makeBuilder(const wm::glx::Extensions &extensions, ::Display* xdisplay, int screen)
+	const PixelFormatBuilder* makeBuilder(const wm::glx::Extensions &extensions, ::Display* xdisplay, int screen)
 	{
 #ifdef GLX_VERSION_1_3
 		if(extensions.supported(1, 3))
@@ -233,20 +247,22 @@ namespace wm
 		
 		impl->extensions.init(xdisplay, screen);
 		
-		impl->builder.reset(makeBuilder(impl->extensions, xdisplay, screen));
+		boost::scoped_ptr<const PixelFormatBuilder> builder(
+			makeBuilder(impl->extensions, xdisplay, screen));
+//		impl->builder.reset(makeBuilder(impl->extensions, xdisplay, screen));
 	
-		for(int index = 0; index < impl->builder->numFormats(); ++index)
+		for(int index = 0; index < builder->numFormats(); ++index)
 		{
-			if(impl->builder->filterFormat(index)) continue;
+			if(builder->filterFormat(index)) continue;
 
 			PixelFormat::impl_t formatimpl;
-			PixelFormat::Descriptor desc = impl->builder->makeDescriptor(index);
+			PixelFormat::Descriptor desc = builder->makeDescriptor(index);
 			
-			formatimpl.visualinfo = impl->builder->getVisualInfo(index);
-			impl->builder->getVisual(index, formatimpl.visual, formatimpl.depth);
+			formatimpl.visualinfo = builder->getVisualInfo(index);
+			builder->getVisual(index, formatimpl.visual, formatimpl.depth);
 
 #ifdef GLX_VERSION_1_3
-			formatimpl.fbconfig = impl->builder->getFBConfig(index);
+			formatimpl.fbconfig = builder->getFBConfig(index);
 #endif
 			
 			impl->formatdata.push_back(formatimpl);
