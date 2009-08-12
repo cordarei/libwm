@@ -19,7 +19,6 @@ namespace wm
 				: extensions(std::set<std::string>())
 				, wglGetExtensionsStringARB(0)
 				, ARB_pixel_format(false)
-				, wglChoosePixelFormatARB(0)
 				, wglGetPixelFormatAttribfvARB(0)
 				, wglGetPixelFormatAttribivARB(0)
 			{
@@ -33,7 +32,6 @@ namespace wm
 			const char* (WINAPI * wglGetExtensionsStringARB) (HDC hdc);
 
 			bool ARB_pixel_format;
-			BOOL (WINAPI * wglChoosePixelFormatARB) (HDC hdc, const int* piAttribIList, const FLOAT *pfAttribFList, UINT nMaxFormats, int *piFormats, UINT *nNumFormats);
 			BOOL (WINAPI * wglGetPixelFormatAttribfvARB) (HDC hdc, int iPixelFormat, int iLayerPlane, UINT nAttributes, const int* piAttributes, FLOAT *pfValues);
 			BOOL (WINAPI * wglGetPixelFormatAttribivARB) (HDC hdc, int iPixelFormat, int iLayerPlane, UINT nAttributes, const int* piAttributes, int *piValues);
 		};

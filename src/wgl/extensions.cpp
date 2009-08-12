@@ -40,8 +40,7 @@ namespace
 		if(!extensions.supported("WGL_ARB_pixel_format"))
 			return false;
 
-		if(!getProcAddress("wglChoosePixelFormatARB", extensions.wglChoosePixelFormatARB) ||
-			!getProcAddress("wglGetPixelFormatAttribfvARB", extensions.wglGetPixelFormatAttribfvARB) ||
+		if(!getProcAddress("wglGetPixelFormatAttribfvARB", extensions.wglGetPixelFormatAttribfvARB) ||
 			!getProcAddress("wglGetPixelFormatAttribivARB", extensions.wglGetPixelFormatAttribivARB))
 			throw wm::Exception("Can't initialize WGL_ARB_pixel_format");
 

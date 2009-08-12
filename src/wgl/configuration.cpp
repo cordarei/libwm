@@ -14,6 +14,7 @@
 #include <win32/impl/window_impl.hpp>
 #include <wgl/impl/configuration_impl.hpp>
 #include <wgl/impl/dummywindow.hpp>
+#include <wgl/impl/pixelformat_impl.hpp>
 
 #include <wgl/impl/extensions.hpp>
 
@@ -198,12 +199,7 @@ namespace wm
 	
 	int Configuration::numFormats() const { return impl->formats.size(); }
 	const PixelFormat& Configuration::getFormat(int index) const { return impl->formats.at(index); }
-}
 
-#include <wgl/impl/pixelformat_impl.hpp>
-
-namespace wm
-{
 	void PixelFormat::set(Window& window) const
 	{
 		PIXELFORMATDESCRIPTOR pfd;
