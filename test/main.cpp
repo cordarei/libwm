@@ -15,13 +15,9 @@ int wm_main(int argc, char *argv[])
 	wm::Display display;
 	
 	wm::Configuration config(display);
-	const wm::PixelFormat& format =
-		choose(config, wm::PixelFormat::Descriptor(8, 8, 8, 8, 16, 0));
-
-	wm::Window window(display, 400, 300, format);
-	
+	wm::Window window(display, 400, 300, choose(config, 8, 8, 8, 8, 16, 0));
 	wm::Surface surface(window);
-	wm::Context context(format);
+	wm::Context context(window.pixelformat());
 
 	struct Handler : public wm::EventHandler
 	{

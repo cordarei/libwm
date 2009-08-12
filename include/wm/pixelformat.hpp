@@ -168,6 +168,24 @@ namespace wm
 		
 		return *best;
 	}
+	
+	/// Choose a pixel format
+	/**
+		@param config the configuration to select from
+		@param r number of red bits in the color buffer
+		@param g number of green bits in the color buffer
+		@param b number of blue bits in the color buffer
+		@param a number of alpha bits in the color buffer
+		@param depth number of bits in the depth buffer
+		@param stencil number of bits in the stencil buffer
+		@return a reference to a PixelFormat owned by the Configuration object
+	*/	
+	inline const PixelFormat& choose(const Configuration& config,
+		unsigned int r = 0, unsigned int g = 0, unsigned int b = 0, unsigned int a = 0,
+		unsigned int depth = 0, unsigned int stencil = 0)
+	{
+		return choose(config, PixelFormat::Descriptor(r, g, b, a, depth, stencil));
+	}
 }
 
 #undef WM_EXPORT
