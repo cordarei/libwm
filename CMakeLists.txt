@@ -33,7 +33,12 @@ if(ENABLE_EXAMPLES)
 	add_subdirectory(test)
 endif(ENABLE_EXAMPLES)
 
-set(CPACK_GENERATOR "TBZ2")
+if(WIN32)
+	set(CPACK_GENERATOR "ZIP")
+else(WIN32)
+	set(CPACK_GENERATOR "TBZ2")
+endif(WIN32)
+
 set(CPACK_SOURCE_GENERATOR "TBZ2")
 set(CPACK_PACKAGE_VERSION "${PROJECT_VERSION}")
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "A cross-platform windowing and context management C++ library for OpenGL")
