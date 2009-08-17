@@ -30,6 +30,13 @@ namespace wm
 			/// Swap buffers
 			void swap();
 			
+			/// Query surface size
+			/**
+				@param width a reference where to store the width of the surface
+				@param width a reference where to store the height of the surface
+			*/
+			void getSize(unsigned int &width, unsigned int &height);
+			
 			/// Get the window of this surface
 			Window& window() const { return *window_; }
 		

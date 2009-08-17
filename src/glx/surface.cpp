@@ -74,5 +74,26 @@ namespace wm
 			glXSwapBuffers(xdisplay, window().impl->window);
 		}
 	}
+	
+	void Surface::getSize(unsigned int &width, unsigned int &height)
+	{
+		unsigned int w, h;
+		
+		::Display *xdisplay = window().display().impl->display;
+		const glx::Extensions& extensions = *impl->extensions;
+#ifdef GLX_VERSION_1_3
+		if(extensions.supported(1, 3))
+		{
+			extensions.glXQueryDrawable(xdisplay, impl->glxwindow, GLX_WIDTH, &w);
+			extensions.glXQueryDrawable(xdisplay, impl->glxwindow, GLX_HEIGHT, &h);
+		} else
+#endif
+		{
+			window().getSize(w, h);
+		}
+		
+		width = w;
+		height = h;
+	}
 }
 

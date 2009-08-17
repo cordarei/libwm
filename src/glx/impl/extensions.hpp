@@ -20,16 +20,17 @@ namespace wm
 			int versionMajor, versionMinor;
 
 #ifdef GLX_VERSION_1_3
-		GLXContext (*glXCreateNewContext)(::Display *dpy, GLXFBConfig config, int render_type, GLXContext share_list, Bool direct);
+			GLXContext (*glXCreateNewContext)(::Display *dpy, GLXFBConfig config, int render_type, GLXContext share_list, Bool direct);
 
-		GLXWindow (*glXCreateWindow)(::Display *dpy, GLXFBConfig config, ::Window win, const int *attrib_list);
-		void (*glXDestroyWindow)(::Display *dpy, GLXWindow win);
+			GLXWindow (*glXCreateWindow)(::Display *dpy, GLXFBConfig config, ::Window win, const int *attrib_list);
+			void (*glXDestroyWindow)(::Display *dpy, GLXWindow win);
+			int (*glXQueryDrawable)(::Display *dpy, GLXDrawable draw, int attribute, unsigned int *value);
 
-		GLXFBConfig* (*glXGetFBConfigs)(::Display *dpy, int screen, int *nelements);
-		int (*glXGetFBConfigAttrib)(::Display *dpy, GLXFBConfig config, int attribute, int *value);
-		XVisualInfo* (*glXGetVisualFromFBConfig)(::Display *dpy, GLXFBConfig config);
+			GLXFBConfig* (*glXGetFBConfigs)(::Display *dpy, int screen, int *nelements);
+			int (*glXGetFBConfigAttrib)(::Display *dpy, GLXFBConfig config, int attribute, int *value);
+			XVisualInfo* (*glXGetVisualFromFBConfig)(::Display *dpy, GLXFBConfig config);
 
-		Bool (*glXMakeContextCurrent)(::Display *display, GLXDrawable draw, GLXDrawable read, GLXContext ctx);
+			Bool (*glXMakeContextCurrent)(::Display *display, GLXDrawable draw, GLXDrawable read, GLXContext ctx);
 #endif
 		};
 	}

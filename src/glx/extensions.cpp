@@ -85,6 +85,7 @@ namespace
 
 		dlsym_wrapper(extensions.library, "glXCreateWindow", extensions.glXCreateWindow);
 		dlsym_wrapper(extensions.library, "glXDestroyWindow", extensions.glXDestroyWindow);
+		dlsym_wrapper(extensions.library, "glXQueryDrawable", extensions.glXQueryDrawable);
 
 		dlsym_wrapper(extensions.library, "glXCreateNewContext", extensions.glXCreateNewContext);
 		dlsym_wrapper(extensions.library, "glXMakeContextCurrent", extensions.glXMakeContextCurrent);

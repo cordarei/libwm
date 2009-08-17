@@ -23,7 +23,6 @@ int wm_main(int argc, char *argv[])
 	{
 		explicit Handler(wm::Window &window) : window(&window), quit_flag(false), title_string("wm test")
 		{
-			window.getSize(width, height);
 			window.setTitle(title_string.c_str());
 			fullscreen = false;
 			resizable = true;
@@ -32,6 +31,9 @@ int wm_main(int argc, char *argv[])
 	
 		virtual void handle(const wm::ExposeEvent &event)
 		{
+			unsigned int width, height;
+			event.window().surface().getSize(width, height);
+
 			test::draw(width, height, flipped);
 			event.window().surface().swap();
 		}
@@ -93,12 +95,6 @@ int wm_main(int argc, char *argv[])
 			}
 		}
 
-		virtual void handle(const wm::ResizeEvent &event)
-		{
-			width = event.width();
-			height = event.height();
-		}
-				
 		virtual void handle(const wm::CloseEvent&)
 		{
 			quit_flag = true;
@@ -114,7 +110,6 @@ int wm_main(int argc, char *argv[])
 		wm::Window *window;
 		bool quit_flag;
 		std::string title_string;
-		unsigned int width, height;
 		bool fullscreen;
 		bool resizable;
 		bool flipped;
