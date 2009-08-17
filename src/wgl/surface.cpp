@@ -35,4 +35,9 @@ namespace wm
 		if(!SwapBuffers(getter.hdc))
 			throw Exception("Can't swap buffers: " + win32::getErrorMsg());
 	}
+
+	void Surface::getSize(unsigned int &width, unsigned int &height)
+	{
+		window().getSize(width, height);
+	}
 }
