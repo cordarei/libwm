@@ -1,6 +1,7 @@
 #include <iostream>
 #include <sstream>
 #include <string>
+#include <iterator>
 
 #include <dlfcn.h>
 
@@ -75,6 +76,20 @@ namespace
 		versionMajor = ma;
 		versionMinor = mi;
 	}
+	
+	void buildStringSet(const char *delimited, std::set<std::string> &set)
+	{
+		std::istringstream iss(delimited);
+		typedef std::istream_iterator<std::string> iter;
+		set.clear();
+		set.insert(iter(iss), iter());
+	}
+	
+	void initExtensionsSet(::Display* xdisplay, int screen, std::set<std::string> &set)
+	{
+		const char *extstring = glXQueryExtensionsString(xdisplay, screen);
+		buildStringSet(extstring, set);
+	}
 
 #ifdef GLX_VERSION_1_3
 	void initGLX_1_3(wm::glx::Extensions &extensions)
@@ -92,6 +107,26 @@ namespace
 	}
 #endif
 
+	void initGLX_1_4(wm::glx::Extensions &extensions)
+	{
+		dlsym_wrapper(extensions.library, "glXGetProcAddress", extensions.glXGetProcAddress);
+	}
+	
+	void initARB_get_proc_address(wm::glx::Extensions& extensions)
+	{
+		dlsym_wrapper(extensions.library, "glXGetProcAddressARB", extensions.glXGetProcAddressARB);
+		extensions.ARB_get_proc_address = true;
+	}
+
+#ifdef GLX_VERSION_1_3	
+	void initARB_create_context(wm::glx::Extensions& extensions)
+	{
+		extensions.getProcAddress(
+			reinterpret_cast<const GLubyte*>("glXCreateContextAttribsARB"),
+			extensions.glXCreateContextAttribsARB);
+		extensions.ARB_create_context = true;
+	}
+#endif
 }
 
 namespace wm
@@ -130,11 +165,18 @@ namespace wm
 			try
 			{
 				queryGLXVersion(xdisplay, screen, versionMajor, versionMinor);
+				initExtensionsSet(xdisplay, screen, extensions);
 				
 #ifdef GLX_VERSION_1_3
 				if(supported(1, 3)) initGLX_1_3(*this);
 #endif
+
+				if(supported(1, 4)) initGLX_1_4(*this);
+				if(supported("GLX_ARB_get_proc_address")) initARB_get_proc_address(*this);
 				
+#ifdef GLX_VERSION_1_3
+				if(supported("GLX_ARB_create_context")) initARB_create_context(*this);
+#endif
 			} catch(...)
 			{
 				if(dlclose(library))
@@ -151,6 +193,28 @@ namespace wm
 		{
 			bool val = !versionCmp(versionMajor, versionMinor, major, minor);
 			return val;
+		}
+
+		bool Extensions::supported(const std::string &ext) const
+		{
+			typedef std::set<std::string>::const_iterator set_iterator;
+			set_iterator iter = extensions.find(ext);
+			return iter != extensions.end();
+		}		
+
+		Extensions::GLXextFuncPtr Extensions::getProcAddress(const GLubyte *name) const
+		{
+			GLXextFuncPtr (*getProcAddressFunc)(const GLubyte*)
+				= (glXGetProcAddress ? glXGetProcAddress : glXGetProcAddressARB);
+			if(!getProcAddressFunc)
+				throw wm::Exception("Can't load GLX extension function: GLX 1.4 or GLX_get_proc_address not supported");
+			GLXextFuncPtr ptr = getProcAddressFunc(name);
+			
+			if(!ptr)
+				throw wm::Exception("Can't load GLX extension function " +
+					std::string(reinterpret_cast<const char*>(name)));
+					
+			return ptr;
 		}
 	}
 }
