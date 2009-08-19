@@ -123,6 +123,10 @@ int wm_main(int argc, char *argv[])
 	window.show();
 	makeCurrent(context, surface, surface);
 	
+	int min, maj;
+	test::checkGLversion(maj, min);
+	std::cout << "GL version " << maj << '.' << min << std::endl;
+	
 	surface.swap();
 	
 	while(!handler.quit_flag) window.wait();

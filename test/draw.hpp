@@ -3,6 +3,7 @@
 
 namespace test
 {
+	void checkGLversion(int &major, int &minor);
 	void draw(unsigned int width, unsigned int height, bool flipped);
 }
 
