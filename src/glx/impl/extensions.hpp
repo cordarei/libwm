@@ -56,12 +56,26 @@ namespace wm
 			GLXextFuncPtr (*glXGetProcAddressARB)(const GLubyte*);
 			
 #ifdef GLX_VERSION_1_3
-			bool ARB_create_context;
-			GLXContext (*glXCreateContextAttribsARB)(Display *dpy, GLXFBConfig config, GLXContext share_context, Bool direct, const int *attrib_list);
+			bool ARB_create_context, ARB_create_context_profile;
+			GLXContext (*glXCreateContextAttribsARB)(::Display *dpy, GLXFBConfig config, GLXContext share_context, Bool direct, const int *attrib_list);
 #endif			
 		};
 	}
 }
+
+#ifndef GLX_ARB_create_context
+#define GLX_CONTEXT_DEBUG_BIT_ARB          0x00000001
+#define GLX_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB 0x00000002
+#define GLX_CONTEXT_MAJOR_VERSION_ARB      0x2091
+#define GLX_CONTEXT_MINOR_VERSION_ARB      0x2092
+#define GLX_CONTEXT_FLAGS_ARB              0x2094
+#endif
+
+#ifndef GLX_ARB_create_context_profile
+#define GLX_CONTEXT_PROFILE_MASK_ARB		0x9126
+#define GLX_CONTEXT_CORE_PROFILE_BIT_ARB	0x00000001
+#define GLX_CONTEXT_COMPATIBILITY_PROFILE_BIT_ARB 0x00000002
+#endif
 
 #endif
 

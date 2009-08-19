@@ -14,7 +14,7 @@ namespace wm
 
 	struct Context::impl_t
 	{
-		glx::Extensions *extensions;
+		const glx::Extensions *extensions;
 	
 		GLXContext context;
 	};

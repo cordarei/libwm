@@ -125,6 +125,7 @@ namespace
 			reinterpret_cast<const GLubyte*>("glXCreateContextAttribsARB"),
 			extensions.glXCreateContextAttribsARB);
 		extensions.ARB_create_context = true;
+		extensions.ARB_create_context_profile = extensions.supported("GLX_ARB_create_context_profile");
 	}
 #endif
 }
