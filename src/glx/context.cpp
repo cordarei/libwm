@@ -20,7 +20,14 @@
 
 namespace wm
 {
-	Context::Context(const PixelFormat &format, Context *shared)
+	Context::Context(
+		const PixelFormat &format,
+		int versionMajor,
+		int versionMinor,
+		bool compatible,
+		bool debug,
+		bool direct,
+		Context *shared)
 		: impl(new impl_t)
 		, display_(&format.configuration().display())
 	{
@@ -39,7 +46,7 @@ namespace wm
 					format.impl->fbconfig,
 					GLX_RGBA_TYPE,
 					shared ? shared->impl->context : 0,
-					True
+					direct
 					);
 		} else
 #endif
@@ -48,7 +55,7 @@ namespace wm
 				xdisplay,
 				format.impl->visualinfo, 
 				shared ? shared->impl->context : 0,
-				True);
+				direct);
 		}
 				
 		if(!impl->context)
@@ -67,6 +74,12 @@ namespace wm
 			impl->context);
 			
 		delete impl;
+	}
+	
+	bool Context::direct() const
+	{
+		::Display *xdisplay = display().impl->display;
+		return glXIsDirect(xdisplay, impl->context);
 	}
 	
 	void WM_EXPORT makeCurrent(Context &context, Surface &draw, Surface &read)
