@@ -109,14 +109,12 @@ namespace wm
 				std::cerr << "Can't delete Context: " << win32::getErrorMsg() << std::endl;
 		}
 
-		UseContext::UseContext(HWND hwnd, HGLRC hglrc)
+		UseContext::UseContext(HDC hdc, HGLRC hglrc)
 		{
 			oldContext = wglGetCurrentContext();
 			oldDC = wglGetCurrentDC();
 
-			DCGetter getter(hwnd);
-
-			if(!wglMakeCurrent(getter.hdc, hglrc))
+			if(!wglMakeCurrent(hdc, hglrc))
 				throw Exception("Can't set current context: " + win32::getErrorMsg());
 		}
 

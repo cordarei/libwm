@@ -47,6 +47,20 @@ namespace
 		extensions.ARB_pixel_format = true;
 		return true;
 	}
+
+	bool init_WGL_ARB_create_context(wm::wgl::Extensions& extensions)
+	{
+		if(!extensions.supported("WGL_ARB_create_context"))
+			return false;
+
+		if(!getProcAddress("wglCreateContextAttribsARB", extensions.wglCreateContextAttribsARB))
+			throw wm::Exception("Can't initialize WGL_ARB_create_context");
+
+		extensions.ARB_create_context = true;
+		extensions.ARB_create_context_profile = extensions.supported("WGL_ARB_create_context_profile");
+
+		return true;
+	}
 }
 
 namespace wm
@@ -55,19 +69,20 @@ namespace wm
 	{
 		void Extensions::init(DummyWindow& dummywin, DummyContext &dummyctx)
 		{
-			wgl::UseContext usectx(dummywin.hwnd, dummyctx.hglrc);
+			wgl::DCGetter getter(dummywin.hwnd);
+			wgl::UseContext usectx(getter.hdc, dummyctx.hglrc);
 
 			if(!getProcAddress("wglGetExtensionsStringARB", wglGetExtensionsStringARB))
 				return;
 
 			{
-				wgl::DCGetter getter(dummywin.hwnd);
 				const char *extstring = wglGetExtensionsStringARB(getter.hdc);
 				if(!extstring) throw wm::Exception("NULL extension string");
 				make_set(extensions, extstring);
 			}
 
 			init_WGL_ARB_pixel_format(*this);
+			init_WGL_ARB_create_context(*this);
 		}
 
 		bool Extensions::supported(const std::string &name) const

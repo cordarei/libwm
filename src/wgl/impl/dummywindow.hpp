@@ -39,7 +39,7 @@ namespace wm
 		class UseContext
 		{
 			public:
-				UseContext(HWND hwnd, HGLRC hglrc);
+				UseContext(HDC hdc, HGLRC hglrc);
 				~UseContext();
 
 			private:

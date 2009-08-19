@@ -33,7 +33,7 @@ namespace wm
 			/// Query surface size
 			/**
 				@param width a reference where to store the width of the surface
-				@param width a reference where to store the height of the surface
+				@param height a reference where to store the height of the surface
 			*/
 			void getSize(unsigned int &width, unsigned int &height);
 			

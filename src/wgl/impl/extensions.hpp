@@ -21,6 +21,8 @@ namespace wm
 				, ARB_pixel_format(false)
 				, wglGetPixelFormatAttribfvARB(0)
 				, wglGetPixelFormatAttribivARB(0)
+				, ARB_create_context(false), ARB_create_context_profile(false)
+				, wglCreateContextAttribsARB(0)
 			{
 			}
 
@@ -34,6 +36,9 @@ namespace wm
 			bool ARB_pixel_format;
 			BOOL (WINAPI * wglGetPixelFormatAttribfvARB) (HDC hdc, int iPixelFormat, int iLayerPlane, UINT nAttributes, const int* piAttributes, FLOAT *pfValues);
 			BOOL (WINAPI * wglGetPixelFormatAttribivARB) (HDC hdc, int iPixelFormat, int iLayerPlane, UINT nAttributes, const int* piAttributes, int *piValues);
+
+			bool ARB_create_context, ARB_create_context_profile;
+			HGLRC (WINAPI * wglCreateContextAttribsARB)(HDC hDC, HGLRC hShareContext, const int *attribList);
 		};
 	}
 }
@@ -88,6 +93,26 @@ namespace wm
 #define WGL_SWAP_UNDEFINED_ARB         0x202A
 #define WGL_TYPE_RGBA_ARB              0x202B
 #define WGL_TYPE_COLORINDEX_ARB        0x202C
+#endif
+
+#ifndef WGL_ARB_create_context
+#define WGL_CONTEXT_MAJOR_VERSION_ARB		0x2091
+#define WGL_CONTEXT_MINOR_VERSION_ARB		0x2092
+#define WGL_CONTEXT_LAYER_PLANE_ARB			0x2093
+#define WGL_CONTEXT_FLAGS_ARB				0x2094
+
+#define WGL_CONTEXT_DEBUG_BIT_ARB		0x0001
+#define WGL_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB	0x0002
+
+#define ERROR_INVALID_VERSION_ARB		0x2095
+#endif
+
+#ifndef WGL_ARB_create_context_profile
+#define WGL_CONTEXT_PROFILE_MASK_ARB		0x9126
+#define WGL_CONTEXT_CORE_PROFILE_BIT_ARB	0x00000001
+#define WGL_CONTEXT_COMPATIBILITY_PROFILE_BIT_ARB 0x00000002
+
+#define ERROR_INVALID_PROFILE_ARB		0x2096
 #endif
 
 #endif

@@ -17,7 +17,9 @@
 #include <win32/impl/window_impl.hpp>
 #include <wgl/impl/surface_impl.hpp>
 #include <wgl/impl/pixelformat_impl.hpp>
+#include <wgl/impl/configuration_impl.hpp>
 #include <wgl/impl/dummywindow.hpp>
+#include <wgl/impl/extensions.hpp>
 
 #include <wm/export.hpp>
 
@@ -28,11 +30,20 @@ namespace wm
 		HGLRC hglrc;
 	};
 
-	Context::Context(const PixelFormat &format, Context *shared)
+	Context::Context(
+		const PixelFormat &format,
+		int versionMajor,
+		int versionMinor,
+		bool compatible,
+		bool debug,
+		bool,
+		Context *shared)
 		: impl(new impl_t)
 		, display_(&format.configuration().display())
 	{
 		std::auto_ptr<impl_t> impl_guard(impl); // deletes impl object in case of exception
+
+		const wm::wgl::Extensions &extensions = format.configuration().impl->extensions;
 
 		{
 			wgl::DummyWindow dummywin(display().impl->hInstance);
@@ -44,12 +55,46 @@ namespace wm
 			if(!SetPixelFormat(getter.hdc, format.impl->index, &pfd))
 				throw wm::Exception("Can't set pixel format: " + wm::win32::getErrorMsg());
 
-			impl->hglrc = wglCreateContext(getter.hdc);
-			if(!impl->hglrc)
-				throw wm::Exception("Can't create Context" + wm::win32::getErrorMsg());
+			if(extensions.ARB_create_context)
+			{
+				// NOTE: WGL_ARB_CONTEXT_PROFILE_MASK is valid only if requested version >= 3.2
+				bool useProfile = extensions.ARB_create_context_profile
+					&& (versionMajor > 3 || (versionMajor == 3 && versionMinor >= 2));
+
+				int attribs[] = {
+					WGL_CONTEXT_MAJOR_VERSION_ARB, versionMajor,
+					WGL_CONTEXT_MINOR_VERSION_ARB, versionMinor,
+					WGL_CONTEXT_FLAGS_ARB, 0
+						| (debug ? WGL_CONTEXT_DEBUG_BIT_ARB : 0)
+						| (compatible ? 0 : WGL_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB),
+					(useProfile ? WGL_CONTEXT_PROFILE_MASK_ARB : 0),
+						(compatible ? WGL_CONTEXT_COMPATIBILITY_PROFILE_BIT_ARB :
+							WGL_CONTEXT_CORE_PROFILE_BIT_ARB),
+					0 };
+
+				impl->hglrc = extensions.wglCreateContextAttribsARB(
+					getter.hdc,
+					(shared ? shared->impl->hglrc : 0),
+					attribs);
+
+				if(!impl->hglrc)
+				{
+					DWORD err = GetLastError();
+					std::string msg;
+					if(err == ERROR_INVALID_VERSION_ARB) msg = "Invalid version";
+					else if(err == ERROR_INVALID_PROFILE_ARB) msg = "Invalid profile";
+					else msg = win32::getErrorMsg(err);
+					throw wm::Exception("Can't create context: " + msg);
+				}
+			} else
+			{
+				impl->hglrc = wglCreateContext(getter.hdc);
+				if(!impl->hglrc)
+					throw wm::Exception("Can't create Context" + wm::win32::getErrorMsg());
+			}
 		}
 
-		if(shared)
+		if(shared && !extensions.ARB_create_context)
 		{
 			if(!wglShareLists(shared->impl->hglrc, impl->hglrc))
 			{
@@ -74,6 +119,8 @@ namespace wm
 
 		delete impl;
 	}
+
+	bool Context::direct() const { return true; }
 
 	void WM_EXPORT makeCurrent(Context &context, Surface &draw, Surface &read)
 	{
