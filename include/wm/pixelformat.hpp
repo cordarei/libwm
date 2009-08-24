@@ -23,14 +23,26 @@ namespace wm
 					@param alpha the number of alpha bits in the color buffer
 					@param depth the number of bits in the depth buffer
 					@param stencil the number of bits in the stencil buffer
+					@param samples the number of multisampling samples
+					@param buffers the number of multisampling buffers
 				*/
-				Descriptor(int red, int green, int blue, int alpha, int depth, int stencil)
+				Descriptor(
+					int red,
+					int green,
+					int blue,
+					int alpha,
+					int depth,
+					int stencil,
+					int samples = 0,
+					int buffers = 0)
 					: red(red)
 					, green(green)
 					, blue(blue)
 					, alpha(alpha)
 					, depth(depth)
 					, stencil(stencil)
+					, samples(samples)
+					, buffers(buffers)
 				{
 				}
 					
@@ -47,6 +59,11 @@ namespace wm
 				int depth;
 				/// the number of bits in the stencil buffer
 				int stencil;
+				
+				/// the number of multisampling samples
+				int samples;
+				/// the number of multisampling buffers
+				int buffers;
 			};
 
 			/// Get the descriptor of this pixel format
@@ -98,6 +115,8 @@ namespace wm
 			&& d1.alpha == d2.alpha
 			&& d1.depth == d2.depth
 			&& d1.stencil == d2.stencil
+			&& d1.samples == d2.samples
+			&& d1.buffers == d2.buffers
 			;			
 	}
 	
@@ -116,6 +135,8 @@ namespace wm
 			&& desc.alpha >= reference.alpha
 			&& desc.depth >= reference.depth
 			&& desc.stencil >= reference.stencil
+			&& desc.samples >= reference.samples
+			&& desc.buffers >= reference.buffers
 			;
 	}
 	
@@ -134,6 +155,8 @@ namespace wm
 			|| d1.alpha > d2.alpha
 			|| d1.depth > d2.depth
 			|| d1.stencil < d2.stencil	// select the one with smaller stencil value like glxChooseFBConfig
+			|| d1.samples < d2.samples
+			|| d1.buffers < d2.buffers
 			;
 	}
 	
@@ -181,10 +204,12 @@ namespace wm
 		@return a reference to a PixelFormat owned by the Configuration object
 	*/	
 	inline const PixelFormat& choose(const Configuration& config,
-		unsigned int r = 0, unsigned int g = 0, unsigned int b = 0, unsigned int a = 0,
-		unsigned int depth = 0, unsigned int stencil = 0)
+		int r = 0, int g = 0, int b = 0, int a = 0,
+		int depth = 0, int stencil = 0,
+		int samples = 0, int buffers = 0
+		)
 	{
-		return choose(config, PixelFormat::Descriptor(r, g, b, a, depth, stencil));
+		return choose(config, PixelFormat::Descriptor(r, g, b, a, depth, stencil, samples, buffers));
 	}
 }
 

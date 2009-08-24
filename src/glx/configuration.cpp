@@ -188,6 +188,7 @@ namespace
 		{
 			int red, green, blue, alpha;
 			int depth, stencil;
+			int samples, buffers;
 			
 			GLXFBConfig config = getFBConfig(index);
 			checkedGetFBConfigAttrib(extensions, xdisplay, config, GLX_RED_SIZE, red);
@@ -197,8 +198,11 @@ namespace
 
 			checkedGetFBConfigAttrib(extensions, xdisplay, config, GLX_DEPTH_SIZE, depth);
 			checkedGetFBConfigAttrib(extensions, xdisplay, config, GLX_STENCIL_SIZE, stencil);
+
+			checkedGetFBConfigAttrib(extensions, xdisplay, config, GLX_SAMPLES, samples);
+			checkedGetFBConfigAttrib(extensions, xdisplay, config, GLX_SAMPLE_BUFFERS, buffers);
 		
-			return wm::PixelFormat::Descriptor(red, green, blue, alpha, depth, stencil);
+			return wm::PixelFormat::Descriptor(red, green, blue, alpha, depth, stencil, samples, buffers);
 		}
 		
 		virtual void getVisual(int index, Visual *& visual, int &depth) const

@@ -38,6 +38,8 @@ namespace wm
 			<< "  a: " << descriptor.alpha
 			<< "  depth: " << descriptor.depth
 			<< "  stencil: " << descriptor.stencil
+			<< "  samples: " << descriptor.samples
+			<< "  buffers: " << descriptor.buffers
 			;
 	}
 	
