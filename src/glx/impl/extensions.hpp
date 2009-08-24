@@ -58,7 +58,9 @@ namespace wm
 #ifdef GLX_VERSION_1_3
 			bool ARB_create_context, ARB_create_context_profile;
 			GLXContext (*glXCreateContextAttribsARB)(::Display *dpy, GLXFBConfig config, GLXContext share_context, Bool direct, const int *attrib_list);
-#endif			
+#endif
+
+			bool ARB_multisample;
 		};
 	}
 }
@@ -76,6 +78,12 @@ namespace wm
 #define GLX_CONTEXT_CORE_PROFILE_BIT_ARB	0x00000001
 #define GLX_CONTEXT_COMPATIBILITY_PROFILE_BIT_ARB 0x00000002
 #endif
+
+#ifndef GLX_ARB_multisample
+#define GLX_SAMPLE_BUFFERS_ARB				100000
+#define GLX_SAMPLES_ARB						100001
+#endif
+
 
 #endif
 

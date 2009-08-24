@@ -26,24 +26,11 @@ namespace
 		value = val;
 	}
 
-	struct PixelFormatBuilder
+	struct LegacyPixelFormatBuilder : public wm::glx::PixelFormatBuilder
 	{
-		virtual ~PixelFormatBuilder() {};
-		virtual int numFormats() const = 0;
-		virtual bool filterFormat(int index) const = 0;
-		virtual wm::PixelFormat::Descriptor makeDescriptor(int index) const = 0;
-		virtual void getVisual(int index, Visual *& visual, int &depth) const = 0;
-		
-		virtual XVisualInfo* getVisualInfo(int index) const = 0;
-#ifdef GLX_VERSION_1_3
-		virtual GLXFBConfig getFBConfig(int index) const = 0;
-#endif
-	};
-
-	struct LegacyPixelFormatBuilder : public PixelFormatBuilder
-	{
-		LegacyPixelFormatBuilder(Display* xdisplay, int screen)
-			: xdisplay(xdisplay)
+		LegacyPixelFormatBuilder(const wm::glx::Extensions& extensions, Display* xdisplay, int screen)
+			: extensions(extensions)
+			, xdisplay(xdisplay)
 			, screen(screen)
 		{
 			long template_mask = VisualScreenMask;
@@ -60,15 +47,15 @@ namespace
 			}
 				
 			visualInfos = vi;
-			numVisualInfos = num;
-			
+			numVisualInfos = num;			
 		}
 		
 		~LegacyPixelFormatBuilder()
 		{
 			XFree(visualInfos);
 		}
-
+		
+		const wm::glx::Extensions extensions;
 		Display* xdisplay;
 		int screen;
 		
@@ -93,6 +80,7 @@ namespace
 		{
 			int red, green, blue, alpha;
 			int depth, stencil;
+			int samples = 0, buffers = 0;
 
 			XVisualInfo *vi = getVisualInfo(index);
 			checked_glXGetConfig(xdisplay, vi, GLX_RED_SIZE, red);
@@ -102,8 +90,14 @@ namespace
 
 			checked_glXGetConfig(xdisplay, vi, GLX_DEPTH_SIZE, depth);
 			checked_glXGetConfig(xdisplay, vi, GLX_STENCIL_SIZE, stencil);
+			
+			if(extensions.ARB_multisample)
+			{
+				checked_glXGetConfig(xdisplay, vi, GLX_SAMPLES_ARB, samples);
+				checked_glXGetConfig(xdisplay, vi, GLX_SAMPLE_BUFFERS_ARB, buffers);
+			}
 
-			return wm::PixelFormat::Descriptor(red, green, blue, alpha, depth, stencil);
+			return wm::PixelFormat::Descriptor(red, green, blue, alpha, depth, stencil, samples, buffers);
 		}
 		
 		virtual void getVisual(int index, Visual *& visual, int &depth) const
@@ -135,7 +129,7 @@ namespace
 		}
 	}
 
-	struct GLX_1_3_PixelFormatBuilder : public PixelFormatBuilder
+	struct GLX_1_3_PixelFormatBuilder : public wm::glx::PixelFormatBuilder
 	{
 		GLX_1_3_PixelFormatBuilder(const wm::glx::Extensions &extensions, Display *xdisplay, int screen)
 			: extensions(extensions)
@@ -227,14 +221,14 @@ namespace
 	};
 #endif
 	
-	const PixelFormatBuilder* makeBuilder(const wm::glx::Extensions &extensions, ::Display* xdisplay, int screen)
+	const wm::glx::PixelFormatBuilder* makeBuilder(const wm::glx::Extensions &extensions, ::Display* xdisplay, int screen)
 	{
 #ifdef GLX_VERSION_1_3
 		if(extensions.supported(1, 3))
 			return new GLX_1_3_PixelFormatBuilder(extensions, xdisplay, screen);
 #endif
 
-		return new LegacyPixelFormatBuilder(xdisplay, screen);
+		return new LegacyPixelFormatBuilder(extensions, xdisplay, screen);
 	}	
 }
 
@@ -251,22 +245,20 @@ namespace wm
 		
 		impl->extensions.init(xdisplay, screen);
 		
-		boost::scoped_ptr<const PixelFormatBuilder> builder(
-			makeBuilder(impl->extensions, xdisplay, screen));
-//		impl->builder.reset(makeBuilder(impl->extensions, xdisplay, screen));
+		impl->builder.reset(makeBuilder(impl->extensions, xdisplay, screen));
 	
-		for(int index = 0; index < builder->numFormats(); ++index)
+		for(int index = 0; index < impl->builder->numFormats(); ++index)
 		{
-			if(builder->filterFormat(index)) continue;
+			if(impl->builder->filterFormat(index)) continue;
 
 			PixelFormat::impl_t formatimpl;
-			PixelFormat::Descriptor desc = builder->makeDescriptor(index);
+			PixelFormat::Descriptor desc = impl->builder->makeDescriptor(index);
 			
-			formatimpl.visualinfo = builder->getVisualInfo(index);
-			builder->getVisual(index, formatimpl.visual, formatimpl.depth);
+			formatimpl.visualinfo = impl->builder->getVisualInfo(index);
+			impl->builder->getVisual(index, formatimpl.visual, formatimpl.depth);
 
 #ifdef GLX_VERSION_1_3
-			formatimpl.fbconfig = builder->getFBConfig(index);
+			formatimpl.fbconfig = impl->builder->getFBConfig(index);
 #endif
 			
 			impl->formatdata.push_back(formatimpl);

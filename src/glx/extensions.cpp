@@ -128,6 +128,11 @@ namespace
 		extensions.ARB_create_context_profile = extensions.supported("GLX_ARB_create_context_profile");
 	}
 #endif
+
+	void initARB_multisample(wm::glx::Extensions& extensions)
+	{
+		extensions.ARB_multisample = extensions.supported("GLX_ARB_multisample");
+	}
 }
 
 namespace wm
@@ -178,6 +183,8 @@ namespace wm
 #ifdef GLX_VERSION_1_3
 				if(supported("GLX_ARB_create_context")) initARB_create_context(*this);
 #endif
+
+				initARB_multisample(*this);
 			} catch(...)
 			{
 				if(dlclose(library))
