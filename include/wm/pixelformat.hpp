@@ -201,6 +201,8 @@ namespace wm
 		@param a number of alpha bits in the color buffer
 		@param depth number of bits in the depth buffer
 		@param stencil number of bits in the stencil buffer
+		@param samples the number of multisampling samples
+		@param buffers the number of multisampling buffers
 		@return a reference to a PixelFormat owned by the Configuration object
 	*/	
 	inline const PixelFormat& choose(const Configuration& config,
