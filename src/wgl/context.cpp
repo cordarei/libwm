@@ -28,6 +28,7 @@ namespace wm
 	struct Context::impl_t
 	{
 		HGLRC hglrc;
+		const wgl::Extensions* extensions;
 	};
 
 	Context::Context(
@@ -44,6 +45,7 @@ namespace wm
 		std::auto_ptr<impl_t> impl_guard(impl); // deletes impl object in case of exception
 
 		const wm::wgl::Extensions &extensions = format.configuration().impl->extensions;
+		impl->extensions = &extensions;
 
 		{
 			wgl::DummyWindow dummywin(display().impl->hInstance);
@@ -124,15 +126,41 @@ namespace wm
 
 	void WM_EXPORT makeCurrent(Context &context, Surface &draw, Surface &read)
 	{
-		if(&draw != &read)
-			throw wm::Exception("Separate draw and read surfaces not supported");
-
-		HWND hwnd = draw.impl->hwnd;
+		const wm::wgl::Extensions &extensions = *context.impl->extensions;
 		HGLRC hglrc = context.impl->hglrc;
 
-		wgl::DCGetter getter(hwnd);
+		if(extensions.ARB_make_current_read)
+		{
+			wgl::DCGetter getter(draw.impl->hwnd);
 
-		if(!wglMakeCurrent(getter.hdc, hglrc))
-			throw Exception("Can't set current context: " + win32::getErrorMsg());
+			BOOL status;
+			if(&draw != &read)
+			{
+				wgl::DCGetter readget(read.impl->hwnd);
+				status = extensions.wglMakeContextCurrentARB(getter.hdc, readget.hdc, hglrc);
+			} else
+			{
+				status = extensions.wglMakeContextCurrentARB(getter.hdc, getter.hdc, hglrc);
+			}
+
+			if(!status)
+			{
+				DWORD err = GetLastError();
+				std::string msg;
+				if(err == ERROR_INVALID_PIXEL_TYPE_ARB) msg = "Invalid pixel type";
+				else if(err == ERROR_INCOMPATIBLE_DEVICE_CONTEXTS_ARB) msg = "Incompatible device contexts";
+				else msg = win32::getErrorMsg(err);
+				throw wm::Exception("Can't set current context: " + msg);
+			}
+		} else
+		{
+			if(&draw != &read)
+				throw wm::Exception("Separate draw and read surfaces not supported");
+
+			wgl::DCGetter getter(draw.impl->hwnd);
+
+			if(!wglMakeCurrent(getter.hdc, hglrc))
+				throw Exception("Can't set current context: " + win32::getErrorMsg());
+		}
 	}
 }

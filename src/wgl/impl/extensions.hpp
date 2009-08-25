@@ -42,6 +42,10 @@ namespace wm
 			HGLRC (WINAPI * wglCreateContextAttribsARB)(HDC hDC, HGLRC hShareContext, const int *attribList);
 
 			bool ARB_multisample;
+
+			bool ARB_make_current_read;
+			BOOL (WINAPI * wglMakeContextCurrentARB)(HDC draw, HDC read, HGLRC hglrc);
+			HDC (WINAPI * wglGetCurrentReadDCARB)();
 		};
 	}
 }
@@ -121,6 +125,11 @@ namespace wm
 #ifndef WGL_ARB_multisample
 #define WGL_SAMPLE_BUFFERS_ARB				0x2041
 #define WGL_SAMPLES_ARB						0x2042
+#endif
+
+#ifndef WGL_ARB_make_current_read
+#define ERROR_INVALID_PIXEL_TYPE_ARB		0x2043
+#define ERROR_INCOMPATIBLE_DEVICE_CONTEXTS_ARB	0x2054
 #endif
 
 #endif

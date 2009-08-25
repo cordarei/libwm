@@ -66,6 +66,19 @@ namespace
 	{
 		return (extensions.ARB_multisample = extensions.supported("WGL_ARB_multisample"));
 	}
+
+	bool init_WGL_ARB_make_current_read(wm::wgl::Extensions &extensions)
+	{
+		if(!extensions.supported("WGL_ARB_make_current_read"))
+			return false;
+
+		if(!getProcAddress("wglMakeContextCurrentARB", extensions.wglMakeContextCurrentARB) ||
+			!getProcAddress("wglGetCurrentReadDCARB", extensions.wglGetCurrentReadDCARB))
+			throw wm::Exception("Can't initialize WGL_ARB_make_current_read");
+
+		extensions.ARB_make_current_read = true;
+		return true;
+	}
 }
 
 namespace wm
@@ -89,6 +102,7 @@ namespace wm
 			init_WGL_ARB_pixel_format(*this);
 			init_WGL_ARB_create_context(*this);
 			init_WGL_ARB_multisample(*this);
+			init_WGL_ARB_make_current_read(*this);
 		}
 
 		bool Extensions::supported(const std::string &name) const
