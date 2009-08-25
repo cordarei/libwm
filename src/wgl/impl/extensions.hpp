@@ -23,6 +23,7 @@ namespace wm
 				, wglGetPixelFormatAttribivARB(0)
 				, ARB_create_context(false), ARB_create_context_profile(false)
 				, wglCreateContextAttribsARB(0)
+				, ARB_multisample(false)
 			{
 			}
 
@@ -39,6 +40,8 @@ namespace wm
 
 			bool ARB_create_context, ARB_create_context_profile;
 			HGLRC (WINAPI * wglCreateContextAttribsARB)(HDC hDC, HGLRC hShareContext, const int *attribList);
+
+			bool ARB_multisample;
 		};
 	}
 }
@@ -113,6 +116,11 @@ namespace wm
 #define WGL_CONTEXT_COMPATIBILITY_PROFILE_BIT_ARB 0x00000002
 
 #define ERROR_INVALID_PROFILE_ARB		0x2096
+#endif
+
+#ifndef WGL_ARB_multisample
+#define WGL_SAMPLE_BUFFERS_ARB				0x2041
+#define WGL_SAMPLES_ARB						0x2042
 #endif
 
 #endif

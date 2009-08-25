@@ -61,6 +61,11 @@ namespace
 
 		return true;
 	}
+
+	bool init_WGL_ARB_multisample(wm::wgl::Extensions& extensions)
+	{
+		return (extensions.ARB_multisample = extensions.supported("WGL_ARB_multisample"));
+	}
 }
 
 namespace wm
@@ -83,6 +88,7 @@ namespace wm
 
 			init_WGL_ARB_pixel_format(*this);
 			init_WGL_ARB_create_context(*this);
+			init_WGL_ARB_multisample(*this);
 		}
 
 		bool Extensions::supported(const std::string &name) const

@@ -128,10 +128,14 @@ namespace
 				WGL_BLUE_BITS_ARB,
 				WGL_ALPHA_BITS_ARB,
 				WGL_DEPTH_BITS_ARB,
-				WGL_STENCIL_BITS_ARB
+				WGL_STENCIL_BITS_ARB,
+				extensions.ARB_multisample ? WGL_SAMPLES_ARB : WGL_RED_BITS_ARB, // use valid dummy attributes if no multisampling
+				extensions.ARB_multisample ? WGL_SAMPLE_BUFFERS_ARB : WGL_RED_BITS_ARB
 				};
+
 			const int num_attributes = sizeof(attributes) / sizeof(*attributes);
 			int values[sizeof(attributes) / sizeof(*attributes)];
+
 			if(!extensions.wglGetPixelFormatAttribivARB(hdc, index, 0, num_attributes, attributes,	values))
 				throw wm::Exception("wglGetPixelFormatAttribiv failed: " + wm::win32::getErrorMsg());
 
@@ -141,7 +145,9 @@ namespace
 				values[2],			// WGL_BLUE_BITS_ARB
 				values[3],			// WGL_ALPHA_BITS_ARB
 				values[4],			// WGL_DEPTH_BITS_ARB
-				values[5]			// WGL_STENCIL_BITS_ARB
+				values[5],			// WGL_STENCIL_BITS_ARB
+				extensions.ARB_multisample ? values[6] : 0,	// WGL_SAMPLES_ARB
+				extensions.ARB_multisample ? values[7] : 0  // WGL_SAMPLE_BUFFERS_ARB
 				);
 		}
 
