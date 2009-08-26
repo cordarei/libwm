@@ -39,6 +39,10 @@ namespace wm
 
 		impl->context = 0;
 #ifdef GLX_VERSION_1_3
+		int render_type = GLX_RGBA_TYPE;
+		if(format.descriptor().type == PixelFormat::FLOAT) render_type = GLX_RGBA_FLOAT_TYPE_ARB;
+		if(format.descriptor().type == PixelFormat::UNSIGNED_FLOAT) render_type = GLX_RGBA_UNSIGNED_FLOAT_TYPE_EXT;
+
 		if(extensions.ARB_create_context)
 		{
 			// NOTE: GLX_CONTEXT_PROFILE_MASK_ARB is valid only with OpenGL version >= 3.2
@@ -46,7 +50,7 @@ namespace wm
 				(versionMajor > 3 || (versionMajor == 3 && versionMinor >= 2));
 		
 			int attribs[] = {
-				GLX_RENDER_TYPE, GLX_RGBA_TYPE,
+				GLX_RENDER_TYPE, render_type,
 				GLX_CONTEXT_MAJOR_VERSION_ARB, versionMajor,
 				GLX_CONTEXT_MINOR_VERSION_ARB, versionMinor,
 				GLX_CONTEXT_FLAGS_ARB, 0
@@ -71,7 +75,7 @@ namespace wm
 				extensions.glXCreateNewContext(
 					xdisplay,
 					format.impl->fbconfig,
-					GLX_RGBA_TYPE,
+					render_type,
 					shared ? shared->impl->context : 0,
 					direct
 					);

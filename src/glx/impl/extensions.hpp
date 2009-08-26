@@ -61,6 +61,12 @@ namespace wm
 #endif
 
 			bool ARB_multisample;
+			
+			bool EXT_framebuffer_sRGB;
+			bool ARB_framebuffer_sRGB;
+			
+			bool ARB_fbconfig_float;
+			bool EXT_packed_float;
 		};
 	}
 }
@@ -84,6 +90,23 @@ namespace wm
 #define GLX_SAMPLES_ARB						100001
 #endif
 
+#ifndef GLX_EXT_framebuffer_sRGB
+#define GLX_FRAMEBUFFER_SRGB_CAPABLE_EXT	0x20B2
+#endif
+
+#ifndef GLX_ARB_framebuffer_sRGB
+#define GLX_FRAMEBUFFER_SRGB_CAPABLE_ARB	0x20B2
+#endif
+
+#ifndef GLX_ARB_fbconfig_float
+#define GLX_RGBA_FLOAT_TYPE_ARB				0x20B9
+#define GLX_RGBA_FLOAT_BIT_ARB				0x00000004
+#endif
+
+#ifndef GLX_EXT_packed_float
+#define GLX_RGBA_UNSIGNED_FLOAT_TYPE_EXT	0x20B1
+#define GLX_RGBA_UNSIGNED_FLOAT_BIT_EXT		0x00000008
+#endif
 
 #endif
 

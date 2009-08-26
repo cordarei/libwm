@@ -10,6 +10,22 @@
 
 namespace wm
 {
+	namespace util
+	{
+		namespace detail
+		{
+			inline const char *pixelDataType2String(PixelFormat::DataType type)
+			{
+				switch(type)
+				{
+					case PixelFormat::INTEGER: return "Integer";
+					case PixelFormat::FLOAT: return "Float";
+					case PixelFormat::UNSIGNED_FLOAT: return "Unsigned float";
+				}
+			}
+		}
+	}
+
 	/// Write an event to an output stream
 	/**
 		@param os the output stream to write to
@@ -40,6 +56,8 @@ namespace wm
 			<< "  stencil: " << descriptor.stencil
 			<< "  samples: " << descriptor.samples
 			<< "  buffers: " << descriptor.buffers
+			<< "  type: " << util::detail::pixelDataType2String(descriptor.type)
+			<< (descriptor.srgb ? "  sRGB" : "");
 			;
 	}
 	

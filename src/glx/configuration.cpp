@@ -16,6 +16,27 @@
 #include <X11/Xlib.h>
 #include <GL/glx.h>
 
+namespace wm
+{
+	namespace glx
+	{
+		struct PixelFormatBuilder
+		{
+			virtual ~PixelFormatBuilder() {};
+			virtual int numFormats() const = 0;
+			virtual bool filterFormat(int index) const = 0;
+			virtual wm::PixelFormat::Descriptor makeDescriptor(int index) const = 0;
+			virtual void getVisual(int index, Visual *& visual, int &depth) const = 0;
+		
+			virtual XVisualInfo* getVisualInfo(int index) const = 0;
+#ifdef GLX_VERSION_1_3
+			virtual GLXFBConfig getFBConfig(int index) const = 0;
+			virtual int getRenderType(int index) const = 0;
+#endif
+		};
+	}
+}
+
 namespace 
 {
 	void checked_glXGetConfig(Display *xdisplay, XVisualInfo *visualinfo, int attrib, int &value)
@@ -81,6 +102,7 @@ namespace
 			int red, green, blue, alpha;
 			int depth, stencil;
 			int samples = 0, buffers = 0;
+			int srgb = 0;
 
 			XVisualInfo *vi = getVisualInfo(index);
 			checked_glXGetConfig(xdisplay, vi, GLX_RED_SIZE, red);
@@ -96,8 +118,16 @@ namespace
 				checked_glXGetConfig(xdisplay, vi, GLX_SAMPLES_ARB, samples);
 				checked_glXGetConfig(xdisplay, vi, GLX_SAMPLE_BUFFERS_ARB, buffers);
 			}
+			
+			if(extensions.ARB_framebuffer_sRGB)
+			{
+				checked_glXGetConfig(xdisplay, vi, GLX_FRAMEBUFFER_SRGB_CAPABLE_ARB, srgb);
+			} else if(extensions.EXT_framebuffer_sRGB)
+			{
+				checked_glXGetConfig(xdisplay, vi, GLX_FRAMEBUFFER_SRGB_CAPABLE_EXT, srgb);
+			}
 
-			return wm::PixelFormat::Descriptor(red, green, blue, alpha, depth, stencil, samples, buffers);
+			return wm::PixelFormat::Descriptor(red, green, blue, alpha, depth, stencil, samples, buffers, srgb != 0);
 		}
 		
 		virtual void getVisual(int index, Visual *& visual, int &depth) const
@@ -117,6 +147,16 @@ namespace
 		
 #ifdef GLX_VERSION_1_3
 		virtual GLXFBConfig getFBConfig(int index) const { return 0; }
+
+		virtual int getRenderType(int index) const
+		{
+			int rgba;
+
+			XVisualInfo *vi = getVisualInfo(index);
+			checked_glXGetConfig(xdisplay, vi, GLX_RGBA, rgba);
+
+			return rgba ? GLX_RGBA_BIT : GLX_COLOR_INDEX_BIT;
+		}
 #endif		
 	};
 
@@ -174,8 +214,12 @@ namespace
 			checkedGetFBConfigAttrib(extensions, xdisplay, config, GLX_RENDER_TYPE, render_type);
 			checkedGetFBConfigAttrib(extensions, xdisplay, config, GLX_DRAWABLE_TYPE, drawable_type);
 			checkedGetFBConfigAttrib(extensions, xdisplay, config, GLX_DOUBLEBUFFER, doublebuffer);
+
+			int render_types = GLX_RGBA_BIT
+				| (extensions.ARB_fbconfig_float ? GLX_RGBA_FLOAT_BIT_ARB : 0)
+				| (extensions.EXT_packed_float ? GLX_RGBA_UNSIGNED_FLOAT_BIT_EXT : 0);
 			
-			return (!(render_type & GLX_RGBA_BIT) || !(drawable_type & GLX_WINDOW_BIT) || !doublebuffer);
+			return (!(render_type & render_types) || !(drawable_type & GLX_WINDOW_BIT) || !doublebuffer);
 		}
 		
 		virtual wm::PixelFormat::Descriptor makeDescriptor(int index) const 
@@ -183,6 +227,7 @@ namespace
 			int red, green, blue, alpha;
 			int depth, stencil;
 			int samples, buffers;
+			int srgb = 0;
 			
 			GLXFBConfig config = getFBConfig(index);
 			checkedGetFBConfigAttrib(extensions, xdisplay, config, GLX_RED_SIZE, red);
@@ -195,8 +240,16 @@ namespace
 
 			checkedGetFBConfigAttrib(extensions, xdisplay, config, GLX_SAMPLES, samples);
 			checkedGetFBConfigAttrib(extensions, xdisplay, config, GLX_SAMPLE_BUFFERS, buffers);
+
+			if(extensions.ARB_framebuffer_sRGB)
+			{
+				checkedGetFBConfigAttrib(extensions, xdisplay, config, GLX_FRAMEBUFFER_SRGB_CAPABLE_ARB, srgb);
+			} else if(extensions.EXT_framebuffer_sRGB)
+			{
+				checkedGetFBConfigAttrib(extensions, xdisplay, config, GLX_FRAMEBUFFER_SRGB_CAPABLE_EXT, srgb);
+			}
 		
-			return wm::PixelFormat::Descriptor(red, green, blue, alpha, depth, stencil, samples, buffers);
+			return wm::PixelFormat::Descriptor(red, green, blue, alpha, depth, stencil, samples, buffers, srgb != 0);
 		}
 		
 		virtual void getVisual(int index, Visual *& visual, int &depth) const
@@ -218,6 +271,16 @@ namespace
 				throw wm::Exception("FBConfig index out of bounds");
 			return fbconfigs[index];
 		}
+		
+		virtual int getRenderType(int index) const
+		{
+			int render_type;		
+
+			GLXFBConfig config = getFBConfig(index);
+			checkedGetFBConfigAttrib(extensions, xdisplay, config, GLX_RENDER_TYPE, render_type);
+			
+			return render_type;
+		}
 	};
 #endif
 	
@@ -234,6 +297,10 @@ namespace
 
 namespace wm
 {
+	Configuration::impl_t::~impl_t()	// boost::scoped_ptr dtor needs definition of PixelFormatBuilder
+	{
+	}
+
 	Configuration::Configuration(Display &display)
 		: impl(new impl_t)
 		, display_(&display)
@@ -262,7 +329,38 @@ namespace wm
 #endif
 			
 			impl->formatdata.push_back(formatimpl);
-			impl->formats.push_back(PixelFormat(desc, *this, impl->formatdata.back()));
+
+#ifdef GLX_VERSION_1_3
+			int render_type = impl->builder->getRenderType(index);
+			if(render_type & GLX_RGBA_BIT)
+#endif
+			{
+				impl->formats.push_back(PixelFormat(desc, *this, impl->formatdata.back()));
+			}
+			
+#ifdef GLX_VERSION_1_3
+			if(impl->extensions.ARB_fbconfig_float && render_type & GLX_RGBA_FLOAT_BIT_ARB)
+			{
+				PixelFormat::Descriptor d2(desc);
+				d2.type = PixelFormat::FLOAT;
+				impl->formats.push_back(PixelFormat(
+					d2,
+					*this,
+					impl->formatdata.back()));
+			}
+			
+			if(impl->extensions.EXT_packed_float && render_type & GLX_RGBA_UNSIGNED_FLOAT_BIT_EXT)
+			{
+				impl->formats.push_back(PixelFormat(
+					PixelFormat::Descriptor(
+						11, 11, 10, 0,
+						desc.depth, desc.stencil,
+						desc.samples, desc.buffers, desc.srgb,
+						PixelFormat::UNSIGNED_FLOAT),
+					*this,
+					impl->formatdata.back()));
+			}
+#endif
 		}
 
 

@@ -12,6 +12,9 @@ namespace wm
 	class WM_EXPORT PixelFormat
 	{
 		public:
+			/// Color buffer data type
+			enum DataType {	INTEGER, FLOAT, UNSIGNED_FLOAT };
+
 			/// Pixel format descriptor
 			struct WM_EXPORT Descriptor
 			{
@@ -25,6 +28,8 @@ namespace wm
 					@param stencil the number of bits in the stencil buffer
 					@param samples the number of multisampling samples
 					@param buffers the number of multisampling buffers
+					@param srgb true if the pixel format supports shared exponent (sRGB) color space
+					@param type the color buffer data type
 				*/
 				Descriptor(
 					int red,
@@ -34,7 +39,9 @@ namespace wm
 					int depth,
 					int stencil,
 					int samples = 0,
-					int buffers = 0)
+					int buffers = 0,
+					bool srgb = false,
+					DataType type = INTEGER)
 					: red(red)
 					, green(green)
 					, blue(blue)
@@ -43,6 +50,8 @@ namespace wm
 					, stencil(stencil)
 					, samples(samples)
 					, buffers(buffers)
+					, srgb(srgb)
+					, type(type)
 				{
 				}
 					
@@ -64,6 +73,12 @@ namespace wm
 				int samples;
 				/// the number of multisampling buffers
 				int buffers;
+
+				/// true if the pixel format supports shared exponent (sRGB) color space
+				bool srgb;
+				
+				/// color buffer data type
+				DataType type;
 			};
 
 			/// Get the descriptor of this pixel format
@@ -117,6 +132,8 @@ namespace wm
 			&& d1.stencil == d2.stencil
 			&& d1.samples == d2.samples
 			&& d1.buffers == d2.buffers
+			&& d1.srgb == d2.srgb
+			&& d1.type == d2.type
 			;			
 	}
 	
@@ -137,6 +154,8 @@ namespace wm
 			&& desc.stencil >= reference.stencil
 			&& desc.samples >= reference.samples
 			&& desc.buffers >= reference.buffers
+			&& (desc.srgb || !reference.srgb)
+			&& desc.type == reference.type
 			;
 	}
 	
@@ -203,15 +222,19 @@ namespace wm
 		@param stencil number of bits in the stencil buffer
 		@param samples the number of multisampling samples
 		@param buffers the number of multisampling buffers
+		@param srgb true if the pixel format must support shared exponent (sRGB) color space
+		@param type the data type of the color buffer
 		@return a reference to a PixelFormat owned by the Configuration object
 	*/	
 	inline const PixelFormat& choose(const Configuration& config,
 		int r = 0, int g = 0, int b = 0, int a = 0,
 		int depth = 0, int stencil = 0,
-		int samples = 0, int buffers = 0
+		int samples = 0, int buffers = 0,
+		bool srgb = false,
+		PixelFormat::DataType type = PixelFormat::INTEGER
 		)
 	{
-		return choose(config, PixelFormat::Descriptor(r, g, b, a, depth, stencil, samples, buffers));
+		return choose(config, PixelFormat::Descriptor(r, g, b, a, depth, stencil, samples, buffers, srgb, type));
 	}
 }
 

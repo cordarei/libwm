@@ -133,6 +133,27 @@ namespace
 	{
 		extensions.ARB_multisample = extensions.supported("GLX_ARB_multisample");
 	}
+
+	void initARB_framebuffer_sRGB(wm::glx::Extensions& extensions)
+	{
+		extensions.ARB_framebuffer_sRGB = extensions.supported("GLX_ARB_framebuffer_sRGB");
+	}	
+
+	void initEXT_framebuffer_sRGB(wm::glx::Extensions& extensions)
+	{
+		extensions.EXT_framebuffer_sRGB = extensions.supported("GLX_EXT_framebuffer_sRGB");
+	}	
+
+	void initARB_fbconfig_float(wm::glx::Extensions& extensions)
+	{
+		extensions.ARB_fbconfig_float = extensions.supported("GLX_ARB_fbconfig_float");
+	}	
+
+	void initEXT_packed_float(wm::glx::Extensions& extensions)
+	{
+		extensions.EXT_packed_float = extensions.supported("GLX_EXT_packed_float");
+	}	
+
 }
 
 namespace wm
@@ -185,6 +206,10 @@ namespace wm
 #endif
 
 				initARB_multisample(*this);
+				initARB_framebuffer_sRGB(*this);
+				initEXT_framebuffer_sRGB(*this);
+				initARB_fbconfig_float(*this);
+				initEXT_packed_float(*this);
 			} catch(...)
 			{
 				if(dlclose(library))
