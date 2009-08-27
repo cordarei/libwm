@@ -109,13 +109,18 @@ namespace
 			if(!extensions.wglGetPixelFormatAttribivARB(hdc, index, 0, num_attributes, attributes,	values))
 				throw wm::Exception("wglGetPixelFormatAttribiv failed: " + wm::win32::getErrorMsg());
 
+			bool valid_pixel_type =
+				(values[4] == WGL_TYPE_RGBA_ARB) ||
+				(values[4] == WGL_TYPE_RGBA_FLOAT_ARB && extensions.ARB_pixel_format_float) ||
+				(values[4] == WGL_TYPE_RGBA_UNSIGNED_FLOAT_EXT && extensions.EXT_pixel_format_packed_float);
+
 			return
 				false 
 				|| !(values[0])								// WGL_DRAW_TO_WINDOW_ARB
 				|| (values[1])								// WGL_NEED_PALETTE_ARB
 				|| (values[2])								// WGL_NEED_SYSTEM_PALETTE_ARB
 				|| !(values[3])								// WGL_DOUBLE_BUFFER_ARB
-				|| (values[4] != WGL_TYPE_RGBA_ARB)			// WGL_PIXEL_TYPE_ARB
+				|| !valid_pixel_type						// WGL_PIXEL_TYPE_ARB
 				|| !(values[5])								// WGL_SUPPORT_OPENGL_ARB
 				;
 		}
@@ -135,7 +140,8 @@ namespace
 				WGL_STENCIL_BITS_ARB,
 				extensions.ARB_multisample ? WGL_SAMPLES_ARB : WGL_RED_BITS_ARB, // use valid dummy attributes if no multisampling
 				extensions.ARB_multisample ? WGL_SAMPLE_BUFFERS_ARB : WGL_RED_BITS_ARB,
-				use_srgb ? srgb_enum : WGL_RED_BITS_ARB
+				use_srgb ? srgb_enum : WGL_RED_BITS_ARB,
+				WGL_PIXEL_TYPE_ARB
 				};
 
 			const int num_attributes = sizeof(attributes) / sizeof(*attributes);
@@ -143,6 +149,24 @@ namespace
 
 			if(!extensions.wglGetPixelFormatAttribivARB(hdc, index, 0, num_attributes, attributes,	values))
 				throw wm::Exception("wglGetPixelFormatAttribiv failed: " + wm::win32::getErrorMsg());
+
+			wm::PixelFormat::DataType type;
+			switch(values[9]) // WGL_PIXEL_TYPE_ARB
+			{
+				case WGL_TYPE_RGBA_ARB:
+					type = wm::PixelFormat::INTEGER;
+					break;
+				case WGL_TYPE_RGBA_FLOAT_ARB:
+					if(!extensions.ARB_pixel_format_float) throw wm::Exception("Invalid pixel type");
+					type = wm::PixelFormat::FLOAT;
+					break;
+				case WGL_TYPE_RGBA_UNSIGNED_FLOAT_EXT:
+					if(!extensions.EXT_pixel_format_packed_float) throw wm::Exception("Invalid pixel type");
+					type = wm::PixelFormat::UNSIGNED_FLOAT;
+					break;
+				default:
+					throw wm::Exception("Invalid pixel type");
+			}
 
 			return wm::PixelFormat::Descriptor(
 				values[0],			// WGL_RED_BITS_ARB
@@ -153,7 +177,8 @@ namespace
 				values[5],			// WGL_STENCIL_BITS_ARB
 				extensions.ARB_multisample ? values[6] : 0,	// WGL_SAMPLES_ARB
 				extensions.ARB_multisample ? values[7] : 0,  // WGL_SAMPLE_BUFFERS_ARB
-				use_srgb ? (values[8] !=0 ) : false	// WGL_FRAMEBUFFER_SRGB_CAPABLE_{EXT,ARB}
+				use_srgb ? (values[8] != 0) : false,		// WGL_FRAMEBUFFER_SRGB_CAPABLE_{EXT,ARB}
+				type
 				);
 		}
 

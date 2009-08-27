@@ -89,6 +89,16 @@ namespace
 	{
 		return (extensions.EXT_framebuffer_sRGB = extensions.supported("WGL_EXT_framebuffer_sRGB"));
 	}
+
+	bool init_WGL_ARB_pixel_format_float(wm::wgl::Extensions& extensions)
+	{
+		return (extensions.ARB_pixel_format_float = extensions.supported("WGL_ARB_pixel_format_float"));
+	}
+
+	bool init_WGL_EXT_pixel_format_packed_float(wm::wgl::Extensions& extensions)
+	{
+		return (extensions.EXT_pixel_format_packed_float = extensions.supported("WGL_EXT_pixel_format_packed_float"));
+	}
 }
 
 namespace wm
@@ -115,6 +125,8 @@ namespace wm
 			init_WGL_ARB_make_current_read(*this);
 			init_WGL_ARB_framebuffer_sRGB(*this);
 			init_WGL_EXT_framebuffer_sRGB(*this);
+			init_WGL_ARB_pixel_format_float(*this);
+			init_WGL_EXT_pixel_format_packed_float(*this);
 		}
 
 		bool Extensions::supported(const std::string &name) const

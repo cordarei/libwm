@@ -50,6 +50,9 @@ namespace wm
 
 			bool ARB_framebuffer_sRGB;
 			bool EXT_framebuffer_sRGB;
+
+			bool ARB_pixel_format_float;
+			bool EXT_pixel_format_packed_float;
 		};
 	}
 }
@@ -142,6 +145,14 @@ namespace wm
 
 #ifndef WGL_EXT_framebuffer_sRGB
 #define WGL_FRAMEBUFFER_SRGB_CAPABLE_EXT	0x20A9
+#endif
+
+#ifndef WGL_ARB_pixel_format_float
+#define WGL_TYPE_RGBA_FLOAT_ARB				0x21A0
+#endif
+
+#ifndef WGL_EXT_pixel_format_packed_float
+#define WGL_TYPE_RGBA_UNSIGNED_FLOAT_EXT	0x20A8
 #endif
 
 #endif
