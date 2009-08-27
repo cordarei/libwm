@@ -67,6 +67,8 @@ namespace wm
 			
 			bool ARB_fbconfig_float;
 			bool EXT_packed_float;
+			
+			bool EXT_visual_rating;
 		};
 	}
 }
@@ -106,6 +108,13 @@ namespace wm
 #ifndef GLX_EXT_packed_float
 #define GLX_RGBA_UNSIGNED_FLOAT_TYPE_EXT	0x20B1
 #define GLX_RGBA_UNSIGNED_FLOAT_BIT_EXT		0x00000008
+#endif
+
+#ifndef GLX_EXT_visual_rating
+#define GLX_VISUAL_CAVEAT_EXT				0x20
+#define GLX_NONE_EXT						0x8000
+#define GLX_SLOW_VISUAL_EXT					0x8001
+#define GLX_NON_CONFORMANT_VISUAL_EXT		0x800D
 #endif
 
 #endif

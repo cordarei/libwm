@@ -152,6 +152,11 @@ namespace
 	void initEXT_packed_float(wm::glx::Extensions& extensions)
 	{
 		extensions.EXT_packed_float = extensions.supported("GLX_EXT_packed_float");
+	}
+	
+	void initEXT_visual_rating(wm::glx::Extensions& extensions)
+	{
+		extensions.EXT_visual_rating = extensions.supported("GLX_EXT_visual_rating");
 	}	
 
 }
@@ -210,6 +215,7 @@ namespace wm
 				initEXT_framebuffer_sRGB(*this);
 				initARB_fbconfig_float(*this);
 				initEXT_packed_float(*this);
+				initEXT_visual_rating(*this);
 			} catch(...)
 			{
 				if(dlclose(library))

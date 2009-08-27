@@ -126,8 +126,22 @@ namespace
 			{
 				checked_glXGetConfig(xdisplay, vi, GLX_FRAMEBUFFER_SRGB_CAPABLE_EXT, srgb);
 			}
+			
+			bool slow = false;
+			if(extensions.EXT_visual_rating)
+			{
+				int caveat;
+				checked_glXGetConfig(xdisplay, vi, GLX_VISUAL_CAVEAT_EXT, caveat);
+				slow = (caveat == GLX_SLOW_VISUAL_EXT);
+			}
 
-			return wm::PixelFormat::Descriptor(red, green, blue, alpha, depth, stencil, samples, buffers, srgb != 0);
+			return wm::PixelFormat::Descriptor(
+				red, green, blue, alpha,
+				depth, stencil,
+				samples, buffers,
+				srgb != 0,
+				wm::PixelFormat::INTEGER,
+				slow);
 		}
 		
 		virtual void getVisual(int index, Visual *& visual, int &depth) const
@@ -228,6 +242,7 @@ namespace
 			int depth, stencil;
 			int samples, buffers;
 			int srgb = 0;
+			int caveat;
 			
 			GLXFBConfig config = getFBConfig(index);
 			checkedGetFBConfigAttrib(extensions, xdisplay, config, GLX_RED_SIZE, red);
@@ -248,8 +263,16 @@ namespace
 			{
 				checkedGetFBConfigAttrib(extensions, xdisplay, config, GLX_FRAMEBUFFER_SRGB_CAPABLE_EXT, srgb);
 			}
+			
+			checkedGetFBConfigAttrib(extensions, xdisplay, config, GLX_CONFIG_CAVEAT, caveat);
 		
-			return wm::PixelFormat::Descriptor(red, green, blue, alpha, depth, stencil, samples, buffers, srgb != 0);
+			return wm::PixelFormat::Descriptor(
+				red, green, blue, alpha,
+				depth, stencil,
+				samples, buffers,
+				srgb != 0,
+				wm::PixelFormat::INTEGER,
+				caveat == GLX_SLOW_CONFIG);
 		}
 		
 		virtual void getVisual(int index, Visual *& visual, int &depth) const

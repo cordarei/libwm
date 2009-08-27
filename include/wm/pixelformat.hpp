@@ -30,7 +30,7 @@ namespace wm
 					@param buffers the number of multisampling buffers
 					@param srgb true if the pixel format supports shared exponent (sRGB) color space
 					@param type the color buffer data type
-					@param slow true if using the pixel format will result in slow or non-conformant context
+					@param slow true if using the pixel format will result in slow context
 				*/
 				Descriptor(
 					int red,
@@ -83,7 +83,7 @@ namespace wm
 				/// color buffer data type
 				DataType type;
 
-				/// true if using the pixel format will result in slow or non-conformant context
+				/// true if using the pixel format will result in slow context
 				bool slow;
 			};
 
@@ -233,7 +233,7 @@ namespace wm
 		@param buffers the number of multisampling buffers
 		@param srgb true if the pixel format must support shared exponent (sRGB) color space
 		@param type the data type of the color buffer
-		@param slow true if slow and non-conformant pixel formats are allowed
+		@param slow true if slow pixel formats are allowed
 		@return a reference to a PixelFormat owned by the Configuration object
 	*/	
 	inline const PixelFormat& choose(const Configuration& config,
