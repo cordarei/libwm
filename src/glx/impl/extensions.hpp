@@ -66,7 +66,7 @@ namespace wm
 			bool ARB_framebuffer_sRGB;
 			
 			bool ARB_fbconfig_float;
-			bool EXT_packed_float;
+			bool EXT_fbconfig_packed_float;
 			
 			bool EXT_visual_rating;
 		};
@@ -105,7 +105,7 @@ namespace wm
 #define GLX_RGBA_FLOAT_BIT_ARB				0x00000004
 #endif
 
-#ifndef GLX_EXT_packed_float
+#ifndef GLX_EXT_fbconfig_packed_float
 #define GLX_RGBA_UNSIGNED_FLOAT_TYPE_EXT	0x20B1
 #define GLX_RGBA_UNSIGNED_FLOAT_BIT_EXT		0x00000008
 #endif

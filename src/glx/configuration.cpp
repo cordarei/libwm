@@ -231,7 +231,7 @@ namespace
 
 			int render_types = GLX_RGBA_BIT
 				| (extensions.ARB_fbconfig_float ? GLX_RGBA_FLOAT_BIT_ARB : 0)
-				| (extensions.EXT_packed_float ? GLX_RGBA_UNSIGNED_FLOAT_BIT_EXT : 0);
+				| (extensions.EXT_fbconfig_packed_float ? GLX_RGBA_UNSIGNED_FLOAT_BIT_EXT : 0);
 			
 			return (!(render_type & render_types) || !(drawable_type & GLX_WINDOW_BIT) || !doublebuffer);
 		}
@@ -366,22 +366,14 @@ namespace wm
 			{
 				PixelFormat::Descriptor d2(desc);
 				d2.type = PixelFormat::FLOAT;
-				impl->formats.push_back(PixelFormat(
-					d2,
-					*this,
-					impl->formatdata.back()));
+				impl->formats.push_back(PixelFormat(d2, *this, impl->formatdata.back()));
 			}
 			
-			if(impl->extensions.EXT_packed_float && render_type & GLX_RGBA_UNSIGNED_FLOAT_BIT_EXT)
+			if(impl->extensions.EXT_fbconfig_packed_float && render_type & GLX_RGBA_UNSIGNED_FLOAT_BIT_EXT)
 			{
-				impl->formats.push_back(PixelFormat(
-					PixelFormat::Descriptor(
-						11, 11, 10, 0,
-						desc.depth, desc.stencil,
-						desc.samples, desc.buffers, desc.srgb,
-						PixelFormat::UNSIGNED_FLOAT),
-					*this,
-					impl->formatdata.back()));
+				PixelFormat::Descriptor d2(desc);
+				d2.type = PixelFormat::UNSIGNED_FLOAT;
+				impl->formats.push_back(PixelFormat(d2, *this, impl->formatdata.back()));
 			}
 #endif
 		}

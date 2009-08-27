@@ -149,9 +149,9 @@ namespace
 		extensions.ARB_fbconfig_float = extensions.supported("GLX_ARB_fbconfig_float");
 	}	
 
-	void initEXT_packed_float(wm::glx::Extensions& extensions)
+	void initEXT_fbconfig_packed_float(wm::glx::Extensions& extensions)
 	{
-		extensions.EXT_packed_float = extensions.supported("GLX_EXT_packed_float");
+		extensions.EXT_fbconfig_packed_float = extensions.supported("GLX_EXT_fbconfig_packed_float");
 	}
 	
 	void initEXT_visual_rating(wm::glx::Extensions& extensions)
@@ -214,7 +214,7 @@ namespace wm
 				initARB_framebuffer_sRGB(*this);
 				initEXT_framebuffer_sRGB(*this);
 				initARB_fbconfig_float(*this);
-				initEXT_packed_float(*this);
+				initEXT_fbconfig_packed_float(*this);
 				initEXT_visual_rating(*this);
 			} catch(...)
 			{
