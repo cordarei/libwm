@@ -48,6 +48,18 @@ namespace wm
 			/// The Display associated with this Configuration
 			Display& display() const { return *display_; }
 
+			/// Load an extension function
+			/**
+				@param name the name of the extension function
+				@param ref a reference to a function pointer to store the result
+			*/
+			template <typename T>
+			void getProcAddress(const char *name, T *& ref)
+			{
+				void *ptr = getProcAddress(name);
+				ref = *reinterpret_cast<T**>(&ptr);
+			}
+
 		private:
 			Configuration(Configuration const &);
 			Configuration& operator=(Configuration const &);
@@ -56,6 +68,8 @@ namespace wm
 			impl_t *impl;
 
 			Display* display_;
+
+			void *getProcAddress(const char *name);
 			
 			friend class Surface;
 			friend class Context;

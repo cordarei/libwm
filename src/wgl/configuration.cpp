@@ -241,6 +241,14 @@ namespace wm
 	int Configuration::numFormats() const { return impl->formats.size(); }
 	const PixelFormat& Configuration::getFormat(int index) const { return impl->formats.at(index); }
 
+	void *Configuration::getProcAddress(const char *name)
+	{
+		PROC proc = wglGetProcAddress(name);
+		if(!proc)
+			throw wm::Exception("Can't load extension function " + (name + (": " + win32::getErrorMsg())));
+		return *reinterpret_cast<void**>(&proc);
+	}
+
 	void PixelFormat::set(Window& window) const
 	{
 		PIXELFORMATDESCRIPTOR pfd;

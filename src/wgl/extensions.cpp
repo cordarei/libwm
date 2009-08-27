@@ -12,17 +12,13 @@
 namespace
 {
 	template <typename T>
-	bool getProcAddress(const char *name, T *& funcptr)
+	void getProcAddress(const char *name, T *& funcptr)
 	{
 		PROC ptr = wglGetProcAddress(name);
 		if(!ptr)
-		{
-			funcptr = 0;
-			return false;
-		}
+			throw wm::Exception("Can't load extension function " + (name + (": " + wm::win32::getErrorMsg())));
 
 		funcptr = (T*)(ptr); //*reinterpret_cast<T**>(&ptr);
-		return true;
 	}
 
 	void make_set(std::set<std::string> &set, std::string const &str)
@@ -40,9 +36,8 @@ namespace
 		if(!extensions.supported("WGL_ARB_pixel_format"))
 			return false;
 
-		if(!getProcAddress("wglGetPixelFormatAttribfvARB", extensions.wglGetPixelFormatAttribfvARB) ||
-			!getProcAddress("wglGetPixelFormatAttribivARB", extensions.wglGetPixelFormatAttribivARB))
-			throw wm::Exception("Can't initialize WGL_ARB_pixel_format");
+		getProcAddress("wglGetPixelFormatAttribfvARB", extensions.wglGetPixelFormatAttribfvARB);
+		getProcAddress("wglGetPixelFormatAttribivARB", extensions.wglGetPixelFormatAttribivARB);
 
 		extensions.ARB_pixel_format = true;
 		return true;
@@ -53,8 +48,7 @@ namespace
 		if(!extensions.supported("WGL_ARB_create_context"))
 			return false;
 
-		if(!getProcAddress("wglCreateContextAttribsARB", extensions.wglCreateContextAttribsARB))
-			throw wm::Exception("Can't initialize WGL_ARB_create_context");
+		getProcAddress("wglCreateContextAttribsARB", extensions.wglCreateContextAttribsARB);
 
 		extensions.ARB_create_context = true;
 		extensions.ARB_create_context_profile = extensions.supported("WGL_ARB_create_context_profile");
@@ -72,9 +66,8 @@ namespace
 		if(!extensions.supported("WGL_ARB_make_current_read"))
 			return false;
 
-		if(!getProcAddress("wglMakeContextCurrentARB", extensions.wglMakeContextCurrentARB) ||
-			!getProcAddress("wglGetCurrentReadDCARB", extensions.wglGetCurrentReadDCARB))
-			throw wm::Exception("Can't initialize WGL_ARB_make_current_read");
+		getProcAddress("wglMakeContextCurrentARB", extensions.wglMakeContextCurrentARB);
+		getProcAddress("wglGetCurrentReadDCARB", extensions.wglGetCurrentReadDCARB);
 
 		extensions.ARB_make_current_read = true;
 		return true;
@@ -110,8 +103,13 @@ namespace wm
 			wgl::DCGetter getter(dummywin.hwnd);
 			wgl::UseContext usectx(getter.hdc, dummyctx.hglrc);
 
-			if(!getProcAddress("wglGetExtensionsStringARB", wglGetExtensionsStringARB))
+			try
+			{
+				getProcAddress("wglGetExtensionsStringARB", wglGetExtensionsStringARB);
+			} catch(wm::Exception&)
+			{
 				return;
+			}
 
 			{
 				const char *extstring = wglGetExtensionsStringARB(getter.hdc);
