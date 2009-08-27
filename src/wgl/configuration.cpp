@@ -71,7 +71,10 @@ namespace
 				pfd.cGreenBits,
 				pfd.cAlphaBits,
 				pfd.cDepthBits,
-				pfd.cStencilBits);
+				pfd.cStencilBits,
+				0, 0, false,
+				wm::PixelFormat::INTEGER,
+				(pfd.dwFlags & PFD_GENERIC_FORMAT) != 0);
 		}
 	};
 
@@ -81,7 +84,6 @@ namespace
 			: extensions(extensions)
 		{
 		}
-
 
 		virtual int maxFormat(HDC hdc) const
 		{
@@ -141,7 +143,8 @@ namespace
 				extensions.ARB_multisample ? WGL_SAMPLES_ARB : WGL_RED_BITS_ARB, // use valid dummy attributes if no multisampling
 				extensions.ARB_multisample ? WGL_SAMPLE_BUFFERS_ARB : WGL_RED_BITS_ARB,
 				use_srgb ? srgb_enum : WGL_RED_BITS_ARB,
-				WGL_PIXEL_TYPE_ARB
+				WGL_PIXEL_TYPE_ARB,
+				WGL_ACCELERATION_ARB
 				};
 
 			const int num_attributes = sizeof(attributes) / sizeof(*attributes);
@@ -178,7 +181,8 @@ namespace
 				extensions.ARB_multisample ? values[6] : 0,	// WGL_SAMPLES_ARB
 				extensions.ARB_multisample ? values[7] : 0,  // WGL_SAMPLE_BUFFERS_ARB
 				use_srgb ? (values[8] != 0) : false,		// WGL_FRAMEBUFFER_SRGB_CAPABLE_{EXT,ARB}
-				type
+				type,				// WGL_PIXEL_TYPE_ARB
+				values[10] != WGL_FULL_ACCELERATION_ARB		// WGL_ACCELERATION_ARB
 				);
 		}
 

@@ -60,7 +60,8 @@ namespace wm
 			<< "  samples: " << descriptor.samples
 			<< "  buffers: " << descriptor.buffers
 			<< "  type: " << util::detail::pixelDataType2String(descriptor.type)
-			<< (descriptor.srgb ? "  sRGB" : "");
+			<< (descriptor.srgb ? "  sRGB" : "")
+			<< (descriptor.slow ? "  Slow" : "")
 			;
 	}
 	

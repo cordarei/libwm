@@ -30,6 +30,7 @@ namespace wm
 					@param buffers the number of multisampling buffers
 					@param srgb true if the pixel format supports shared exponent (sRGB) color space
 					@param type the color buffer data type
+					@param slow true if using the pixel format will result in slow or non-conformant context
 				*/
 				Descriptor(
 					int red,
@@ -41,7 +42,8 @@ namespace wm
 					int samples = 0,
 					int buffers = 0,
 					bool srgb = false,
-					DataType type = INTEGER)
+					DataType type = INTEGER,
+					bool slow = false)
 					: red(red)
 					, green(green)
 					, blue(blue)
@@ -52,6 +54,7 @@ namespace wm
 					, buffers(buffers)
 					, srgb(srgb)
 					, type(type)
+					, slow(slow)
 				{
 				}
 					
@@ -79,6 +82,9 @@ namespace wm
 				
 				/// color buffer data type
 				DataType type;
+
+				/// true if using the pixel format will result in slow or non-conformant context
+				bool slow;
 			};
 
 			/// Get the descriptor of this pixel format
@@ -134,6 +140,7 @@ namespace wm
 			&& d1.buffers == d2.buffers
 			&& d1.srgb == d2.srgb
 			&& d1.type == d2.type
+			&& d1.slow == d2.slow
 			;			
 	}
 	
@@ -146,6 +153,7 @@ namespace wm
 	inline bool compatible(const PixelFormat::Descriptor& desc, const PixelFormat::Descriptor& reference)
 	{
 		return true
+			&& (!desc.slow || reference.slow)
 			&& desc.red >= reference.red
 			&& desc.green >= reference.green
 			&& desc.blue >= reference.blue
@@ -167,7 +175,10 @@ namespace wm
 	*/
 	inline bool select(const PixelFormat::Descriptor& d1, const PixelFormat::Descriptor& d2)
 	{
-		return false
+		return
+			!(d1.slow && !d2.slow) // never choose a slow one over a fast one
+			&& (false
+			|| (!d1.slow && d2.slow) // always choose a fast one over a slow one
 			|| d1.red > d2.red
 			|| d1.green > d2.green
 			|| d1.blue > d2.blue
@@ -176,7 +187,7 @@ namespace wm
 			|| d1.stencil < d2.stencil	// select the one with smaller stencil value like glxChooseFBConfig
 			|| d1.samples < d2.samples
 			|| d1.buffers < d2.buffers
-			;
+			);
 	}
 	
 	/// Choose a matching pixel format from a Configuration
@@ -192,8 +203,6 @@ namespace wm
 		for(int i = 0; i < config.numFormats(); ++i)
 		{
 			const PixelFormat& format = config.getFormat(i);
-			
-			if(match(format.descriptor(), desc)) return format;
 			
 			if(compatible(format.descriptor(), desc))
 			{
@@ -224,6 +233,7 @@ namespace wm
 		@param buffers the number of multisampling buffers
 		@param srgb true if the pixel format must support shared exponent (sRGB) color space
 		@param type the data type of the color buffer
+		@param slow true if slow and non-conformant pixel formats are allowed
 		@return a reference to a PixelFormat owned by the Configuration object
 	*/	
 	inline const PixelFormat& choose(const Configuration& config,
@@ -231,10 +241,11 @@ namespace wm
 		int depth = 0, int stencil = 0,
 		int samples = 0, int buffers = 0,
 		bool srgb = false,
-		PixelFormat::DataType type = PixelFormat::INTEGER
+		PixelFormat::DataType type = PixelFormat::INTEGER,
+		bool slow = true
 		)
 	{
-		return choose(config, PixelFormat::Descriptor(r, g, b, a, depth, stencil, samples, buffers, srgb, type));
+		return choose(config, PixelFormat::Descriptor(r, g, b, a, depth, stencil, samples, buffers, srgb, type, slow));
 	}
 }
 
