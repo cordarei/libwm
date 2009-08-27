@@ -79,6 +79,16 @@ namespace
 		extensions.ARB_make_current_read = true;
 		return true;
 	}
+
+	bool init_WGL_ARB_framebuffer_sRGB(wm::wgl::Extensions& extensions)
+	{
+		return (extensions.ARB_framebuffer_sRGB = extensions.supported("WGL_ARB_framebuffer_sRGB"));
+	}
+
+	bool init_WGL_EXT_framebuffer_sRGB(wm::wgl::Extensions& extensions)
+	{
+		return (extensions.EXT_framebuffer_sRGB = extensions.supported("WGL_EXT_framebuffer_sRGB"));
+	}
 }
 
 namespace wm
@@ -103,6 +113,8 @@ namespace wm
 			init_WGL_ARB_create_context(*this);
 			init_WGL_ARB_multisample(*this);
 			init_WGL_ARB_make_current_read(*this);
+			init_WGL_ARB_framebuffer_sRGB(*this);
+			init_WGL_EXT_framebuffer_sRGB(*this);
 		}
 
 		bool Extensions::supported(const std::string &name) const

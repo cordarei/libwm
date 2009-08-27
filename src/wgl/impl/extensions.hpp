@@ -24,6 +24,7 @@ namespace wm
 				, ARB_create_context(false), ARB_create_context_profile(false)
 				, wglCreateContextAttribsARB(0)
 				, ARB_multisample(false)
+				, ARB_framebuffer_sRGB(false), EXT_framebuffer_sRGB(false)
 			{
 			}
 
@@ -46,6 +47,9 @@ namespace wm
 			bool ARB_make_current_read;
 			BOOL (WINAPI * wglMakeContextCurrentARB)(HDC draw, HDC read, HGLRC hglrc);
 			HDC (WINAPI * wglGetCurrentReadDCARB)();
+
+			bool ARB_framebuffer_sRGB;
+			bool EXT_framebuffer_sRGB;
 		};
 	}
 }
@@ -130,6 +134,14 @@ namespace wm
 #ifndef WGL_ARB_make_current_read
 #define ERROR_INVALID_PIXEL_TYPE_ARB		0x2043
 #define ERROR_INCOMPATIBLE_DEVICE_CONTEXTS_ARB	0x2054
+#endif
+
+#ifndef WGL_ARB_framebuffer_sRGB
+#define WGL_FRAMEBUFFER_SRGB_CAPABLE_ARB	0x20A9
+#endif
+
+#ifndef WGL_EXT_framebuffer_sRGB
+#define WGL_FRAMEBUFFER_SRGB_CAPABLE_EXT	0x20A9
 #endif
 
 #endif

@@ -5,6 +5,7 @@
 
 #include <wm/pixelformat.hpp>
 #include <wm/configuration.hpp>
+#include <wm/exception.hpp>
 
 #include <wm/util/eventprinter.hpp>
 
@@ -22,6 +23,8 @@ namespace wm
 					case PixelFormat::FLOAT: return "Float";
 					case PixelFormat::UNSIGNED_FLOAT: return "Unsigned float";
 				}
+
+				throw wm::Exception("Invalid color buffer data type");
 			}
 		}
 	}

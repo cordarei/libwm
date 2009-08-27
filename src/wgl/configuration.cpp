@@ -122,6 +122,10 @@ namespace
 
 		virtual wm::PixelFormat::Descriptor makeDescriptor(HDC hdc, int index) const
 		{
+			int srgb_enum = extensions.ARB_framebuffer_sRGB ?
+				WGL_FRAMEBUFFER_SRGB_CAPABLE_ARB : WGL_FRAMEBUFFER_SRGB_CAPABLE_EXT;
+			bool use_srgb = extensions.ARB_framebuffer_sRGB || extensions.EXT_framebuffer_sRGB;
+
 			const int attributes[] = {
 				WGL_RED_BITS_ARB,
 				WGL_GREEN_BITS_ARB,
@@ -130,7 +134,8 @@ namespace
 				WGL_DEPTH_BITS_ARB,
 				WGL_STENCIL_BITS_ARB,
 				extensions.ARB_multisample ? WGL_SAMPLES_ARB : WGL_RED_BITS_ARB, // use valid dummy attributes if no multisampling
-				extensions.ARB_multisample ? WGL_SAMPLE_BUFFERS_ARB : WGL_RED_BITS_ARB
+				extensions.ARB_multisample ? WGL_SAMPLE_BUFFERS_ARB : WGL_RED_BITS_ARB,
+				use_srgb ? srgb_enum : WGL_RED_BITS_ARB
 				};
 
 			const int num_attributes = sizeof(attributes) / sizeof(*attributes);
@@ -147,7 +152,8 @@ namespace
 				values[4],			// WGL_DEPTH_BITS_ARB
 				values[5],			// WGL_STENCIL_BITS_ARB
 				extensions.ARB_multisample ? values[6] : 0,	// WGL_SAMPLES_ARB
-				extensions.ARB_multisample ? values[7] : 0  // WGL_SAMPLE_BUFFERS_ARB
+				extensions.ARB_multisample ? values[7] : 0,  // WGL_SAMPLE_BUFFERS_ARB
+				use_srgb ? (values[8] !=0 ) : false	// WGL_FRAMEBUFFER_SRGB_CAPABLE_{EXT,ARB}
 				);
 		}
 
