@@ -398,6 +398,13 @@ namespace wm
 	int Configuration::numFormats() const { return impl->formats.size(); }
 	const PixelFormat& Configuration::getFormat(int index) const { return impl->formats.at(index); }
 
+	void* Configuration::getProcAddress(const char *name)
+	{
+		glx::Extensions::GLXextFuncPtr ptr = 
+			impl->extensions.getProcAddress(reinterpret_cast<const GLubyte*>(name));
+		return *reinterpret_cast<void**>(&ptr);
+	}
+
 	void PixelFormat::set(Window& window) const
 	{
 		::Display *xdisplay = window.display().impl->display;
