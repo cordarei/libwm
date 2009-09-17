@@ -117,5 +117,12 @@ namespace wm
 #define GLX_NON_CONFORMANT_VISUAL_EXT		0x800D
 #endif
 
+#ifndef GLX_SAMPLES // workaround for broken glx.h/glxext.h
+#define GLX_SAMPLES							100001
+#endif
+#ifndef GLX_SAMPLE_BUFFERS
+#define GLX_SAMPLE_BUFFERS					100000
+#endif
+
 #endif
 
