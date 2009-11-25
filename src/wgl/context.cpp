@@ -23,6 +23,48 @@
 
 #include <wm/export.hpp>
 
+namespace
+{
+	void makeCurrent(const wm::wgl::Extensions& ext, HGLRC hglrc, HDC drawdc, HDC readdc)
+	{
+		if(ext.ARB_make_current_read)
+		{
+			if(!ext.wglMakeContextCurrentARB(drawdc, readdc, hglrc))
+			{
+				DWORD err = GetLastError();
+				std::string msg;
+				if(err == ERROR_INVALID_PIXEL_TYPE_ARB) msg = "Invalid pixel type";
+				else if(err == ERROR_INCOMPATIBLE_DEVICE_CONTEXTS_ARB) msg = "Incompatible device contexts";
+				else msg = wm::win32::getErrorMsg(err);
+				throw wm::Exception("Can't set current context: " + msg);
+			}
+		} else
+		{
+			if(drawdc != readdc)
+				throw wm::Exception("Separate draw and read surfaces not supported");
+
+			if(!wglMakeCurrent(drawdc, hglrc))
+				throw wm::Exception("Can't set current context: " + wm::win32::getErrorMsg());
+		}
+	}
+
+	void getCurrent(const wm::wgl::Extensions& ext, HGLRC& hglrc, HDC& drawdc, HDC& readdc)
+	{
+		hglrc = wglGetCurrentContext();
+		drawdc = wglGetCurrentDC();
+
+		if(ext.ARB_make_current_read)
+		{
+			// this if here protects from a bug in Nvidia drivers (ver 190.89/WinXP 32bit)
+			if(hglrc) readdc = ext.wglGetCurrentReadDCARB();
+			else readdc = 0;
+		} else
+		{
+			readdc = drawdc;
+		}
+	}
+}
+
 namespace wm
 {
 	struct Context::impl_t
@@ -124,43 +166,87 @@ namespace wm
 
 	bool Context::direct() const { return true; }
 
-	void WM_EXPORT makeCurrent(Context &context, Surface &draw, Surface &read)
+	CurrentContext::CurrentContext(Context &context, Surface &draw, Surface &read, bool do_setup)
+		: context(context)
+		, draw(draw)
+		, read(read)
+		, do_reset(false)
+		, num1(0), num2(0), num3(0)
+		, ptr1(0), ptr2(0), ptr3(0)
 	{
-		const wm::wgl::Extensions &extensions = *context.impl->extensions;
+		if(do_setup) setup();
+	}
+
+	CurrentContext::CurrentContext(Context &context, Surface &drawread, bool do_setup)
+		: context(context)
+		, draw(drawread)
+		, read(drawread)
+		, do_reset(false)
+		, num1(0), num2(0), num3(0)
+		, ptr1(0), ptr2(0), ptr3(0)
+	{
+		if(do_setup) setup();
+	}
+	
+	CurrentContext::~CurrentContext()
+	{
+		try
+		{
+			if(do_reset) reset();
+		} catch(wm::Exception& exc)
+		{
+			std::cerr << exc.what() << std::endl;
+		}
+	}
+
+	void CurrentContext::setup()
+	{
+		const wm::wgl::Extensions &ext = *context.impl->extensions;
+
+		HGLRC oldctx;
+		HDC olddrawdc, oldreaddc;
+
+		getCurrent(ext, oldctx, olddrawdc, oldreaddc);
+
+		HDC drawdc, readdc;
 		HGLRC hglrc = context.impl->hglrc;
 
-		if(extensions.ARB_make_current_read)
 		{
 			wgl::DCGetter getter(draw.impl->hwnd);
+			drawdc = getter.hdc;
 
-			BOOL status;
-			if(&draw != &read)
+			if(&read != &draw)
 			{
 				wgl::DCGetter readget(read.impl->hwnd);
-				status = extensions.wglMakeContextCurrentARB(getter.hdc, readget.hdc, hglrc);
+				readdc = readget.hdc;
+				makeCurrent(ext, hglrc, drawdc, readdc);
 			} else
 			{
-				status = extensions.wglMakeContextCurrentARB(getter.hdc, getter.hdc, hglrc);
+				readdc = drawdc;
+				makeCurrent(ext, hglrc, drawdc, drawdc);
 			}
-
-			if(!status)
-			{
-				DWORD err = GetLastError();
-				std::string msg;
-				if(err == ERROR_INVALID_PIXEL_TYPE_ARB) msg = "Invalid pixel type";
-				else if(err == ERROR_INCOMPATIBLE_DEVICE_CONTEXTS_ARB) msg = "Incompatible device contexts";
-				else msg = win32::getErrorMsg(err);
-				throw wm::Exception("Can't set current context: " + msg);
-			}
-		} else
-		{
-			if(&draw != &read)
-				throw wm::Exception("Separate draw and read surfaces not supported");
-
-			wgl::DCGetter getter(draw.impl->hwnd);
-
-			if(!wglMakeCurrent(getter.hdc, hglrc))
-				throw Exception("Can't set current context: " + win32::getErrorMsg());
 		}
+
+		if(oldctx != hglrc || olddrawdc != drawdc || oldreaddc != readdc)
+		{
+			ptr1 = hglrc;
+			ptr2 = drawdc;
+			ptr3 = readdc;
+		}
+
+		do_reset = true;
+	}
+
+	void CurrentContext::reset()
+	{
+		const wm::wgl::Extensions &ext = *context.impl->extensions;
+
+		makeCurrent(ext, reinterpret_cast<HGLRC>(ptr1), reinterpret_cast<HDC>(ptr2), reinterpret_cast<HDC>(ptr3));
+		do_reset = false;
+	}
+
+	void CurrentContext::release()
+	{
+		do_reset = false;
 	}
 }
