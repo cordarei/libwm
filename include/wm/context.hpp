@@ -57,16 +57,80 @@ namespace wm
 			
 			Display *display_;
 
-			friend void WM_EXPORT makeCurrent(Context &context, Surface &draw, Surface &read);
+			friend class CurrentContext;
 	};
-	
-	/// Set current context of the calling thread
-	/**
-		@param context the rendering context to use
-		@param draw the surface to draw to
-		@param read the surface where to read from
-	*/
-	void WM_EXPORT makeCurrent(Context &context, Surface &draw, Surface &read);
+
+	/// A RAII Wrapper for manipulating current thread-local contexts
+	class WM_EXPORT CurrentContext
+	{
+		public:
+			/// Create a new CurrentContext and optionally set the current thread-local context
+			/**
+				@param context the Context to use
+				@param draw the rendering Surface to draw to
+				@param read the rendering Surface to read from
+				@param do_setup true to set the current thread-local context
+				@see setup
+				@see release
+				@see reset
+			*/
+			CurrentContext(Context &context, Surface &draw, Surface &read, bool do_setup = true);
+			
+			/// Create a new CurrentContext and optionally set the current thread-local context
+			/**
+				@param context the Context to use
+				@param drawread the rendering Surface to draw to and read from
+				@param do_setup true to set the current thread-local context
+				@see setup
+				@see release
+				@see reset
+			*/
+			CurrentContext(Context &context, Surface &drawread, bool do_setup = true);
+			
+			/// Destroy CurrentContext and restore previously bound context
+			/**
+				@see release
+				@see reset
+			*/
+			~CurrentContext();
+
+			/// Set the current thread-local context
+			/**
+				@see release
+				@see reset
+			*/
+			void setup();
+			
+			/// Restore previous context
+			/**
+				@see release
+				@see setup
+			*/
+			void reset();
+			
+			/// Release the CurrentContext to disable restoring previous context
+			/**
+				Calling release will inhibit the CurrentContext destructor from
+				restoring the previously bound context. Use the reset function to
+				manually restore previous context.
+				
+				@see setup
+				@see reset
+			*/
+			void release();
+
+		private:
+			CurrentContext(const CurrentContext&);
+			CurrentContext& operator=(const CurrentContext&);
+
+			Context &context;
+			Surface &draw;
+			Surface &read;
+
+			bool do_reset;
+			unsigned int num1, num2, num3;
+			void *ptr1, *ptr2, *ptr3;
+	};
 }
 
 #undef WM_EXPORT

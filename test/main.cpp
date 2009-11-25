@@ -121,7 +121,7 @@ int wm_main(int argc, char *argv[])
 	wm::Connection connection(window, handler);
 
 	window.show();
-	makeCurrent(context, surface, surface);
+	wm::CurrentContext current(context, surface, surface);
 	
 	int min, maj;
 	test::checkGLversion(maj, min);

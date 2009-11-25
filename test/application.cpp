@@ -107,7 +107,7 @@ class Application
 				unsigned int width, height;
 				window.getSize(width, height);
 			
-				makeCurrent(context, surface, surface);
+				wm::CurrentContext current(context, surface, surface);
 				
 				glViewport(0, 0, width, height);
 				

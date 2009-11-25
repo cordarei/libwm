@@ -104,6 +104,7 @@ namespace
 
 		dlsym_wrapper(extensions.library, "glXCreateNewContext", extensions.glXCreateNewContext);
 		dlsym_wrapper(extensions.library, "glXMakeContextCurrent", extensions.glXMakeContextCurrent);
+		dlsym_wrapper(extensions.library, "glXGetCurrentReadDrawable", extensions.glXGetCurrentReadDrawable);
 	}
 #endif
 

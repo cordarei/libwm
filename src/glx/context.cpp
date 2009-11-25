@@ -1,4 +1,5 @@
 #include <memory>
+#include <iostream>
 
 #include <GL/glx.h>
 
@@ -17,6 +18,44 @@
 #include <xlib/impl/window_impl.hpp>
 
 #include <wm/export.hpp>
+
+namespace
+{
+	void makeCurrent(Display *xdisplay, const wm::glx::Extensions &ext, GLXContext ctx, GLXDrawable draw, GLXDrawable read)
+	{
+#ifdef GLX_VERSION_1_3
+		if(ext.supported(1, 3))
+		{
+			if(ext.glXMakeContextCurrent(xdisplay, draw, read, ctx) != True)
+				throw wm::Exception("Can't set current OpenGL context");
+		} else
+#endif
+		{
+			if(read != draw)
+				throw wm::Exception("Separate draw and read buffers not supported");
+
+			if(glXMakeCurrent(xdisplay, draw, ctx) != True)
+				throw wm::Exception("Can't set current OpenGL context");
+		}
+	}
+
+	void getCurrent(const wm::glx::Extensions &ext, Display *&xdisplay, GLXContext &ctx, GLXDrawable &draw, GLXDrawable &read)
+	{
+		xdisplay = glXGetCurrentDisplay();
+		draw = glXGetCurrentDrawable();
+		ctx = glXGetCurrentContext();        
+
+#ifdef GLX_VERSION_1_3
+		if(ext.supported(1, 3))
+		{
+			read = ext.glXGetCurrentReadDrawable();
+		} else
+#endif
+		{
+			read = draw;
+		}
+	}
+}
 
 namespace wm
 {
@@ -113,31 +152,81 @@ namespace wm
 		return glXIsDirect(xdisplay, impl->context);
 	}
 	
-	void WM_EXPORT makeCurrent(Context &context, Surface &draw, Surface &read)
+	CurrentContext::CurrentContext(Context &context, Surface &draw, Surface &read, bool do_setup)
+		: context(context)
+		, draw(draw)
+		, read(read)
+		, do_reset(false)
+		, num1(0), num2(0), num3(0)
+		, ptr1(0), ptr2(0), ptr3(0)
 	{
-		::Display* xdisplay = context.display().impl->display;
+		if(do_setup) setup();
+	}
 
-#ifdef GLX_VERSION_1_3
-		if(context.impl->extensions->supported(1, 3))
-		{
-			if(context.impl->extensions->glXMakeContextCurrent(
-				xdisplay, draw.impl->glxwindow, read.impl->glxwindow, context.impl->context)
-					!= True)
-			{
-				throw wm::Exception("Can't set current OpenGL context");
-			}
-		} else
-#endif
-		{
-			if(&read != &draw)
-				throw wm::Exception("Separate draw and read buffers not supported");
+	CurrentContext::CurrentContext(Context &context, Surface &drawread, bool do_setup)
+		: context(context)
+		, draw(drawread)
+		, read(drawread)
+		, do_reset(false)
+		, num1(0), num2(0), num3(0)
+		, ptr1(0), ptr2(0), ptr3(0)
+	{
+		if(do_setup) setup();
+	}
 
-			if(glXMakeCurrent(xdisplay, draw.window().impl->window, context.impl->context)
-				!= True)
-			{
-				throw wm::Exception("Can't set current OpenGL context");
-			}
+	CurrentContext::~CurrentContext()
+	{
+		try
+		{
+			if(do_reset) reset();
+		} catch(wm::Exception& exc)
+		{
+			std::cerr << exc.what() << std::endl;
 		}
+	}
+
+	void CurrentContext::setup()
+	{
+		GLXContext ctx;
+		GLXDrawable dr, rd;
+		::Display *olddpy;
+
+		const glx::Extensions& ext = *context.impl->extensions;
+		getCurrent(ext, olddpy, ctx, dr, rd);        
+
+		::Display *xdisplay = draw.impl->xdisplay;
+		makeCurrent(xdisplay, ext, context.impl->context, draw.impl->glxwindow, read.impl->glxwindow);
+
+		if(olddpy != xdisplay ||
+			ctx != context.impl->context ||
+			dr != draw.impl->glxwindow ||
+			rd != read.impl->glxwindow)
+		{
+			ptr1 = ctx;
+			ptr2 = olddpy;
+			num1 = dr;
+			num2 = rd;
+		}
+
+		do_reset = true;
+	}
+
+	void CurrentContext::reset()
+	{
+		::Display *xdisplay = draw.impl->xdisplay;
+		const glx::Extensions& ext = *context.impl->extensions;
+
+		typedef ::Display* XDisplayPtr; // avoids a ton of strange error messages from gcc
+		::Display *olddisplay = reinterpret_cast<XDisplayPtr>(ptr2);
+		makeCurrent(olddisplay ? olddisplay : xdisplay,
+			ext,
+			reinterpret_cast<GLXContext>(ptr1), num1, num2);
+		do_reset = false;
+	}
+
+	void CurrentContext::release()
+	{
+		do_reset = false;
 	}
 }
 

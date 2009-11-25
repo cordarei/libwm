@@ -48,6 +48,7 @@ namespace wm
 			XVisualInfo* (*glXGetVisualFromFBConfig)(::Display *dpy, GLXFBConfig config);
 
 			Bool (*glXMakeContextCurrent)(::Display *display, GLXDrawable draw, GLXDrawable read, GLXContext ctx);
+			GLXDrawable (*glXGetCurrentReadDrawable)();
 #endif
 
 			GLXextFuncPtr (*glXGetProcAddress)(const GLubyte*);

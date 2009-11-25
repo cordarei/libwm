@@ -47,8 +47,8 @@ namespace wm
 			struct impl_t;
 			impl_t *impl;
 			Window *window_;	
-
-			friend void WM_EXPORT makeCurrent(Context &context, Surface &draw, Surface &read);
+			
+            friend class CurrentContext;
 	};
 }
 
