@@ -329,7 +329,7 @@ namespace wm
 				"Button Y"
 				};
 				
-			return (button >= 0 && button < sizeof(buttonnames) / sizeof(*buttonnames)) ?
+			return (button >= 0 && unsigned(button) < sizeof(buttonnames) / sizeof(*buttonnames)) ?
 				buttonnames[button] :
 				buttonnames[0];
 		}

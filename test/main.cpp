@@ -10,7 +10,7 @@
 
 #include "draw.hpp"
 
-int wm_main(int argc, char *argv[])
+int wm_main(int, char *[])
 {
 	wm::Display display;
 	

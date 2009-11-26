@@ -70,11 +70,11 @@ namespace wm
 		return true;
 	}
 
-	void EventReader::handleClientMessage(wm::Window& window, const XEvent &event, bool filter)
+	void EventReader::handleClientMessage(wm::Window& window, const XEvent &event, bool)
 	{
 		xlib::EWMH &ewmh = window.display().impl->ewmh;
 		
-		if(event.xclient.data.l[0] ==
+		if(static_cast<Atom>(event.xclient.data.l[0]) ==
 			ewmh.wm_delete_window)
 		{
 			window.impl->eventq.push(new wm::CloseEvent(window));
@@ -146,13 +146,12 @@ namespace wm
 		{
 			struct Predicate
 			{
-				
 				Predicate(::Window window, unsigned long serial) : window(window), serial(serial) { }
 
 				::Window window;
 				unsigned long serial;
 
-				static Bool func(::Display *display, XEvent *event, XPointer arg)
+				static Bool func(::Display *, XEvent *event, XPointer arg)
 				{
 					const Predicate &pred = *reinterpret_cast<const Predicate*>(arg);
 					
@@ -181,10 +180,10 @@ namespace wm
 				repeat));
 	}
 	
-	void EventReader::handleConfigureNotify(wm::Window& window, const XEvent &event, bool filter)
+	void EventReader::handleConfigureNotify(wm::Window& window, const XEvent &event, bool)
 	{
-		if(event.xconfigure.width == width &&
-			event.xconfigure.height == height)
+		if(unsigned(event.xconfigure.width) == width &&
+			unsigned(event.xconfigure.height) == height)
 			return;
 
 		width = event.xconfigure.width;	

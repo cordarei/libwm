@@ -160,7 +160,7 @@ namespace
 		}
 		
 #ifdef GLX_VERSION_1_3
-		virtual GLXFBConfig getFBConfig(int index) const { return 0; }
+		virtual GLXFBConfig getFBConfig(int) const { return 0; }
 
 		virtual int getRenderType(int index) const
 		{
@@ -287,7 +287,7 @@ namespace
 			XFree(vi);
 		}
 
-		virtual XVisualInfo* getVisualInfo(int index) const { return 0; }
+		virtual XVisualInfo* getVisualInfo(int) const { return 0; }
 		virtual GLXFBConfig getFBConfig(int index) const
 		{
 			if(index < 0 || index >= numConfigs)
@@ -399,8 +399,6 @@ namespace wm
 
 	void PixelFormat::set(Window& window) const
 	{
-		::Display *xdisplay = window.display().impl->display;
-	
 		window.impl->visual = impl->visual;
 		window.impl->depth = impl->depth;		
 	}

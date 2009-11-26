@@ -71,12 +71,7 @@ class Application
 		{
 			explicit EventHandler(Application &app) : app(app) { }
 			Application &app;
-			
-			virtual void handle(const wm::ExposeEvent& event)
-			{
-//				app.win.draw();
-			}
-			
+						
 			virtual void handle(const wm::CloseEvent&)
 			{
 				app.quit = true;
