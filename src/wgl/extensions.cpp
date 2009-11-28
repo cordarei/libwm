@@ -92,6 +92,17 @@ namespace
 	{
 		return (extensions.EXT_pixel_format_packed_float = extensions.supported("WGL_EXT_pixel_format_packed_float"));
 	}
+
+	bool init_WGL_EXT_swap_control(wm::wgl::Extensions& extensions)
+	{
+		if((extensions.EXT_swap_control = extensions.supported("WGL_EXT_swap_control")))
+		{
+			getProcAddress("wglSwapIntervalEXT", extensions.wglSwapIntervalEXT);
+			getProcAddress("wglGetSwapIntervalEXT", extensions.wglGetSwapIntervalEXT);
+		}
+
+		return extensions.EXT_swap_control;
+	}
 }
 
 namespace wm
@@ -125,6 +136,7 @@ namespace wm
 			init_WGL_EXT_framebuffer_sRGB(*this);
 			init_WGL_ARB_pixel_format_float(*this);
 			init_WGL_EXT_pixel_format_packed_float(*this);
+			init_WGL_EXT_swap_control(*this);
 		}
 
 		bool Extensions::supported(const std::string &name) const

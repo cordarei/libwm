@@ -69,8 +69,13 @@ namespace wm
 {
 	struct Context::impl_t
 	{
+		explicit impl_t(wm::Configuration &config)
+			: config(config)
+		{
+		}
+
+		wm::Configuration &config;
 		HGLRC hglrc;
-		const wgl::Extensions* extensions;
 	};
 
 	Context::Context(
@@ -81,13 +86,12 @@ namespace wm
 		bool debug,
 		bool,
 		Context *shared)
-		: impl(new impl_t)
+		: impl(new impl_t(format.configuration()))
 		, display_(&format.configuration().display())
 	{
 		std::auto_ptr<impl_t> impl_guard(impl); // deletes impl object in case of exception
 
-		const wm::wgl::Extensions &extensions = format.configuration().impl->extensions;
-		impl->extensions = &extensions;
+		const wm::wgl::Extensions &extensions = impl->config.impl->extensions;
 
 		{
 			wgl::DummyWindow dummywin(display().impl->hInstance);
@@ -201,7 +205,7 @@ namespace wm
 
 	void CurrentContext::setup()
 	{
-		const wm::wgl::Extensions &ext = *context.impl->extensions;
+		const wm::wgl::Extensions &ext = context.impl->config.impl->extensions;
 
 		HGLRC oldctx;
 		HDC olddrawdc, oldreaddc;
@@ -239,7 +243,7 @@ namespace wm
 
 	void CurrentContext::reset()
 	{
-		const wm::wgl::Extensions &ext = *context.impl->extensions;
+		const wm::wgl::Extensions &ext = context.impl->config.impl->extensions;
 
 		makeCurrent(ext, reinterpret_cast<HGLRC>(ptr1), reinterpret_cast<HDC>(ptr2), reinterpret_cast<HDC>(ptr3));
 		do_reset = false;
@@ -248,5 +252,28 @@ namespace wm
 	void CurrentContext::release()
 	{
 		do_reset = false;
+	}
+
+	void CurrentContext::swapInterval(wm::Configuration& config, int interval)
+	{
+		const wgl::Extensions &ext = config.impl->extensions;
+
+		if(!ext.EXT_swap_control)
+			throw Exception("Swap control not supported");
+
+		if(!ext.wglSwapIntervalEXT(interval))
+		{
+			DWORD err = GetLastError();
+			std::string msg;
+			if(err == ERROR_INVALID_DATA) msg = "Negative swap interval";
+			else if(err == ERROR_DC_NOT_FOUND) msg = "No current rendering context";
+			else msg = win32::getErrorMsg(err);
+			throw Exception("Can't set swap interval: " + msg);
+		}
+	}
+
+	void CurrentContext::swapInterval(int interval)
+	{
+		swapInterval(context.impl->config, interval);
 	}
 }

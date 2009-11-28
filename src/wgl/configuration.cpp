@@ -194,7 +194,12 @@ namespace
 		if(extensions.ARB_pixel_format) return new ARB_pixel_format_Builder(extensions);
 		return new LegacyFormatBuilder();
 	}
-};
+
+	void initCaps(wm::Configuration::Capabilities& caps, const wm::wgl::Extensions& ext)
+	{
+		caps.swapControl = ext.EXT_swap_control;
+	}
+}
 
 namespace wm
 {
@@ -210,6 +215,8 @@ namespace wm
 		wgl::DummyContext dummyctx(dummywin.hwnd);
 
 		impl->extensions.init(dummywin, dummyctx);
+		initCaps(caps_, impl->extensions);
+
 		boost::scoped_ptr<PixelFormatBuilder> builder(makeFormatBuilder(impl->extensions));
 
 		wgl::DCGetter getter(dummywin.hwnd);

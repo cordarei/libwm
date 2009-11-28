@@ -53,6 +53,10 @@ namespace wm
 
 			bool ARB_pixel_format_float;
 			bool EXT_pixel_format_packed_float;
+
+			bool EXT_swap_control;
+			BOOL (WINAPI * wglSwapIntervalEXT)(int interval);
+			int (WINAPI * wglGetSwapIntervalEXT)(void);
 		};
 	}
 }
