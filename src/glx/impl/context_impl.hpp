@@ -7,6 +7,8 @@
 
 namespace wm
 {
+	class Configuration;
+
 	namespace glx
 	{
 		struct Extensions;
@@ -14,8 +16,12 @@ namespace wm
 
 	struct Context::impl_t
 	{
-		const glx::Extensions *extensions;
+		explicit impl_t(Configuration& config)
+			: config(config)
+		{
+		}
 	
+		Configuration& config;	
 		GLXContext context;
 	};
 }

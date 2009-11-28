@@ -74,6 +74,7 @@ namespace wm
 			friend class Surface;
 			friend class Context;
 			friend class PixelFormat;
+			friend class CurrentContext;
 	};
 }
 

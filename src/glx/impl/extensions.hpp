@@ -70,6 +70,9 @@ namespace wm
 			bool EXT_fbconfig_packed_float;
 			
 			bool EXT_visual_rating;
+			
+			int (*glXSwapIntervalSGI)(int interval);
+			bool SGI_swap_control;
 		};
 	}
 }

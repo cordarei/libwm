@@ -118,6 +118,10 @@ namespace wm
 				@see reset
 			*/
 			void release();
+			
+			static void swapInterval(Configuration& config, int interval);
+			
+			void swapInterval(int interval);
 
 		private:
 			CurrentContext(const CurrentContext&);

@@ -22,4 +22,8 @@ if(Boost_DATE_TIME_FOUND AND Boost_THREAD_FOUND)
 	add_executable(application ${EXECUTABLE_OPTIONS} application.cpp)
 	target_link_libraries(application wm ${ENTRYPOINT_LIBRARY} ${Boost_THREAD_LIBRARY} ${Boost_DATE_TIME_LIBRARY})
 	target_link_libraries(test ${OPENGL_LIBRARIES})
+	
+	add_executable(vsync ${EXECUTABLE_OPTIONS} vsync.cpp)
+	target_link_libraries(vsync wm ${ENTRYPOINT_LIBRARY})
+	target_link_libraries(application wm ${ENTRYPOINT_LIBRARY} ${Boost_DATE_TIME_LIBRARY})
 endif(Boost_DATE_TIME_FOUND AND Boost_THREAD_FOUND)

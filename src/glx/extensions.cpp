@@ -160,6 +160,15 @@ namespace
 		extensions.EXT_visual_rating = extensions.supported("GLX_EXT_visual_rating");
 	}	
 
+	void initSGI_swap_control(wm::glx::Extensions &extensions)
+	{
+		if((extensions.SGI_swap_control = extensions.supported("GLX_SGI_swap_control")))
+		{
+			extensions.getProcAddress(
+				reinterpret_cast<const GLubyte*>("glXSwapIntervalSGI"),
+				extensions.glXSwapIntervalSGI);
+		}
+	}
 }
 
 namespace wm
@@ -217,6 +226,7 @@ namespace wm
 				initARB_fbconfig_float(*this);
 				initEXT_fbconfig_packed_float(*this);
 				initEXT_visual_rating(*this);
+				initSGI_swap_control(*this);
 			} catch(...)
 			{
 				if(dlclose(library))

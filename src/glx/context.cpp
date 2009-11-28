@@ -67,12 +67,11 @@ namespace wm
 		bool debug,
 		bool direct,
 		Context *shared)
-		: impl(new impl_t)
+		: impl(new impl_t(format.configuration()))
 		, display_(&format.configuration().display())
 	{
 		std::auto_ptr<impl_t> impl_guard(impl); // deletes impl object in case of exception
-		const glx::Extensions& extensions = format.configuration().impl->extensions;
-		impl->extensions = &extensions;
+		const glx::Extensions& extensions = impl->config.impl->extensions;
 	
 		::Display *xdisplay = display().impl->display;
 
@@ -191,7 +190,7 @@ namespace wm
 		GLXDrawable dr, rd;
 		::Display *olddpy;
 
-		const glx::Extensions& ext = *context.impl->extensions;
+		const glx::Extensions& ext = context.impl->config.impl->extensions;
 		getCurrent(ext, olddpy, ctx, dr, rd);        
 
 		::Display *xdisplay = draw.impl->xdisplay;
@@ -214,7 +213,7 @@ namespace wm
 	void CurrentContext::reset()
 	{
 		::Display *xdisplay = draw.impl->xdisplay;
-		const glx::Extensions& ext = *context.impl->extensions;
+		const glx::Extensions& ext = context.impl->config.impl->extensions;
 
 		typedef ::Display* XDisplayPtr; // avoids a ton of strange error messages from gcc
 		::Display *olddisplay = reinterpret_cast<XDisplayPtr>(ptr2);
@@ -227,6 +226,22 @@ namespace wm
 	void CurrentContext::release()
 	{
 		do_reset = false;
+	}
+
+	void CurrentContext::swapInterval(Configuration& config, int interval)
+	{
+		const glx::Extensions &ext = config.impl->extensions;
+		
+		if(!ext.SGI_swap_control)
+			throw Exception("Swap control not supported");
+			
+		if(ext.glXSwapIntervalSGI(interval) != 0)
+			throw Exception("Setting swap interval failed");
+	}
+	
+	void CurrentContext::swapInterval(int interval)
+	{
+		swapInterval(context.impl->config, interval);
 	}
 }
 
