@@ -40,12 +40,14 @@ int wm_main(int, char*[])
 	
 	struct EventHandler : public wm::EventHandler
 	{
-		EventHandler(wm::CurrentContext &current)
+		EventHandler(wm::CurrentContext &current, wm::Configuration &config)
 			: current(current)
+			, config(config)
 			, vsync(true)
 			, quit(false)
 		{
-			current.swapInterval(1);
+			if(config.caps().swapControl)
+				current.swapInterval(1);
 		}
 	
 		void handle(const wm::CloseEvent&)
@@ -58,16 +60,18 @@ int wm_main(int, char*[])
 			if(event.symbol() == wm::keyboard::F1 && event.state())
 			{
 				vsync = !vsync;
-				current.swapInterval(vsync ? 1 : 0);
+				if(config.caps().swapControl)
+					current.swapInterval(vsync ? 1 : 0);
 			}
 			
 			if(event.symbol() == wm::keyboard::ESCAPE) quit = true;
 		}
 		
 		wm::CurrentContext &current;
+		wm::Configuration &config;
 		bool vsync;
 		bool quit;
-	} handler(current);
+	} handler(current, config);
 	
 	wm::Connection connection(window, handler);
 	window.show();
@@ -92,7 +96,9 @@ int wm_main(int, char*[])
 			frametimer = timer;
 			
 			std::ostringstream oss;
-			oss << "FPS: " << fps << " vsync " << (handler.vsync ? "enabled" : "disabled");
+			oss << "FPS: " << fps << " vsync ";
+			if(config.caps().swapControl) oss << (handler.vsync ? "enabled" : "disabled");
+			else oss << "unsupported";
 			window.setTitle(oss.str().c_str());
 		}
 		

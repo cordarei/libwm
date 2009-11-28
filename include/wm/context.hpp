@@ -119,8 +119,41 @@ namespace wm
 			*/
 			void release();
 			
+			/// Set the swap interval for the currently bound context
+			/**
+				Set the swap interval for the currently bound context. The swap
+				interval, also known as vertical synchronizaition or vsync,
+				specifies the number of video frame periods to wait before performing
+				a color buffer swap. Setting a non-zero swap interval will cause
+				Surface::swap to wait until the frame has been swapped.
+			
+				@param config the Configuration needed for native API extensions
+				@param interval the swap interval in video frame periods or 0 to disable sync
+				@see Configuration::Capabilities::swapControl
+				@see Configuration::caps
+				@see Surface::swap
+			*/
 			static void swapInterval(Configuration& config, int interval);
 			
+			/// Set the swap interval for the currently bound context
+			/**
+				This function affects the swap interval of the currently
+				bound thread-local context. In other words, it may affect
+				a different context than what is specified for this
+				CurrentContext object if another context has been bound by
+				creating another CurrentContext object, reset() has been
+				called for this object or another context has been bound
+				using native API's (like glXMakeContextCurrent).
+				
+				This member function is a wrapper to the static
+				CurrentContext::swapInterval function and infers the used
+				Configuration from the Context associated with this object.
+							
+				@param interval the swap interval in video frame periods
+				@see Configuration::Capabilities::swapControl or 0 to disable sync
+				@see Configuration::caps
+				@see Surface::swap
+			*/
 			void swapInterval(int interval);
 
 		private:

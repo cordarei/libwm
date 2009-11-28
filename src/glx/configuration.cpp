@@ -316,17 +316,19 @@ namespace
 
 		return new LegacyPixelFormatBuilder(extensions, xdisplay, screen);
 	}	
+	
+	void initCaps(wm::Configuration::Capabilities &caps, const wm::glx::Extensions &ext)
+	{
+		caps.swapControl = ext.SGI_swap_control;
+	}
 }
 
 namespace wm
 {
-	Configuration::impl_t::~impl_t()	// boost::scoped_ptr dtor needs definition of PixelFormatBuilder
-	{
-	}
-
 	Configuration::Configuration(Display &display)
 		: impl(new impl_t)
 		, display_(&display)
+		, caps_()
 	{
 		std::auto_ptr<impl_t> impl_guard(impl); // deletes impl object in case of exception
 	
@@ -378,6 +380,7 @@ namespace wm
 #endif
 		}
 
+		initCaps(caps_, impl->extensions);
 
 		impl_guard.release();
 	}

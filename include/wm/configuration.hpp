@@ -15,6 +15,19 @@ namespace wm
 	class WM_EXPORT Configuration
 	{
 		public:
+			/// Platform-specific capabilities and extensions
+			struct Capabilities
+			{
+				/// Swap control support (aka. vertical synchronization)
+				/**
+					This flag is true if swap control (also called vertical
+					synchronization or vsync) is supported. Use CurrentContext::swapInterval
+					to control synchronization.
+					@see CurrentContext::swapInterval
+				*/
+				bool swapControl;
+			};
+		
 			/// Get the graphics configuration of a display
 			/**
 				In the GLX/Xlib implementation the Configuration constructor queries
@@ -47,6 +60,9 @@ namespace wm
 	
 			/// The Display associated with this Configuration
 			Display& display() const { return *display_; }
+			
+			/// Get the platform specific capabilities
+			const Capabilities &caps() const { return caps_; }
 
 			/// Load an extension function
 			/**
@@ -68,6 +84,7 @@ namespace wm
 			impl_t *impl;
 
 			Display* display_;
+			Capabilities caps_;
 
 			void *getProcAddress(const char *name);
 			

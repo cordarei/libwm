@@ -24,8 +24,6 @@ namespace wm
 
 	struct Configuration::impl_t
 	{
-		~impl_t();
-	
 		glx::Extensions extensions;
 
 		boost::scoped_ptr<const glx::PixelFormatBuilder> builder;
