@@ -4,7 +4,6 @@
 #include <wm/display.hpp>
 #include <wm/window.hpp>
 #include <wm/surface.hpp>
-#include <wm/events/resizeevent.hpp>
 
 #include <glx/impl/surface_impl.hpp>
 #include <glx/impl/pixelformat_impl.hpp>

@@ -5,16 +5,76 @@
 #include <wm/display.hpp>
 #include <wm/window.hpp>
 #include <wm/event.hpp>
-#include <wm/events.hpp>
 
-#include <common/eventqueue.hpp>
 #include <xlib/impl/eventreader.hpp>
 #include <xlib/impl/display_impl.hpp>
 #include <xlib/impl/window_impl.hpp>
-#include <xlib/impl/eventfactory.hpp>
 #include <xlib/impl/keymap.hpp>
 
 #include <wm/util/utf8.hpp>
+
+namespace
+{
+    wm::Event fromXEvent(wm::Window &window, const XEvent& xevent)
+    {
+        wm::Event event;
+
+        switch(xevent.type)
+        {
+            case Expose:
+                event.expose = { wm::EventType::EXPOSE, &window };
+                break;
+            case ButtonPress:
+            case ButtonRelease:
+                event.button = {
+                    (xevent.type == ButtonPress) ? wm::EventType::BUTTON_DOWN : wm::EventType::BUTTON_UP,
+                    &window,
+                    xevent.xbutton.x, xevent.xbutton.y,
+                    wm::xlib::mapButton(xevent.xbutton.button),
+                    wm::xlib::mapButtons(xevent.xbutton.state),
+                    wm::xlib::mapKeyMod(xevent.xbutton.state)                
+                };
+                break;
+            case FocusIn:
+            case FocusOut:
+                event.focus = {
+                    (xevent.type == FocusIn) ? wm::EventType::FOCUS_GOT : wm::EventType::FOCUS_LOST,
+                    &window,
+                };
+                break;
+            case EnterNotify:
+            case LeaveNotify:
+                event.mouseover = {
+                    (xevent.type == EnterNotify) ? wm::EventType::MOUSE_ENTER : wm::EventType::MOUSE_LEAVE,
+                    &window,
+                    xevent.xcrossing.x,
+                    xevent.xcrossing.y
+                };
+                break;
+            case MapNotify:
+            case UnmapNotify:
+                event.show = {
+                    (xevent.type == MapNotify) ? wm::EventType::SHOW : wm::EventType::HIDE,
+                    &window
+                };
+                break;
+            case MotionNotify:
+                event.motion = {
+                    wm::EventType::MOTION,
+                    &window,
+                    xevent.xmotion.x, xevent.xmotion.y,
+                    wm::xlib::mapButtons(xevent.xmotion.state),
+                    wm::xlib::mapKeyMod(xevent.xmotion.state)                
+                };
+                break;
+            default:
+                event.any = { wm::EventType::NO_EVENT, nullptr };
+                break;
+        }
+
+        return event;
+    } 
+}
 
 namespace wm
 {
@@ -31,58 +91,43 @@ namespace wm
 			| ExposureMask
 			;
 			
-	void EventReader::handleXEvent(wm::Window& window, const XEvent& event)
+	void EventReader::handleXEvent(wm::Window& window, const XEvent& xevent)
 	{
 		EventReader &reader = window.impl->eventreader;
-		bool filter = XFilterEvent(const_cast<XEvent*>(&event), None);
 		
-		if(!reader.handleSpecial(window, event, filter))
-		{
-			const Event *ptr = xlib::fromXEvent(window, event, filter);
-			if(ptr) window.impl->eventq.push(ptr); // eventq takes ownership of event object in ptr
-		}
+        switch(xevent.type)
+        {
+            case ClientMessage:
+                reader.handleClientMessage(window, xevent);
+                return;
+            case ConfigureNotify:
+                reader.handleConfigureNotify(window, xevent);
+                return;
+            case KeyPress:
+            case KeyRelease: 
+                reader.handleKeyEvent(window, xevent);
+                return;
+            default:
+                window.impl->event_queue->push(fromXEvent(window, xevent));
+                break;
+        } 
 	}
 	
-	bool EventReader::handleSpecial(wm::Window& window, const XEvent &event, bool filter)
-	{
-		typedef void (EventReader::*HandlerFunc)(wm::Window&, const XEvent&, bool);		
-		
-		static const struct Registry
-		{
-			Registry()
-			{
-				map[ClientMessage] = &EventReader::handleClientMessage;
-				map[ConfigureNotify] = &EventReader::handleConfigureNotify;
-				map[KeyPress] = &EventReader::handleKeyEvent;
-				map[KeyRelease] = &EventReader::handleKeyEvent;
-			}
-					
-			typedef std::map<int, HandlerFunc> map_t;
-			map_t map;
-		} registry;
-		
-		Registry::map_t::const_iterator iter = registry.map.find(event.type);
-		if(iter == registry.map.end()) return false;
-		
-		HandlerFunc handler = iter->second;
-		(this->*handler)(window, event, filter);
-		
-		return true;
-	}
-
-	void EventReader::handleClientMessage(wm::Window& window, const XEvent &event, bool)
+    void EventReader::handleClientMessage(wm::Window& window, const XEvent &event)
 	{
 		xlib::EWMH &ewmh = window.display().impl->ewmh;
 		
 		if(static_cast<Atom>(event.xclient.data.l[0]) ==
 			ewmh.wm_delete_window)
 		{
-			window.impl->eventq.push(new wm::CloseEvent(window));
+			// window.impl->eventq.push(new wm::CloseEvent(window));
 		}
 	}
 
-	void EventReader::handleKeyEvent(wm::Window& window, const XEvent &event, bool filter)
+	void EventReader::handleKeyEvent(wm::Window& window, const XEvent &event)
 	{
+		bool filter = XFilterEvent(const_cast<XEvent*>(&event), None);
+
 		::Display *xdisplay = window.display().impl->display;
 		const int keycode_index = 0; // Ignore modmask for keysym
 		KeySym keysym = XKeycodeToKeysym(
@@ -121,6 +166,7 @@ namespace wm
 			{
 				// X input method (XIM) tells us that characters have been written
 				// First, propagate KeyEvent to event queue
+                /*
 				window.impl->eventq.push(
 					new KeyEvent(
 						window,
@@ -137,7 +183,7 @@ namespace wm
 							reinterpret_cast<const unsigned char*>(buffer),
 							len
 						)));
-
+                        */
 				return;
 			}
 		}
@@ -171,6 +217,7 @@ namespace wm
 			}
 		}
 		
+        /*
 		window.impl->eventq.push(
 			new wm::KeyEvent(
 				window,
@@ -178,9 +225,10 @@ namespace wm
 				xlib::mapKeyMod(event.xkey.state),
 				event.type == KeyPress,
 				repeat));
+                */
 	}
 	
-	void EventReader::handleConfigureNotify(wm::Window& window, const XEvent &event, bool)
+	void EventReader::handleConfigureNotify(wm::Window& window, const XEvent &event)
 	{
 		if(unsigned(event.xconfigure.width) == width &&
 			unsigned(event.xconfigure.height) == height)
@@ -189,12 +237,14 @@ namespace wm
 		width = event.xconfigure.width;	
 		height = event.xconfigure.height;	
 
+        /* 
 		window.impl->eventq.push(
 			new wm::ResizeEvent(
 				window,
 				event.xconfigure.width,
 				event.xconfigure.height
 				));
+                */
 	}
 }
 

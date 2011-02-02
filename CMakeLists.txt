@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.6)
 project(libwm)
-set(PROJECT_VERSION "0.2.1")
+set(PROJECT_VERSION "0.2.2")
 set(PROJECT_VERSION_MAJOR "0")
 
 if(NOT CMAKE_BUILD_TYPE)

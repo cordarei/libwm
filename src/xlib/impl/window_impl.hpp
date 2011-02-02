@@ -6,22 +6,20 @@
 
 #include <wm/window.hpp>
 
-#include <common/dispatcher.hpp>
-#include <common/eventqueue.hpp>
-
 #include <xlib/impl/eventreader.hpp>
 
 namespace wm
 {
 	struct Window::impl_t
 	{
-		impl_t()
-			: visual(0)
-			, depth(0)
-			, colormap(0)
-			, window(0)
-			, xic(0)
-			, transparentCursor(0)
+		impl_t() :
+            visual(0),
+            depth(0),
+            colormap(0),
+            window(0),
+            xic(0),
+            transparentCursor(0), 
+            event_queue(nullptr) 
 		{
 		}
 	
@@ -41,10 +39,8 @@ namespace wm
 		// Transparent cursor
 		Cursor transparentCursor;
 		
-		// Event dispatching
-		common::Dispatcher dispatcher;
-		common::EventQueue eventq;		
-
+		// Event handling 
+        EventQueue *event_queue;
 		EventReader eventreader;
 	};
 }

@@ -21,7 +21,8 @@ namespace wm
 		Display& display,
 		unsigned int width,
 		unsigned int height,
-		const PixelFormat& format)
+		const PixelFormat& format,
+        EventQueue& event_queue)
 		: impl(new impl_t)
 		, display_(display)
 		, pixelformat_(format)
@@ -30,6 +31,8 @@ namespace wm
 		std::auto_ptr<impl_t> impl_guard(impl); // deletes impl object in case of exception
 		::Display* xdisplay = display.impl->display;
 		int screen = display.impl->screen;
+
+        impl->event_queue = &event_queue;
 
 		// Set pixel format attributes (initializes impl->visual and impl->depth)
 		format.set(*this);
@@ -265,38 +268,6 @@ namespace wm
 	
 		::Display* xdisplay = display().impl->display;
 		XClearArea(xdisplay, impl->window, x, y, width, height, True);
-	}
-	
-	void Window::wait()
-	{
-		boost::scoped_ptr<const Event> event;
-
-		while(!impl->eventq.poll(event))
-			display().wait();
-		
-		do
-		{
-			impl->dispatcher.dispatch(*event);
-		} while(impl->eventq.poll(event));
-	}
-	
-	bool Window::dispatch()
-	{
-		boost::scoped_ptr<const Event> event;
-		bool gotone = false;
-		
-		while(impl->eventq.poll(event))
-		{
-			impl->dispatcher.dispatch(*event);
-			gotone = true;
-		}
-		
-		return gotone;
-	}
-		
-	common::Dispatcher& Window::dispatcher()
-	{
-		return impl->dispatcher;
-	}
+	} 
 }
 

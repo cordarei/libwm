@@ -2,7 +2,6 @@
 #define WINDOW_HPP
 
 #include <wm/pixelformat.hpp>
-#include <wm/connection.hpp>
 #include <wm/exception.hpp>
 
 #include <wm/export.hpp>
@@ -10,16 +9,11 @@
 namespace wm
 {
 	class Display;
-	class EventHandler;
 	class Surface;
 	class Context;
 	class PixelFormat;
-	
-	namespace common
-	{
-		class Dispatcher;
-	}
-	
+    class EventQueue;
+
 	/// A Window
 	class WM_EXPORT Window
 	{
@@ -30,98 +24,100 @@ namespace wm
 				@param width the width of the window
 				@param height the height of the window
 				@param format the pixel format of the window
+                @param event_queue an event queue where events from this window go to
 			*/
 			Window(
 				Display& display,
 				unsigned int width,
 				unsigned int height,
-				const PixelFormat& format);
-			
+				const PixelFormat& format,
+                EventQueue& event_queue);
+
 			/// Destroy a window
 			~Window();
-				
+
 			/// Show window
 			void show();
-			
+
 			/// Hide window
 			void hide();
-			
+
 			/// Get the size of a window
 			/**
 				@param width the width of the window gets written here
 				@param height the width of the window gets written here
 			*/
 			void getSize(unsigned int &width, unsigned int &height);
-			
+
 			/// Resize window
 			/**
 				@param width the new width of the window
 				@param height the new height of the window
 			*/
 			void resize(unsigned int width, unsigned int height);
-			
+
 			/// Set the title of a window (UTF-8)
 			/**
 				@param title the new title of the window, encoded in UTF-8
 			*/
 			void setTitle(const char* title); // utf-8
-			
+
 			/// Set this window to full screen
 			/**
 				Request the windowing system to change this window
 				to full screen or windowed mode.
-				
+
 				The window size will be changed and a ResizeEvent will
 				occur.
-			
+
 				@param full true if full screen, false for windowed
 			*/
 			void fullscreen(bool full);
-			
-			/// Move the mouse pointer inside this window 
+
+			/// Move the mouse pointer inside this window
 			/**
 				The coordinates are relative to the window client area. If the
 				given coordinates are outside the client area, no moving is
 				performed.
-			
+
 				@param x horizontal position of the mouse cursor destination
 				@param y vertical position of the mouse cursor destination
 			*/
 			void warpMouse(unsigned int x, unsigned int y);
-			
+
 			/// Show/Hide the mouse cursor
 			/**
 				@param show true to show mouse cursor, false to hide
 			*/
 			void showCursor(bool show);
-			
+
 			/// Set size limits for a window or make it unresizable
 			/**
 				If the width or height of the minimum or maximum size limit
 				is equal to 0, that limit is disabled.
-				
+
 				If the minimum and maximum size limits are equal (and non-zero)
 				the window is made un-resizable.
-				
+
 				If the minimum size is larger than the maximum size, the results
 				are undefined.
-		
+
 				@param minW minimum width of the window
 				@param minH minimum height of the window
 				@param maxW maximum width of the window
 				@param maxH maximum height of the window
 			*/
 			void setMinMaxSize(unsigned int minW, unsigned int minH, unsigned int maxW, unsigned int maxH);
-			
+
 			/// Request window repaint
 			/**
 				Ask the windowing system to be repainted. The windowing
 				system will respond and an ExposeEvent will be generated
 				when appropriate.
-				
+
 				If the width or the height of the dirty rectangle
 				area is zero, the entire window be repainted.
-				
+
 				@param x the left side of the dirty rectangle
 				@param y the top side of the dirty rectangle
 				@param width the width of the dirty rectangle
@@ -129,7 +125,7 @@ namespace wm
 				@see wm::ExposeEvent
 			*/
 			void repaint(unsigned int x = 0, unsigned int y = 0, unsigned int width = 0, unsigned int height = 0);
-			
+
 			/// Get the display of this window
 			/**
 				@return the Display on which this window was created
@@ -152,49 +148,6 @@ namespace wm
 				@return the pixel format of this window
 			*/
 			const PixelFormat& pixelformat() const { return pixelformat_; }
-			
-			/// Wait for events and dispatch them to event handlers
-			/**
-				Dispatch all events in the event queue of this window
-				to event handlers. EventHandler::handle will be called
-				for all events and all event handlers connected to
-				this window.
-
-				If there are no events available in the event queue,
-				this function waits (using Display::wait) until events
-				are available. This function does not return before
-				at least one event has been dispatched.
-				
-				@see Window::dispatch
-				@see Display::wait
-				@see Display::poll
-				@see EventHandler
-				@see Connection
-			*/
-			void wait();
-
-			/// Dispatch events in the event queue to event handlers
-			/**
-				Dispatch all events in the event queue of this window
-				to event handlers. EventHandler::handle will be called
-				for all events and all event handlers connected to
-				this window.
-				
-				Display::wait or Display::poll must be called before this
-				function to listen for windowing system events, process
-				them and add them to the Window event queues.
-
-				If there are no events available in the event queue, this
-				function returns immediately.
-
-				@return true if one or more events were dispatched
-				@see Window::wait
-				@see Display::wait
-				@see Display::poll
-				@see EventHandler
-				@see Connection
-			*/
-			bool dispatch();
 
 		private:
 			Window(const Window&);
@@ -206,10 +159,7 @@ namespace wm
 			const PixelFormat& pixelformat_;
 			Surface *surface_;
 
-			common::Dispatcher &dispatcher();
-
 			friend class EventReader;
-			friend class Connection;
 			friend class Display;
 			friend class Context;
 			friend class Configuration;

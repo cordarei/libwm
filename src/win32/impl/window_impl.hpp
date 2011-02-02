@@ -43,9 +43,7 @@ namespace wm
 		// Is the window resizable
 		bool resizable;
 
-		// Event dispatching
-		common::Dispatcher dispatcher;
-		common::EventQueue eventq;
+		// Event handling
 		EventReader eventreader;
 	};
 

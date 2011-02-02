@@ -21,11 +21,9 @@ namespace wm
 					
 		private:
 		
-			bool handleSpecial(wm::Window& window, const XEvent &event, bool filter);
-					
-			void handleClientMessage(wm::Window& window, const XEvent &event, bool filter);
-			void handleKeyEvent(wm::Window& window, const XEvent &event, bool filter);
-			void handleConfigureNotify(wm::Window& window, const XEvent &event, bool filter);
+            void handleClientMessage(wm::Window& window, const XEvent &event);
+			void handleKeyEvent(wm::Window& window, const XEvent &event);
+			void handleConfigureNotify(wm::Window& window, const XEvent &event);
 			
 			unsigned int width, height;
 			unsigned long keyrepeat_serial;
