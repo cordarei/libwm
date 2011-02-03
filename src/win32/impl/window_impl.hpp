@@ -5,54 +5,52 @@
 
 #include <wm/window.hpp>
 
-#include <common/dispatcher.hpp>
-#include <common/eventqueue.hpp>
-
 #include <win32/impl/eventreader.hpp>
 
 namespace wm
 {
-	struct Window::impl_t
-	{
-		impl_t()
-			: hwnd(0)
-			, cursorVisible(true)
-			, fullscreen(false)
-			, windowedRect()
-			, windowedPosX(0), windowedPosY(0)
-			, minW(0), minH(0)
-			, maxW(0), maxH(0)
-			, resizable(true)
-		{
-		}
+    struct Window::impl_t
+    {
+        impl_t()
+            : hwnd(0)
+            , cursorVisible(true)
+            , fullscreen(false)
+            , windowedRect()
+            , windowedPosX(0), windowedPosY(0)
+            , minW(0), minH(0)
+            , maxW(0), maxH(0)
+            , resizable(true)
+        {
+        }
 
-		// Window handle
-		HWND hwnd;
+        // Window handle
+        HWND hwnd;
 
-		// Is the mouse cursor visible in this Window?
-		bool cursorVisible;
+        // Is the mouse cursor visible in this Window?
+        bool cursorVisible;
 
-		// Is the window fullscreen, windowed size for restoring windowed mode
-		bool fullscreen;
-		RECT windowedRect;
-		unsigned int windowedPosX, windowedPosY;
+        // Is the window fullscreen, windowed size for restoring windowed mode
+        bool fullscreen;
+        RECT windowedRect;
+        unsigned int windowedPosX, windowedPosY;
 
-		// Window size limits
-		unsigned int minW, minH, maxW, maxH;
+        // Window size limits
+        unsigned int minW, minH, maxW, maxH;
 
-		// Is the window resizable
-		bool resizable;
+        // Is the window resizable
+        bool resizable;
 
-		// Event handling
-		EventReader eventreader;
-	};
+        // Event handling
+        EventReader eventreader;
+        EventQueue* event_queue;
+    };
 
-	class PixelFormat;
-	namespace win32
-	{
-		// NOTE: implemented in the wgl parts
-		void setPixelFormat(HWND hwnd, const PixelFormat& format);
-	};
+    class PixelFormat;
+    namespace win32
+    {
+        // NOTE: implemented in the wgl parts
+        void setPixelFormat(HWND hwnd, const PixelFormat& format);
+    };
 }
 
 #endif

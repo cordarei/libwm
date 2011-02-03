@@ -40,10 +40,10 @@ int wm_main(int, char *[])
 
             switch(event.type)
             {
-                case wm::EventType::BUTTON_DOWN:
+                case wm::BUTTON_DOWN:
                     quit_flag = true;
                     break;
-                case wm::EventType::EXPOSE:
+                case wm::EXPOSE:
                     unsigned int width, height;
                     event.expose.window->surface().getSize(width, height);
                     test::draw(width, height, false);

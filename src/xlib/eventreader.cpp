@@ -22,30 +22,30 @@ namespace
         switch(xevent.type)
         {
             case Expose:
-                event.expose = { wm::EventType::EXPOSE, &window };
+                event.expose = { wm::EXPOSE, &window };
                 break;
             case ButtonPress:
             case ButtonRelease:
                 event.button = {
-                    (xevent.type == ButtonPress) ? wm::EventType::BUTTON_DOWN : wm::EventType::BUTTON_UP,
+                    (xevent.type == ButtonPress) ? wm::BUTTON_DOWN : wm::BUTTON_UP,
                     &window,
                     xevent.xbutton.x, xevent.xbutton.y,
                     wm::xlib::mapButton(xevent.xbutton.button),
                     wm::xlib::mapButtons(xevent.xbutton.state),
-                    wm::xlib::mapKeyMod(xevent.xbutton.state)                
+                    wm::xlib::mapKeyMod(xevent.xbutton.state)
                 };
                 break;
             case FocusIn:
             case FocusOut:
                 event.focus = {
-                    (xevent.type == FocusIn) ? wm::EventType::FOCUS_GOT : wm::EventType::FOCUS_LOST,
+                    (xevent.type == FocusIn) ? wm::FOCUS_GOT : wm::FOCUS_LOST,
                     &window,
                 };
                 break;
             case EnterNotify:
             case LeaveNotify:
                 event.mouseover = {
-                    (xevent.type == EnterNotify) ? wm::EventType::MOUSE_ENTER : wm::EventType::MOUSE_LEAVE,
+                    (xevent.type == EnterNotify) ? wm::MOUSE_ENTER : wm::MOUSE_LEAVE,
                     &window,
                     xevent.xcrossing.x,
                     xevent.xcrossing.y
@@ -54,26 +54,26 @@ namespace
             case MapNotify:
             case UnmapNotify:
                 event.show = {
-                    (xevent.type == MapNotify) ? wm::EventType::SHOW : wm::EventType::HIDE,
+                    (xevent.type == MapNotify) ? wm::SHOW : wm::HIDE,
                     &window
                 };
                 break;
             case MotionNotify:
                 event.motion = {
-                    wm::EventType::MOTION,
+                    wm::MOTION,
                     &window,
                     xevent.xmotion.x, xevent.xmotion.y,
                     wm::xlib::mapButtons(xevent.xmotion.state),
-                    wm::xlib::mapKeyMod(xevent.xmotion.state)                
+                    wm::xlib::mapKeyMod(xevent.xmotion.state)
                 };
                 break;
             default:
-                event.any = { wm::EventType::NO_EVENT, nullptr };
+                event.any = { wm::NO_EVENT, nullptr };
                 break;
         }
 
         return event;
-    } 
+    }
 }
 
 namespace wm
@@ -90,11 +90,11 @@ namespace wm
 			| FocusChangeMask
 			| ExposureMask
 			;
-			
+
 	void EventReader::handleXEvent(wm::Window& window, const XEvent& xevent)
 	{
 		EventReader &reader = window.impl->eventreader;
-		
+
         switch(xevent.type)
         {
             case ClientMessage:
@@ -104,19 +104,19 @@ namespace wm
                 reader.handleConfigureNotify(window, xevent);
                 return;
             case KeyPress:
-            case KeyRelease: 
+            case KeyRelease:
                 reader.handleKeyEvent(window, xevent);
                 return;
             default:
                 window.impl->event_queue->push(fromXEvent(window, xevent));
                 break;
-        } 
+        }
 	}
-	
+
     void EventReader::handleClientMessage(wm::Window& window, const XEvent &event)
 	{
 		xlib::EWMH &ewmh = window.display().impl->ewmh;
-		
+
 		if(static_cast<Atom>(event.xclient.data.l[0]) ==
 			ewmh.wm_delete_window)
 		{
@@ -134,18 +134,18 @@ namespace wm
 			xdisplay,
 			event.xkey.keycode,
 			keycode_index);
-			
+
 		bool repeat = false;
-		
+
 		if(event.type == KeyPress)
 			repeat = (event.xkey.serial == keyrepeat_serial);
-			
+
 		if(event.type == KeyPress && !filter)
 		{
 			const size_t buffer_size = 6;
 			char buffer[buffer_size] = { 0, 0, 0, 0, 0, 0 };
 			Status status;
-			
+
 			// XmbLookupString output encoding depends on current locale
 			// XwcLookupString also uses locale and nonportable wchar_t
 			// Xutf8LookupString always returns UTF-8 and we always want unicode, so use it
@@ -158,7 +158,7 @@ namespace wm
 				&status
 				);
 			buffer[len] = 0;	// add null terminator
-			
+
 			if(status == XBufferOverflow) // 6 bytes should be enough, this should never happen
 				throw wm::Exception("Xutf8LookupString status XBufferOverflow");
 
@@ -174,7 +174,7 @@ namespace wm
 						xlib::mapKeyMod(event.xkey.state),
 						true,
 						repeat));
-				
+
 				// Then propagate CharacterEvent
 				window.impl->eventq.push(
 					new wm::CharacterEvent(
@@ -187,7 +187,7 @@ namespace wm
 				return;
 			}
 		}
-		
+
 		if(event.type == KeyRelease)
 		{
 			struct Predicate
@@ -200,7 +200,7 @@ namespace wm
 				static Bool func(::Display *, XEvent *event, XPointer arg)
 				{
 					const Predicate &pred = *reinterpret_cast<const Predicate*>(arg);
-					
+
 					return event->type == KeyPress &&
 						event->xkey.window == pred.window &&
 						event->xkey.serial == pred.serial;
@@ -211,12 +211,12 @@ namespace wm
 			if(XCheckIfEvent(xdisplay, &pressevent, &Predicate::func, reinterpret_cast<XPointer>(&predicate)))
 			{
 				XPutBackEvent(xdisplay, &pressevent);
-			
+
 				keyrepeat_serial = event.xkey.serial;
 				repeat = true;
 			}
 		}
-		
+
         /*
 		window.impl->eventq.push(
 			new wm::KeyEvent(
@@ -227,17 +227,17 @@ namespace wm
 				repeat));
                 */
 	}
-	
+
 	void EventReader::handleConfigureNotify(wm::Window& window, const XEvent &event)
 	{
 		if(unsigned(event.xconfigure.width) == width &&
 			unsigned(event.xconfigure.height) == height)
 			return;
 
-		width = event.xconfigure.width;	
-		height = event.xconfigure.height;	
+		width = event.xconfigure.width;
+		height = event.xconfigure.height;
 
-        /* 
+        /*
 		window.impl->eventq.push(
 			new wm::ResizeEvent(
 				window,

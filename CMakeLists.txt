@@ -26,7 +26,7 @@ include_directories(${OPENGL_INCLUDE_DIR})
 
 add_subdirectory(src)
 add_subdirectory(entrypoint)
-add_subdirectory(doc)
+# add_subdirectory(doc)
 
 option(ENABLE_EXAMPLES "Build example applications" OFF)
 if(ENABLE_EXAMPLES)

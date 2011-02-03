@@ -58,37 +58,37 @@ namespace wm
     {
         switch(event.type)
         {
-            case EventType::NO_EVENT:
+            case NO_EVENT:
                 return os << "NO_EVENT";
-            case EventType::KEY_DOWN:
-            case EventType::KEY_UP:
+            case KEY_DOWN:
+            case KEY_UP:
                 return os
-                    << ((event.type == EventType::KEY_UP) ? "KEY_UP" : "KEY_DOWN");
-            case EventType::BUTTON_DOWN:
-            case EventType::BUTTON_UP:
+                    << ((event.type == KEY_UP) ? "KEY_UP" : "KEY_DOWN");
+            case BUTTON_DOWN:
+            case BUTTON_UP:
                 return os
-                    << ((event.type == EventType::BUTTON_UP) ? "BUTTON_UP" : "BUTTON_DOWN");
-            case EventType::TEXT_INPUT:
+                    << ((event.type == BUTTON_UP) ? "BUTTON_UP" : "BUTTON_DOWN");
+            case TEXT_INPUT:
                 return os << "TEXT_INPUT";
-            case EventType::EXPOSE:
+            case EXPOSE:
                 return os << "EXPOSE";
-            case EventType::MOTION:
+            case MOTION:
                 return os << "MOTION";
-            case EventType::MOUSE_ENTER:
-            case EventType::MOUSE_LEAVE:
+            case MOUSE_ENTER:
+            case MOUSE_LEAVE:
                 return os << "MOUSE_LEAVE";
-            case EventType::RESIZE:
+            case RESIZE:
                 return os << "RESIZE";
-            case EventType::CLOSE:
+            case CLOSE:
                 return os << "CLOSE";
-            case EventType::FOCUS_GOT:
-            case EventType::FOCUS_LOST:
+            case FOCUS_GOT:
+            case FOCUS_LOST:
                 return os
-                    << ((event.type == EventType::FOCUS_GOT) ? "FOCUS_GOT" : "FOCUS_LOST");
-            case EventType::SHOW:
-            case EventType::HIDE:
+                    << ((event.type == FOCUS_GOT) ? "FOCUS_GOT" : "FOCUS_LOST");
+            case SHOW:
+            case HIDE:
                 return os
-                    << ((event.type == EventType::SHOW) ? "SHOW" : "HIDE");
+                    << ((event.type == SHOW) ? "SHOW" : "HIDE");
             default:
                 return os;
         }

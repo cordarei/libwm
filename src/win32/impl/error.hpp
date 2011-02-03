@@ -7,11 +7,11 @@
 
 namespace wm
 {
-	namespace win32
-	{
-		std::string getErrorMsg(DWORD err);
-		std::string getErrorMsg();
-	}
+    namespace win32
+    {
+        std::string getErrorMsg(DWORD err);
+        std::string getErrorMsg();
+    }
 }
 
 #endif

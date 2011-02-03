@@ -8,7 +8,7 @@ namespace wm
 {
     class Window;
 
-    enum class EventType {
+    enum EventType {
         NO_EVENT,
         KEY_DOWN,
         KEY_UP,
@@ -120,7 +120,7 @@ namespace wm
     class EventQueue
     {
     protected:
-        virtual bool push(const Event& event) = 0;
+        virtual void push(const Event& event) = 0;
         // put with timeout?
 
     public:
@@ -143,7 +143,7 @@ namespace wm
         }
         
     protected:
-        virtual bool push(const Event& event)
+        virtual void push(const Event& event)
         {
             queue.push(event);
         }

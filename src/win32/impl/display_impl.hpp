@@ -5,11 +5,11 @@
 
 namespace wm
 {
-	struct Display::impl_t
-	{
-		ATOM classatom;
-		HINSTANCE hInstance;
-	};
+    struct Display::impl_t
+    {
+        ATOM classatom;
+        HINSTANCE hInstance;
+    };
 }
 
 #endif

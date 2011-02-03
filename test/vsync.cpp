@@ -2,7 +2,7 @@
 #include <cmath>
 
 #include <wm/wm.hpp>
-#include <boost/date_time/posix_time/posix_time_types.hpp>
+// #include <boost/date_time/posix_time/posix_time_types.hpp>
 
 #include <wm/opengl/opengl.hpp>
 
@@ -79,7 +79,7 @@ int wm_main(int, char*[])
         {
             wm::Event event = queue.pop();
 
-            if(event.type == wm::EventType::BUTTON_DOWN)
+            if(event.type == wm::BUTTON_DOWN)
                 quit_flag = true;
         }
 	}

@@ -2,340 +2,394 @@
 
 #include <wm/exception.hpp>
 #include <wm/window.hpp>
-#include <wm/events.hpp>
+#include <wm/event.hpp>
+#include <wm/keyboard.hpp>
 
 #include <win32/impl/keymap.hpp>
 #include <win32/impl/eventreader.hpp>
-#include <win32/impl/eventfactory.hpp>
 #include <win32/impl/window_impl.hpp>
 #include <win32/impl/error.hpp>
 
 #include <windows.h>
+#undef MOD_SHIFT
+#undef MOD_CONTROL
+
+namespace
+{
+
+    bool fromWin32Event(
+            wm::Window& window,
+            UINT message,
+            WPARAM wparam,
+            LPARAM lparam,
+            wm::Event &event)
+    {
+        switch(message)
+        {
+            case WM_CHAR:
+                return false;
+
+            case WM_LBUTTONDOWN:
+            case WM_LBUTTONUP:
+            case WM_MBUTTONDOWN:
+            case WM_MBUTTONUP:
+            case WM_RBUTTONDOWN:
+            case WM_RBUTTONUP:
+            case WM_XBUTTONDOWN:
+            case WM_XBUTTONUP:
+            case WM_MOUSEWHEEL:
+            case WM_MOUSEHWHEEL:
+                event.button.type = wm::win32::mapButtonState(message) ? wm::BUTTON_DOWN : wm::BUTTON_UP;
+                event.button.window = &window;
+                event.button.x = LOWORD(lparam);
+                event.button.y = HIWORD(lparam);
+                event.button.button = wm::win32::mapButton(message, wparam);
+                event.button.buttons = wm::win32::mapButtons(wparam);
+                event.button.keymod = wm::win32::mapKeyMod(wparam)
+                    | (wm::win32::getKeyModState() &
+                        ~(wm::keyboard::MOD_SHIFT |
+                        wm::keyboard::MOD_CONTROL));
+                return true;
+
+            case WM_SETFOCUS:
+            case WM_KILLFOCUS:
+                return false;
+
+            case WM_CLOSE:
+                return false;
+
+            default:
+                return false;
+        }
+    }
+}
+
 
 namespace wm
 {
-	LRESULT CALLBACK EventReader::WndProc(HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam)
-	{
-		SetLastError(0);
-		wm::Window *ptr =
-			reinterpret_cast<wm::Window*>(
-				GetWindowLongPtr(hwnd, 0));
-		if(!ptr)
-		{
-			DWORD err = GetLastError();
-			if(err)
-				throw wm::Exception("Can't get win32 window user data" +
-					wm::win32::getErrorMsg(err));
-			return DefWindowProc(hwnd, message, wparam, lparam);
-		}
+    LRESULT CALLBACK EventReader::WndProc(HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam)
+    {
+        SetLastError(0);
+        wm::Window *ptr =
+            reinterpret_cast<wm::Window*>(
+                GetWindowLongPtr(hwnd, 0));
+        if(!ptr)
+        {
+            DWORD err = GetLastError();
+            if(err)
+                throw wm::Exception("Can't get win32 window user data" +
+                    wm::win32::getErrorMsg(err));
+            return DefWindowProc(hwnd, message, wparam, lparam);
+        }
 
-		wm::Window& window = *ptr;
-		EventReader& reader = window.impl->eventreader;
-		
-		LRESULT result;
-		if(reader.handleEvent(window, hwnd, message, wparam, lparam, result))
-			return result;
+        wm::Window& window = *ptr;
+        EventReader& reader = window.impl->eventreader;
 
-		const wm::Event *event = wm::win32::fromWin32Event(window, message, wparam, lparam);
-		if(event)
-		{
-			window.impl->eventq.push(event);
-			return TRUE;
-		}
+        return reader.handleEvent(window, hwnd, message, wparam, lparam);
 
-		return DefWindowProc(hwnd, message, wparam, lparam);
-	}
+/*      const wm::Event *event = fromWin32Event(window, message, wparam, lparam);
+        if(event)
+        {
+            // window.impl->eventq.push(event);
+            return TRUE;
+        }
 
-	bool EventReader::handleEvent(
-		Window& window,
-		HWND hwnd,
-		UINT message,
-		WPARAM wparam,
-		LPARAM lparam,
-		LRESULT &result)
-	{
-		typedef LRESULT (EventReader::*HandlerFunc)(Window&,HWND,UINT,WPARAM,LPARAM);
+         */
+    }
 
-		static const struct Registry
-		{
-			Registry()
-			{
-				map[WM_ENTERSIZEMOVE] = &EventReader::handleEnterSizeMove;
-				map[WM_EXITSIZEMOVE] = &EventReader::handleExitSizeMove;
-				map[WM_SIZE] = &EventReader::handleSize;
-				map[WM_PAINT] = &EventReader::handlePaint;
-				map[WM_ERASEBKGND] = &EventReader::handleEraseBkgnd;
-				map[WM_KEYDOWN] = &EventReader::handleKey;
-				map[WM_KEYUP] = &EventReader::handleKey;
-				map[WM_SYSKEYDOWN] = &EventReader::handleKey;
-				map[WM_SYSKEYUP] = &EventReader::handleKey;
-				map[WM_MOUSEMOVE] = &EventReader::handleMotion;
-				map[WM_MOUSELEAVE] = &EventReader::handleLeave;
-				map[WM_GETMINMAXINFO] = &EventReader::handleGetMinMaxInfo;
-			}
+    LRESULT EventReader::handleEvent(
+        Window& window,
+        HWND hwnd,
+        UINT message,
+        WPARAM wparam,
+        LPARAM lparam)
+    {
+        switch(message)
+        {
+            case WM_ENTERSIZEMOVE: return handleEnterSizeMove(window, hwnd, message, wparam, lparam);
+            case WM_EXITSIZEMOVE: return handleExitSizeMove(window, hwnd, message, wparam, lparam);
+            case WM_SIZE: return handleSize(window, hwnd, message, wparam, lparam);
+            case WM_PAINT: return handlePaint(window, hwnd, message, wparam, lparam);
+            case WM_ERASEBKGND: return handleEraseBkgnd(window, hwnd, message, wparam, lparam);
+            case WM_KEYDOWN: return handleKey(window, hwnd, message, wparam, lparam);
+            case WM_KEYUP: return handleKey(window, hwnd, message, wparam, lparam);
+            case WM_SYSKEYDOWN: return handleKey(window, hwnd, message, wparam, lparam);
+            case WM_SYSKEYUP: return handleKey(window, hwnd, message, wparam, lparam);
+            case WM_MOUSEMOVE: return handleMotion(window, hwnd, message, wparam, lparam);
+            case WM_MOUSELEAVE: return handleLeave(window, hwnd, message, wparam, lparam);
+            case WM_GETMINMAXINFO: return handleGetMinMaxInfo(window, hwnd, message, wparam, lparam);
+            default:
+                Event event;
+                if(!fromWin32Event(window, message, wparam, lparam, event))
+                    return DefWindowProc(hwnd, message, wparam, lparam);
 
-			typedef std::map<UINT, HandlerFunc> map_t;
-			map_t map;
-		} registry;
+                window.impl->event_queue->push(event);
+                return TRUE;
+        }
+    }
 
-		Registry::map_t::const_iterator iter = registry.map.find(message);
-		if(iter == registry.map.end()) return false;
+    LRESULT EventReader::handleEnterSizeMove(Window& window, HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam)
+    {
+        sizemove = true;
+        resizing = false;
+        dirty = false;
+        return TRUE;
+    }
 
-		HandlerFunc handler = iter->second;
-		result = (this->*handler)(window, hwnd, message, wparam, lparam);
-		return true;
-	}
+    LRESULT EventReader::handleExitSizeMove(Window& window, HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam)
+    {
+        if(resizing)
+        {
+            // propagate ResizeEvent
+            /*
+            window.impl->eventq.push(
+                new wm::ResizeEvent(
+                    window,
+                    width,
+                    height
+                    ));
+                    */
+        }
 
-	LRESULT EventReader::handleEnterSizeMove(Window& window, HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam)
-	{
-		sizemove = true;
-		resizing = false;
-		dirty = false;
-		return TRUE;
-	}
+        if(dirty)
+        {
+            // propagate ExposeEvent
+            /*
+            window.impl->eventq.push(
+                new wm::ExposeEvent(
+                    window,
+                    0,
+                    0,
+                    width,
+                    height
+                    ));
+                    */
+        }
 
-	LRESULT EventReader::handleExitSizeMove(Window& window, HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam)
-	{
-		if(resizing)
-		{
-			// propagate ResizeEvent
-			window.impl->eventq.push(
-				new wm::ResizeEvent(
-					window, 
-					width,
-					height
-					));
-		}
+        sizemove = false;
 
-		if(dirty)
-		{
-			// propagate ExposeEvent
-			window.impl->eventq.push(
-				new wm::ExposeEvent(
-					window,
-					0,
-					0,
-					width,
-					height
-					));
-		}
+        return TRUE;
+    }
 
-		sizemove = false;
+    LRESULT EventReader::handleSize(Window& window, HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam)
+    {
+        unsigned int w = LOWORD(lparam),
+                    h = HIWORD(lparam);
 
-		return TRUE;
-	}
+        width = w;
+        height = h;
 
-	LRESULT EventReader::handleSize(Window& window, HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam)
-	{
-		unsigned int w = LOWORD(lparam),
-					h = HIWORD(lparam);
+        if(sizemove) resizing = true;
+        else
+        {
+            /*
+            window.impl->eventq.push(
+                new ResizeEvent(
+                    window,
+                    w,
+                    h));
+                    */
+        }
 
-		width = w;
-		height = h;
+        return 0; // should return 0 if WM_SIZE processed
+    }
 
-		if(sizemove) resizing = true;
-		else
-		{
-			window.impl->eventq.push(
-				new ResizeEvent(
-					window,
-					w,
-					h));
-		}
+    LRESULT EventReader::handlePaint(Window& window, HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam)
+    {
+        // ValidateRect prevents Windows from resending WM_PAINT
+        RECT rect, *ptr = 0;
+        if(GetUpdateRect(hwnd, &rect, FALSE))
+        {
+            if(!ValidateRect(hwnd, &rect)) // if ptr == NULL, validates entire window
+                throw wm::Exception("Can't validate win32 window rectangle" + wm::win32::getErrorMsg());
 
-		return 0; // should return 0 if WM_SIZE processed
-	}
+            ptr = &rect;
+        } else
+        {
+            DWORD err = GetLastError();
+            if(err)
+                throw wm::Exception("Can't get dirty rectangle, GetUpdateRect failed: " + win32::getErrorMsg(err));
+        }
 
-	LRESULT EventReader::handlePaint(Window& window, HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam)
-	{
-		// ValidateRect prevents Windows from resending WM_PAINT
-		RECT rect, *ptr = 0;
-		if(GetUpdateRect(hwnd, &rect, FALSE))
-		{
-			if(!ValidateRect(hwnd, &rect)) // if ptr == NULL, validates entire window
-				throw wm::Exception("Can't validate win32 window rectangle" + wm::win32::getErrorMsg());
+        if(sizemove)
+        {
+            dirty = true;
+        } else
+        {
+            // propagate ExposeEvent
+            /*
+            window.impl->eventq.push(
+                new ExposeEvent(
+                    window,
+                    ptr ? rect.left : 0,
+                    ptr ? rect.top : 0,
+                    ptr ? (rect.right - rect.left) : width,
+                    ptr ? (rect.bottom - rect.top) : height
+                    ));
+                    */
+        }
 
-			ptr = &rect;
-		} else
-		{
-			DWORD err = GetLastError();
-			if(err)
-				throw wm::Exception("Can't get dirty rectangle, GetUpdateRect failed: " + win32::getErrorMsg(err));
-		}
+        return DefWindowProc(hwnd, message, wparam, lparam); // should return 0 if WM_PAINT processed
+    }
 
-		if(sizemove)
-		{
-			dirty = true;
-		} else
-		{
-			// propagate ExposeEvent
-			window.impl->eventq.push(
-				new ExposeEvent(
-					window,
-					ptr ? rect.left : 0,
-					ptr ? rect.top : 0,
-					ptr ? (rect.right - rect.left) : width,
-					ptr ? (rect.bottom - rect.top) : height
-					));
-		}
+    LRESULT EventReader::handleEraseBkgnd(Window& window, HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam)
+    {
+        if(sizemove) dirty = true;
 
-		return DefWindowProc(hwnd, message, wparam, lparam); // should return 0 if WM_PAINT processed
-	}
+        return TRUE;
+    }
 
-	LRESULT EventReader::handleEraseBkgnd(Window& window, HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam)
-	{
-		if(sizemove) dirty = true;
+    LRESULT EventReader::handleKey(Window& window, HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam)
+    {
+        bool filter;
 
-		return TRUE;
-	}
+        wm::keyboard::Symbol translated =
+            win32::translateKeyEvent(hwnd, message, wparam, lparam, filter);
 
-	LRESULT EventReader::handleKey(Window& window, HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam)
-	{
-		bool filter;
+        if(!filter)
+        {
+            bool state = (message == WM_KEYDOWN || message == WM_SYSKEYDOWN);
+            bool repeat = state && ((HIWORD(lparam) & KF_REPEAT) ? true : false);
 
-		wm::keyboard::Symbol translated =
-			win32::translateKeyEvent(hwnd, message, wparam, lparam, filter);
+            /*
+            window.impl->eventq.push(new KeyEvent(
+                window,
+                translated,
+                win32::getKeyModState(),
+                state,
+                repeat));
+                */
+        }
 
-		if(!filter)
-		{
-			bool state = (message == WM_KEYDOWN || message == WM_SYSKEYDOWN);
-			bool repeat = state && ((HIWORD(lparam) & KF_REPEAT) ? true : false);
-
-			window.impl->eventq.push(new KeyEvent(
-				window,
-				translated,
-				win32::getKeyModState(),
-				state,
-				repeat));
-		}
-
-		return 0;
-	}
+        return 0;
+    }
 
 #undef MOD_SHIFT
 #undef MOD_CONTROL
 
-	LRESULT EventReader::handleMotion(Window& window, HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam)
-	{
-		// TODO: synchronize this!
-		// the critical section is between EventReader mouse stuff
-		// and Window::impl_t::cursorVisible in Window::showCursor()
-		if(!window.impl->cursorVisible)
-		{
-			if(!mouseinside || mousehidden)
-			{
-				ShowCursor(false);
-				mousehidden = false; // a bit counterintuitive
-			}
-		}
+    LRESULT EventReader::handleMotion(Window& window, HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam)
+    {
+        // TODO: synchronize this!
+        // the critical section is between EventReader mouse stuff
+        // and Window::impl_t::cursorVisible in Window::showCursor()
+        if(!window.impl->cursorVisible)
+        {
+            if(!mouseinside || mousehidden)
+            {
+                ShowCursor(false);
+                mousehidden = false; // a bit counterintuitive
+            }
+        }
 
-		unsigned int x = LOWORD(lparam);
-		unsigned int y = HIWORD(lparam);
+        unsigned int x = LOWORD(lparam);
+        unsigned int y = HIWORD(lparam);
 
-		if(!mouseinside)
-		{
-			if(!mouseinitialized)
-			{
-				mouseinitialized = true;
+        if(!mouseinside)
+        {
+            if(!mouseinitialized)
+            {
+                mouseinitialized = true;
 
-			} else
-			{
-				TRACKMOUSEEVENT tme;
-				tme.cbSize = sizeof(TRACKMOUSEEVENT);
-				tme.dwFlags = TME_LEAVE;
-				tme.hwndTrack = hwnd;
+            } else
+            {
+                TRACKMOUSEEVENT tme;
+                tme.cbSize = sizeof(TRACKMOUSEEVENT);
+                tme.dwFlags = TME_LEAVE;
+                tme.hwndTrack = hwnd;
 
-				if(!TrackMouseEvent(&tme))
-					throw wm::Exception("Can't track mouse event: " + win32::getErrorMsg());
-			}
-			
-			mouseinside = true;
-			window.impl->eventq.push(new MouseOverEvent(window, x, y, true));
-		}
+                if(!TrackMouseEvent(&tme))
+                    throw wm::Exception("Can't track mouse event: " + win32::getErrorMsg());
+            }
 
-		wm::keyboard::KeyMod keymod = wm::win32::mapKeyMod(wparam)
-			| (wm::win32::getKeyModState() &
-				~(wm::keyboard::MOD_SHIFT | wm::keyboard::MOD_CONTROL));
+            mouseinside = true;
+            // window.impl->eventq.push(new MouseOverEvent(window, x, y, true));
+        }
 
-		window.impl->eventq.push(new wm::MotionEvent(window, x, y, wm::win32::mapButtons(wparam), keymod));
-		return 0;
-	}
+        wm::keyboard::KeyMod keymod = wm::win32::mapKeyMod(wparam)
+            | (wm::win32::getKeyModState() &
+                ~(wm::keyboard::MOD_SHIFT | wm::keyboard::MOD_CONTROL));
 
-	LRESULT EventReader::handleLeave(Window& window, HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam)
-	{
-		// TODO: synchronize this!
-		// the critical section is between EventReader mouse stuff
-		// and Window::impl_t::cursorVisible in Window::showCursor()
-		if(!window.impl->cursorVisible && !mousehidden && mouseinitialized)
-		{
-			ShowCursor(true);
-			mousehidden = true;
-		}
+        // window.impl->eventq.push(new wm::MotionEvent(window, x, y, wm::win32::mapButtons(wparam), keymod));
+        return 0;
+    }
 
-		mouseinside = false;
+    LRESULT EventReader::handleLeave(Window& window, HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam)
+    {
+        // TODO: synchronize this!
+        // the critical section is between EventReader mouse stuff
+        // and Window::impl_t::cursorVisible in Window::showCursor()
+        if(!window.impl->cursorVisible && !mousehidden && mouseinitialized)
+        {
+            ShowCursor(true);
+            mousehidden = true;
+        }
 
-		if(!mouseinitialized)
-		{
-			mouseinitialized = true;
-		} else
-		{
-			window.impl->eventq.push(
-				new MouseOverEvent(window, 0, 0, false));
-		}
+        mouseinside = false;
 
-		return 0;
-	}
+        if(!mouseinitialized)
+        {
+            mouseinitialized = true;
+        } else
+        {
+            /*
+            window.impl->eventq.push(
+                new MouseOverEvent(window, 0, 0, false));
+                */
+        }
 
-	LRESULT EventReader::handleGetMinMaxInfo(Window& window, HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam)
-	{
-		MINMAXINFO *ptr = reinterpret_cast<MINMAXINFO*>(lparam);
+        return 0;
+    }
 
-		// TODO: synchronize this!
-		// this read should be atomic
-		unsigned int bounds[][2] = { { window.impl->minW, window.impl->minH }, { window.impl->maxW, window.impl->maxH } };
+    LRESULT EventReader::handleGetMinMaxInfo(Window& window, HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam)
+    {
+        MINMAXINFO *ptr = reinterpret_cast<MINMAXINFO*>(lparam);
 
-		LONG style = GetWindowLong(hwnd, GWL_STYLE);
-		if(!style)
-			throw wm::Exception("Can't reply to WM_GETMINMAXINFO, can't get window style: " + win32::getErrorMsg());
+        // TODO: synchronize this!
+        // this read should be atomic
+        unsigned int bounds[][2] = { { window.impl->minW, window.impl->minH }, { window.impl->maxW, window.impl->maxH } };
 
-		LONG exstyle = GetWindowLong(hwnd, GWL_EXSTYLE);
-		if(!exstyle)
-			throw wm::Exception("Can't reply to WM_GETMINMAXINFO, can't get extended window style: " + win32::getErrorMsg());
+        LONG style = GetWindowLong(hwnd, GWL_STYLE);
+        if(!style)
+            throw wm::Exception("Can't reply to WM_GETMINMAXINFO, can't get window style: " + win32::getErrorMsg());
 
-		for(int i = 0; i < 2; ++i)
-		{
-			if(!bounds[i][0] || !bounds[i][1]) continue;
+        LONG exstyle = GetWindowLong(hwnd, GWL_EXSTYLE);
+        if(!exstyle)
+            throw wm::Exception("Can't reply to WM_GETMINMAXINFO, can't get extended window style: " + win32::getErrorMsg());
 
-			RECT rect;
-			if(!SetRect(&rect, 0, 0, bounds[i][0], bounds[i][1]))
-				throw wm::Exception("Can't set fullscreen, SetRect failed: " + win32::getErrorMsg());
+        for(int i = 0; i < 2; ++i)
+        {
+            if(!bounds[i][0] || !bounds[i][1]) continue;
 
-			if(!AdjustWindowRectEx(&rect, style, false, exstyle))
-				throw wm::Exception("Can't set fullscreen, AdjustWindowRectEx failed: " + win32::getErrorMsg());
+            RECT rect;
+            if(!SetRect(&rect, 0, 0, bounds[i][0], bounds[i][1]))
+                throw wm::Exception("Can't set fullscreen, SetRect failed: " + win32::getErrorMsg());
 
-			bounds[i][0] = rect.right - rect.left;
-			bounds[i][1] = rect.bottom - rect.top;
-		}
+            if(!AdjustWindowRectEx(&rect, style, false, exstyle))
+                throw wm::Exception("Can't set fullscreen, AdjustWindowRectEx failed: " + win32::getErrorMsg());
 
-		unsigned int minW = bounds[0][0], minH = bounds[0][1], maxW = bounds[1][0], maxH = bounds[1][1];
+            bounds[i][0] = rect.right - rect.left;
+            bounds[i][1] = rect.bottom - rect.top;
+        }
 
-		LRESULT result = 0;
+        unsigned int minW = bounds[0][0], minH = bounds[0][1], maxW = bounds[1][0], maxH = bounds[1][1];
 
-		if(minW != 0 && minH != 0)
-		{
-			ptr->ptMinTrackSize.x = minW;
-			ptr->ptMinTrackSize.y = minH;
-			result = TRUE;
-		}
+        LRESULT result = 0;
 
-		if(maxW != 0 && maxH != 0)
-		{
-			ptr->ptMaxSize.x = ptr->ptMaxTrackSize.x = maxW;
-			ptr->ptMaxSize.y = ptr->ptMaxTrackSize.y = maxH;
-			result = TRUE;
-		}
+        if(minW != 0 && minH != 0)
+        {
+            ptr->ptMinTrackSize.x = minW;
+            ptr->ptMinTrackSize.y = minH;
+            result = TRUE;
+        }
 
-		return result;
-	}
+        if(maxW != 0 && maxH != 0)
+        {
+            ptr->ptMaxSize.x = ptr->ptMaxTrackSize.x = maxW;
+            ptr->ptMaxSize.y = ptr->ptMaxTrackSize.y = maxH;
+            result = TRUE;
+        }
+
+        return result;
+    }
 
 }
