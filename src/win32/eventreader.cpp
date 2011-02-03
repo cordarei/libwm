@@ -1,3 +1,4 @@
+#include <cstdint>
 #include <map>
 
 #include <wm/exception.hpp>
@@ -16,6 +17,20 @@
 
 namespace
 {
+    uint32_t wparam2unicode(WPARAM wparam)
+    {
+        uint16_t lo = wparam & 0xFFFF;
+        uint16_t hi = (wparam & 0xFFFF0000) >> 16;
+        uint32_t codepoint = 0;
+
+        // Convert from UTF-16 to Unicode codepoint
+        if(lo < 0xD8000 || lo > 0xDFFF) codepoint = lo;
+        else if(lo < 0xD800 || lo > 0xDBFF) throw wm::Exception("Win32 WM_CHAR message contains invalid UTF-16");
+        else if(hi < 0xDC00 || hi > 0xDFFF) throw wm::Exception("Win32 WM_CHAR message contains invalid UTF-16");
+        else codepoint = ((lo & 0x3FF) << 10) | (hi & 0x3FF) + 0x10000;
+
+        return codepoint;
+    }
 
     bool fromWin32Event(
             wm::Window& window,
@@ -27,7 +42,10 @@ namespace
         switch(message)
         {
             case WM_CHAR:
-                return false;
+                event.text.type = wm::TEXT_INPUT;
+                event.text.window = &window;
+                event.text.unicode = wparam2unicode(wparam);
+                return true;
 
             case WM_LBUTTONDOWN:
             case WM_LBUTTONUP:
@@ -53,10 +71,14 @@ namespace
 
             case WM_SETFOCUS:
             case WM_KILLFOCUS:
-                return false;
+                event.focus.type = (message == WM_SETFOCUS) ? wm::FOCUS_GOT : wm::FOCUS_LOST;
+                event.focus.window = &window;
+                return true;
 
             case WM_CLOSE:
-                return false;
+                event.close.type = wm::CLOSE;
+                event.close.window = &window;
+                return true;
 
             default:
                 return false;
@@ -86,15 +108,6 @@ namespace wm
         EventReader& reader = window.impl->eventreader;
 
         return reader.handleEvent(window, hwnd, message, wparam, lparam);
-
-/*      const wm::Event *event = fromWin32Event(window, message, wparam, lparam);
-        if(event)
-        {
-            // window.impl->eventq.push(event);
-            return TRUE;
-        }
-
-         */
     }
 
     LRESULT EventReader::handleEvent(
@@ -263,9 +276,6 @@ namespace wm
 
         return 0;
     }
-
-#undef MOD_SHIFT
-#undef MOD_CONTROL
 
     LRESULT EventReader::handleMotion(Window& window, HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam)
     {
