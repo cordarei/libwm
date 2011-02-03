@@ -124,9 +124,9 @@ namespace wm
             case WM_SIZE: return handleSize(window, hwnd, message, wparam, lparam);
             case WM_PAINT: return handlePaint(window, hwnd, message, wparam, lparam);
             case WM_ERASEBKGND: return handleEraseBkgnd(window, hwnd, message, wparam, lparam);
-            case WM_KEYDOWN: return handleKey(window, hwnd, message, wparam, lparam);
-            case WM_KEYUP: return handleKey(window, hwnd, message, wparam, lparam);
-            case WM_SYSKEYDOWN: return handleKey(window, hwnd, message, wparam, lparam);
+            case WM_KEYDOWN:
+            case WM_KEYUP:
+            case WM_SYSKEYDOWN:
             case WM_SYSKEYUP: return handleKey(window, hwnd, message, wparam, lparam);
             case WM_MOUSEMOVE: return handleMotion(window, hwnd, message, wparam, lparam);
             case WM_MOUSELEAVE: return handleLeave(window, hwnd, message, wparam, lparam);
@@ -154,29 +154,25 @@ namespace wm
         if(resizing)
         {
             // propagate ResizeEvent
-            /*
-            window.impl->eventq.push(
-                new wm::ResizeEvent(
-                    window,
-                    width,
-                    height
-                    ));
-                    */
+            Event event;
+            event.resize.type = wm::RESIZE;
+            event.resize.window = &window;
+            event.resize.width = width;
+            event.resize.height = height;
+            window.impl->event_queue->push(event);
         }
 
         if(dirty)
         {
             // propagate ExposeEvent
-            /*
-            window.impl->eventq.push(
-                new wm::ExposeEvent(
-                    window,
-                    0,
-                    0,
-                    width,
-                    height
-                    ));
-                    */
+            Event event;
+            event.expose.type = wm::EXPOSE;
+            event.expose.window = &window;
+            event.expose.x = 0;
+            event.expose.y = 0;
+            event.expose.width = width;
+            event.expose.height = height;
+            window.impl->event_queue->push(event);
         }
 
         sizemove = false;
@@ -195,13 +191,13 @@ namespace wm
         if(sizemove) resizing = true;
         else
         {
-            /*
-            window.impl->eventq.push(
-                new ResizeEvent(
-                    window,
-                    w,
-                    h));
-                    */
+            // propagate ResizeEvent
+            Event event;
+            event.resize.type = wm::RESIZE;
+            event.resize.window = &window;
+            event.resize.width = w;
+            event.resize.height = h;
+            window.impl->event_queue->push(event);
         }
 
         return 0; // should return 0 if WM_SIZE processed
@@ -230,16 +226,14 @@ namespace wm
         } else
         {
             // propagate ExposeEvent
-            /*
-            window.impl->eventq.push(
-                new ExposeEvent(
-                    window,
-                    ptr ? rect.left : 0,
-                    ptr ? rect.top : 0,
-                    ptr ? (rect.right - rect.left) : width,
-                    ptr ? (rect.bottom - rect.top) : height
-                    ));
-                    */
+            Event event;
+            event.expose.type = wm::EXPOSE;
+            event.expose.window = &window;
+            event.expose.x = ptr ? rect.left : 0;
+            event.expose.y = ptr ? rect.top : 0;
+            event.expose.width = ptr ? (rect.right - rect.left) : width;
+            event.expose.height = ptr ? (rect.bottom - rect.top) : height;
+            window.impl->event_queue->push(event);
         }
 
         return DefWindowProc(hwnd, message, wparam, lparam); // should return 0 if WM_PAINT processed
@@ -264,14 +258,14 @@ namespace wm
             bool state = (message == WM_KEYDOWN || message == WM_SYSKEYDOWN);
             bool repeat = state && ((HIWORD(lparam) & KF_REPEAT) ? true : false);
 
-            /*
-            window.impl->eventq.push(new KeyEvent(
-                window,
-                translated,
-                win32::getKeyModState(),
-                state,
-                repeat));
-                */
+            Event event;
+            event.key.type = state ? wm::KEY_DOWN : wm::KEY_UP;
+            event.key.window = &window;
+            event.key.symbol = translated;
+            event.key.keymod = win32::getKeyModState();
+            event.key.repeat = repeat;
+
+            window.impl->event_queue->push(event);
         }
 
         return 0;
@@ -312,14 +306,28 @@ namespace wm
             }
 
             mouseinside = true;
-            // window.impl->eventq.push(new MouseOverEvent(window, x, y, true));
+
+            // Propagate MouseOver event
+            Event event;
+            event.mouseover.type = wm::MOUSE_ENTER;
+            event.mouseover.window = &window;
+            event.mouseover.x = x;
+            event.mouseover.y = y;
+            window.impl->event_queue->push(event);
         }
 
         wm::keyboard::KeyMod keymod = wm::win32::mapKeyMod(wparam)
             | (wm::win32::getKeyModState() &
                 ~(wm::keyboard::MOD_SHIFT | wm::keyboard::MOD_CONTROL));
 
-        // window.impl->eventq.push(new wm::MotionEvent(window, x, y, wm::win32::mapButtons(wparam), keymod));
+        Event event;
+        event.motion.type = wm::MOTION;
+        event.motion.window = &window;
+        event.motion.x = x;
+        event.motion.y = y;
+        event.motion.buttons = wm::win32::mapButtons(wparam);
+        event.motion.keymod = keymod;
+        window.impl->event_queue->push(event);
         return 0;
     }
 
@@ -341,10 +349,13 @@ namespace wm
             mouseinitialized = true;
         } else
         {
-            /*
-            window.impl->eventq.push(
-                new MouseOverEvent(window, 0, 0, false));
-                */
+            // Propagate MouseOver event
+            Event event;
+            event.mouseover.type = wm::MOUSE_LEAVE;
+            event.mouseover.window = &window;
+            event.mouseover.x = 0;
+            event.mouseover.y = 0;
+            window.impl->event_queue->push(event);
         }
 
         return 0;

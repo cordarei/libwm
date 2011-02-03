@@ -2,6 +2,7 @@
 #define WM_OSTREAM_OUTPUT_HPP
 
 #include <iostream>
+#include <cctype>
 
 #include <wm/pixelformat.hpp>
 #include <wm/configuration.hpp>
@@ -56,6 +57,8 @@ namespace wm
 	*/
 	std::ostream& operator<<(std::ostream& os, const Event& event)
     {
+        int (*isprint)(int) = &std::isprint; // use the C isprint, not the C++ one with locales
+
         switch(event.type)
         {
             case NO_EVENT:
@@ -64,7 +67,7 @@ namespace wm
             case KEY_UP:
                 os << ((event.type == KEY_UP) ? "KEY_UP" : "KEY_DOWN")
                     << "  window: " << event.any.window
-                    << "  keycode: " << event.key.keycode
+                    << "  symbol: " << keyboard::keyName(event.key.symbol)
                     << "  keymod: ";
                 util::printKeyMod(os, event.key.keymod);
                 os << "  repeat: " << event.key.repeat;
@@ -85,7 +88,8 @@ namespace wm
                 os << "TEXT_INPUT"
                     << "  window: " << event.any.window
                     << "  unicode: " << event.text.unicode;
-                if(event.text.unicode < 128) os << "  character: "<< char(event.text.unicode);
+                if(event.text.unicode < 128 && isprint(event.text.unicode))
+                    os << "  character: "<< char(event.text.unicode);
                 return os;
             case EXPOSE:
                 return os << "EXPOSE"
@@ -95,7 +99,15 @@ namespace wm
                     << "  width: " << event.expose.width
                     << "  height: " << event.expose.height;
             case MOTION:
-                return os << "MOTION";
+                os << "MOTION"
+                    << "  window: " << event.any.window
+                    << "  x: " << event.motion.x
+                    << "  y: " << event.motion.y
+                    << "  buttons: ";
+                util::printButtonMask(os, event.motion.buttons);
+                os << "  keymod: ";
+                util::printKeyMod(os, event.motion.keymod);
+                return os;
             case MOUSE_ENTER:
             case MOUSE_LEAVE:
                 return os << ((event.type == MOUSE_ENTER) ? "MOUSE_ENTER" : "MOUSE_LEAVE")

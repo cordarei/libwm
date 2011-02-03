@@ -30,8 +30,6 @@ namespace wm
         HIDE
     };
 
-    typedef uint32_t KeyCode;
-
     struct AnyEvent
     {
         EventType type;
@@ -43,7 +41,7 @@ namespace wm
     {
         EventType type;
         Window *window;
-        KeyCode keycode; // native
+        keyboard::Symbol symbol;
         keyboard::KeyMod keymod;
         bool repeat;
     };
