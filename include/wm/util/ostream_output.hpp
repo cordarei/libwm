@@ -82,9 +82,11 @@ namespace wm
                 util::printKeyMod(os, event.button.keymod);
                 return os;
             case TEXT_INPUT:
-                return os << "TEXT_INPUT"
+                os << "TEXT_INPUT"
                     << "  window: " << event.any.window
                     << "  unicode: " << event.text.unicode;
+                if(event.text.unicode < 128) os << "  character: "<< char(event.text.unicode);
+                return os;
             case EXPOSE:
                 return os << "EXPOSE"
                     << "  window: " << event.any.window
