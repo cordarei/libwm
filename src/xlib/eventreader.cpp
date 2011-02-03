@@ -120,27 +120,30 @@ namespace wm
 		if(static_cast<Atom>(event.xclient.data.l[0]) ==
 			ewmh.wm_delete_window)
 		{
-			// window.impl->eventq.push(new wm::CloseEvent(window));
+            Event event;
+            event.close.type = wm::CLOSE;
+            event.close.window = &window;
+            window.impl->event_queue->push(event);
 		}
 	}
 
-	void EventReader::handleKeyEvent(wm::Window& window, const XEvent &event)
+	void EventReader::handleKeyEvent(wm::Window& window, const XEvent &xevent)
 	{
-		bool filter = XFilterEvent(const_cast<XEvent*>(&event), None);
+		bool filter = XFilterEvent(const_cast<XEvent*>(&xevent), None);
 
 		::Display *xdisplay = window.display().impl->display;
 		const int keycode_index = 0; // Ignore modmask for keysym
 		KeySym keysym = XKeycodeToKeysym(
 			xdisplay,
-			event.xkey.keycode,
+			xevent.xkey.keycode,
 			keycode_index);
 
 		bool repeat = false;
 
-		if(event.type == KeyPress)
-			repeat = (event.xkey.serial == keyrepeat_serial);
+		if(xevent.type == KeyPress)
+			repeat = (xevent.xkey.serial == keyrepeat_serial);
 
-		if(event.type == KeyPress && !filter)
+		if(xevent.type == KeyPress && !filter)
 		{
 			const size_t buffer_size = 6;
 			char buffer[buffer_size] = { 0, 0, 0, 0, 0, 0 };
@@ -151,7 +154,7 @@ namespace wm
 			// Xutf8LookupString always returns UTF-8 and we always want unicode, so use it
 			int len = Xutf8LookupString(
 				window.impl->xic,
-				const_cast<XKeyEvent*>(&event.xkey), // Xlib is not const correct
+				const_cast<XKeyEvent*>(&xevent.xkey), // Xlib is not const correct
 				buffer,
 				buffer_size-1,
 				0,  // pointer to keysym, NULL for no keysym lookup
@@ -166,29 +169,30 @@ namespace wm
 			{
 				// X input method (XIM) tells us that characters have been written
 				// First, propagate KeyEvent to event queue
-                /*
-				window.impl->eventq.push(
-					new KeyEvent(
-						window,
-						xlib::mapXKeySym(keysym),
-						xlib::mapKeyMod(event.xkey.state),
-						true,
-						repeat));
+                {
+                    Event event;
+                    event.key.type = wm::KEY_DOWN;
+                    event.key.window = &window;
+                    event.key.symbol = xlib::mapXKeySym(keysym);
+                    event.key.keymod = xlib::mapKeyMod(xevent.xkey.state);
+                    event.key.repeat = repeat;
+                    window.impl->event_queue->push(event);
+                }
 
 				// Then propagate CharacterEvent
-				window.impl->eventq.push(
-					new wm::CharacterEvent(
-						window,
-						wm::util::decode_utf8(
-							reinterpret_cast<const unsigned char*>(buffer),
-							len
-						)));
-                        */
+                {
+                    Event event;
+                    event.text.type = wm::TEXT_INPUT;
+                    event.text.window = &window;
+                    event.text.unicode = wm::util::decode_utf8(reinterpret_cast<const unsigned char*>(buffer), len);
+                    window.impl->event_queue->push(event);
+                }
+
 				return;
 			}
 		}
 
-		if(event.type == KeyRelease)
+		if(xevent.type == KeyRelease)
 		{
 			struct Predicate
 			{
@@ -197,54 +201,52 @@ namespace wm
 				::Window window;
 				unsigned long serial;
 
-				static Bool func(::Display *, XEvent *event, XPointer arg)
+				static Bool func(::Display *, XEvent *xevent, XPointer arg)
 				{
 					const Predicate &pred = *reinterpret_cast<const Predicate*>(arg);
 
-					return event->type == KeyPress &&
-						event->xkey.window == pred.window &&
-						event->xkey.serial == pred.serial;
+					return xevent->type == KeyPress &&
+						xevent->xkey.window == pred.window &&
+						xevent->xkey.serial == pred.serial;
 				}
-			} predicate(event.xkey.window, event.xkey.serial);
+			} predicate(xevent.xkey.window, xevent.xkey.serial);
 
 			XEvent pressevent;
 			if(XCheckIfEvent(xdisplay, &pressevent, &Predicate::func, reinterpret_cast<XPointer>(&predicate)))
 			{
 				XPutBackEvent(xdisplay, &pressevent);
 
-				keyrepeat_serial = event.xkey.serial;
+				keyrepeat_serial = xevent.xkey.serial;
 				repeat = true;
 			}
 		}
 
-        /*
-		window.impl->eventq.push(
-			new wm::KeyEvent(
-				window,
-				xlib::mapXKeySym(keysym),
-				xlib::mapKeyMod(event.xkey.state),
-				event.type == KeyPress,
-				repeat));
-                */
+        {
+            Event event;
+            event.key.type = (xevent.type == KeyPress) ? wm::KEY_DOWN : wm::KEY_UP;
+            event.key.window = &window;
+            event.key.symbol = xlib::mapXKeySym(keysym);
+            event.key.keymod = xlib::mapKeyMod(xevent.xkey.state);
+            event.key.repeat = repeat;
+            window.impl->event_queue->push(event);
+        }
 	}
 
-	void EventReader::handleConfigureNotify(wm::Window& window, const XEvent &event)
+	void EventReader::handleConfigureNotify(wm::Window& window, const XEvent &xevent)
 	{
-		if(unsigned(event.xconfigure.width) == width &&
-			unsigned(event.xconfigure.height) == height)
+		if(unsigned(xevent.xconfigure.width) == width &&
+			unsigned(xevent.xconfigure.height) == height)
 			return;
 
-		width = event.xconfigure.width;
-		height = event.xconfigure.height;
+		width = xevent.xconfigure.width;
+		height = xevent.xconfigure.height;
 
-        /*
-		window.impl->eventq.push(
-			new wm::ResizeEvent(
-				window,
-				event.xconfigure.width,
-				event.xconfigure.height
-				));
-                */
+        Event event;
+        event.resize.type = wm::RESIZE;
+        event.resize.window = &window;
+        event.resize.width = width;
+        event.resize.height = height;
+        window.impl->event_queue->push(event);
 	}
 }
 
