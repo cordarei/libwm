@@ -4,6 +4,9 @@
 #include <cstdint>
 #include <queue>
 
+#include <wm/keyboard.hpp>
+#include <wm/mouse.hpp>
+
 namespace wm
 {
     class Window;
@@ -28,10 +31,6 @@ namespace wm
     };
 
     typedef uint32_t KeyCode;
-    typedef uint32_t KeyMod;
-
-    typedef uint32_t Button;
-    typedef uint32_t ButtonMask;
 
     struct AnyEvent
     {
@@ -39,13 +38,13 @@ namespace wm
         Window *window;
         uint32_t x, y, a, b, c;
     };
-    
+
     struct KeyEvent
     {
         EventType type;
         Window *window;
         KeyCode keycode; // native
-        KeyMod keymod;
+        keyboard::KeyMod keymod;
         bool repeat;
     };
 
@@ -54,12 +53,12 @@ namespace wm
         EventType type;
         Window *window;
         int x, y;
-        Button button;
-        ButtonMask buttons;
-        KeyMod keymod;
+        mouse::Button button;
+        mouse::ButtonMask buttons;
+        keyboard::KeyMod keymod;
     };
 
-    struct CharacterEvent
+    struct TextEvent
     {
         EventType type;
         Window *window;
@@ -79,8 +78,8 @@ namespace wm
         EventType type;
         Window *window;
         int x, y;
-        ButtonMask buttons;
-        KeyMod keymod;
+        mouse::ButtonMask buttons;
+        keyboard::KeyMod keymod;
     };
 
     struct MouseOverEvent
@@ -107,7 +106,7 @@ namespace wm
         AnyEvent any;
         KeyEvent key;
         ButtonEvent button;
-        CharacterEvent character;
+        TextEvent text;
         CloseEvent close;
         ExposeEvent expose;
         FocusEvent focus;
@@ -141,7 +140,7 @@ namespace wm
             queue.pop();
             return event;
         }
-        
+
     protected:
         virtual void push(const Event& event)
         {
@@ -162,7 +161,7 @@ namespace wm
         // bool wait_for(Event& event, timeout);
         // bool wait_until(Event& event, timeout);
 
-    }; 
+    };
 #endif
 }
 

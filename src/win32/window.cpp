@@ -3,8 +3,6 @@
 
 #include <boost/scoped_array.hpp>
 
-#include <windows.h>
-
 #include <wm/exception.hpp>
 #include <wm/display.hpp>
 #include <wm/window.hpp>
@@ -14,6 +12,8 @@
 #include <win32/impl/error.hpp>
 #include <win32/impl/display_impl.hpp>
 #include <win32/impl/window_impl.hpp>
+
+#include <windows.h>
 
 namespace
 {
